@@ -5,7 +5,7 @@ const Nav = () => {
   return (
     <>
       <nav>
-      <div className="bg-white ">
+      <div className="bg-black ">
          <div className="flex justify-center space-x-9 font-semibold p-3 ">
          <NavLink
           to="/"
