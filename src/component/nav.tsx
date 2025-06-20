@@ -1,49 +1,89 @@
-
 import { NavLink } from "react-router-dom";
+import { useState } from "react";
+import { RxCross2 } from "react-icons/rx";
+import { IoMdMenu } from "react-icons/io";
+import { FaRegCircleUser } from "react-icons/fa6";
 
 const Nav = () => {
+  const [isOpen, setisOpen] = useState(false);
+
   return (
-    <>
-      <nav>
-      <div className="bg-black ">
-         <div className="flex justify-center space-x-9 font-semibold p-3 ">
-         <NavLink
+<>
+  {/* Floating Transparent Navbar */}
+  <nav className="fixed top-0 left-0 w-full z-50 bg-black/50 backdrop-blur-md shadow-md">
+    <div className="max-w-[1290px] mx-auto flex items-center justify-between text-white px-4 md:px-10 h-16">
+      {/* Logo */}
+      <NavLink to="/" className="font-main text-2xl font-black text-white">
+        vutungtung
+      </NavLink>
+
+      {/* Desktop Menu */}
+      <div className="hidden md:flex items-center gap-10 font-semibold">
+        <NavLink
           to="/"
-          className={({ isActive }) =>
-            isActive ? "text-blue-400" : " text-[#2563EB]"
-          }
+          className={({ isActive }) => (isActive ? "text-primary" : "")}
         >
           Home
         </NavLink>
-         <NavLink
+        <NavLink
           to="/about"
-          className={({ isActive }) =>
-            isActive ? "text-blue-400" : " text-[#2563EB]"
-          }
-        >
-          About Us
-        </NavLink>
-         <NavLink
-          to="/vehicle"
-          className={({ isActive }) =>
-            isActive ?"text-blue-400" : " text-[#2563EB]"
-          }
+          className={({ isActive }) => (isActive ? "text-primary" : "")}
         >
           Vehicle
         </NavLink>
-         <NavLink
-          to="/customersupport"
-          className={({ isActive }) =>
-            isActive ? "text-blue-400" : " text-[#2563EB]"
-          }
+        <NavLink
+          to="/booking"
+          className={({ isActive }) => (isActive ? "text-primary" : "")}
         >
-         CustomerSupport
+          Booking
         </NavLink>
-       </div>
       </div>
-   
-      </nav>
-    </>
+
+      {/* Desktop Buttons */}
+      <div className="hidden md:flex items-center gap-5">
+        <NavLink
+          to="/contact"
+          className={({ isActive }) => (isActive ? "text-primary" : "")}
+        >
+          Contact
+        </NavLink>
+        <NavLink to="">
+          <FaRegCircleUser size={30} />
+        </NavLink>
+      </div>
+
+      {/* Mobile Menu Button */}
+      <button
+        className="text-white block md:hidden"
+        onClick={() => setisOpen(!isOpen)}
+      >
+        {isOpen ? <RxCross2 size={24} /> : <IoMdMenu size={24} />}
+      </button>
+    </div>
+  </nav>
+
+  {/* Mobile Dropdown */}
+  {isOpen && (
+    <div className="md:hidden w-full bg-black/80 backdrop-blur-md text-white font-normal flex flex-col p-5 space-y-3 absolute top-16 left-0 z-40 shadow-lg">
+      <NavLink to="/" className={({ isActive }) => (isActive ? "text-primary" : "")}>
+        Home
+      </NavLink>
+      <NavLink to="/about" className={({ isActive }) => (isActive ? "text-primary" : "")}>
+        Vehicle
+      </NavLink>
+      <NavLink to="/booking" className={({ isActive }) => (isActive ? "text-primary" : "")}>
+        Booking
+      </NavLink>
+      <NavLink to="/contact" className={({ isActive }) => (isActive ? "text-primary" : "")}>
+        Contact
+      </NavLink>
+      <NavLink to="" className="bg-primary text-white py-2 px-4 rounded text-center">
+        Register
+      </NavLink>
+    </div>
+  )}
+</>
+
   );
 };
 export default Nav;

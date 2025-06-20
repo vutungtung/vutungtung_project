@@ -1,1 +1,11 @@
 @import "tailwindcss";
+
+@theme {
+  --color-primary: #3b2575;
+  --color-secondary: #8779d9;
+  --color-normal: #ffffff;
+  --font-main: "Michroma", sans-serif;
+  
+}
+
+
