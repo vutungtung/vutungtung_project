@@ -4,7 +4,7 @@ import WhyChooseUs from "../component/WhyChooseUs";
 const Home = () => {
   return (
     <>
-      <div>
+      <div className="bg-amber-50/30">
         <Hero />
         <WhyChooseUs/>
       </div>
