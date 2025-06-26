@@ -18,7 +18,7 @@ export default function WhyChooseUs() {
             ensuring safe and smooth driving.
           </p>
         </div>
-        <div className=" bg-[#98A1BC] rounded-xl p-5 shadow-2xl text-center flex flex-col justify-center items-center">
+        <div className=" bg-[#98A1BC]/30 rounded-xl p-5 shadow-2xl text-center flex flex-col justify-center items-center">
           <img src="/image/bookingvector.svg" alt="booking-vector-img" />
           <h2 className="text-2xl mb-3 font-semibold ">Easy online booking</h2>
           <p className="text-gray-700 font-normal">
@@ -26,7 +26,7 @@ export default function WhyChooseUs() {
             platform. Fast, simple, and convenient!
           </p>
         </div>
-        <div className=" bg-[#98A1BC] rounded-xl p-5 shadow-2xl text-center flex flex-col justify-center items-center">
+        <div className=" bg-[#98A1BC]/30 rounded-xl p-5 shadow-2xl text-center flex flex-col justify-center items-center">
           <img src="/image/pricingvector.svg" alt="pricing-vector-img" />
           <h2 className="text-2xl mb-3 font-semibold ">Affordable pricing</h2>
           <p className="text-gray-700 font-normal">
@@ -34,7 +34,7 @@ export default function WhyChooseUs() {
             without breaking the bank.
           </p>
         </div>
-        <div className=" bg-[#98A1BC] rounded-xl p-5 shadow-2xl text-center flex flex-col justify-center items-center">
+        <div className=" bg-[#98A1BC]/30 rounded-xl p-5 shadow-2xl text-center flex flex-col justify-center items-center">
           <img src="/image/supportvector.svg" alt="support-vector-img" />
           <h2 className="text-2xl mb-3 font-semibold ">24/7 support</h2>
           <p className="text-gray-700 font-normal">

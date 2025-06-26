@@ -9,8 +9,8 @@ const Nav = () => {
   return (
     <>
       {/* Floating Transparent Navbar */}
-      <nav className="fixed backdrop-blur-2xl bg-bg-primary/30 top-0 left-0 w-full z-50   shadow-md">
-        <div className="max-w-[1290px] mx-auto flex items-center justify-between text-white px-4 md:px-10 h-16">
+      <nav className="fixed  bg-secondary top-0 left-0 w-full z-50   ">
+        <div className="max-w-[1290px] mx-auto flex items-center  justify-between text-white px-4 md:px-0 h-16">
           {/* Logo */}
           <NavLink to="/" className="font-main text-2xl font-black text-white">
             vutungtung
@@ -20,25 +20,25 @@ const Nav = () => {
           <div className="hidden md:flex items-center gap-10 font-semibold">
             <NavLink
               to="/"
-              className={({ isActive }) => (isActive ? "text-primary" : "")}
+              className={({ isActive }) => (isActive ? "text-accent" : "")}
             >
               Home
             </NavLink>
             <NavLink
               to="/about"
-              className={({ isActive }) => (isActive ? "text-primary" : "")}
+              className={({ isActive }) => (isActive ? "text-accent" : "")}
             >
               Vehicle
             </NavLink>
             <NavLink
               to="/booking"
-              className={({ isActive }) => (isActive ? "text-primary" : "")}
+              className={({ isActive }) => (isActive ? "text-accent" : "")}
             >
               Booking
             </NavLink>
             <NavLink
               to="/contact"
-              className={({ isActive }) => (isActive ? "text-primary" : "")}
+              className={({ isActive }) => (isActive ? "text-accent" : "")}
             >
               Contact
             </NavLink>
