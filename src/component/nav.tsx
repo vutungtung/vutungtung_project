@@ -25,7 +25,7 @@ const Nav = () => {
               Home
             </NavLink>
             <NavLink
-              to="/about"
+              to="/vehicle"
               className={({ isActive }) => (isActive ? "text-accent" : "")}
             >
               Vehicle
@@ -35,6 +35,12 @@ const Nav = () => {
               className={({ isActive }) => (isActive ? "text-accent" : "")}
             >
               Booking
+            </NavLink>
+            <NavLink
+              to="/about"
+              className={({ isActive }) => (isActive ? "text-primary" : "")}
+            >
+              About Us
             </NavLink>
             <NavLink
               to="/contact"
@@ -86,6 +92,12 @@ const Nav = () => {
             className={({ isActive }) => (isActive ? "text-primary" : "")}
           >
             Contact
+          </NavLink>
+          <NavLink
+            to="/about"
+            className={({ isActive }) => (isActive ? "text-primary" : "")}
+          >
+            About Us
           </NavLink>
           <NavLink
             to=""

@@ -6,6 +6,7 @@ import Vehicle from "./pages/vehicle";
 import Navbar from "./component/nav";
 import { Contact } from "./pages/contact";
 import Booking from "./pages/booking";
+import Footer from "./component/footer";
 
 const router = createBrowserRouter([
   {
@@ -14,6 +15,7 @@ const router = createBrowserRouter([
       <>
         <Navbar />
         <Outlet />
+        <Footer/>
       </>
     ),
     children: [

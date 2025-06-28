@@ -11,19 +11,21 @@ export default function Hero() {
       <div className="absolute inset-0 bg-black/20"></div>
 
       {/* Content */}
-      <div className="relative z-10 space-y-8 max-w-[1290px] flex flex-col mx-auto px-4 md:px-10 h-full justify-center text-white">
-        <div className="backdrop-blur-sm space-y-8 p-5 rounded-2xl w-fit">
-          <h1 className="text-3xl text-[#9DB2BF] md:text-6xl font-bold">
+      <div className="relative z-10 space-y-8 max-w-[1290px] flex flex-col mx-auto h-full justify-center text-white">
+        <div className="backdrop-blur-sm border border-border space-y-8 p-5 rounded-2xl w-fit">
+          <h1 className="text-3xl text-white md:text-6xl font-bold">
             Find the Perfect <br /> Ride &nbsp;
-            <span className="text-[#DDE6ED]">
-              Anytime, <br /> Anywhere
-            </span>
+            <span className="text-primary">Anytime</span>
+            , <br /> <span className="text-primary">Anywhere</span>
           </h1>
-          <p className="text-lg md:text-xl font-semibold text-text-secondary max-w-2xl">
+          <p className="text-lg font-medium text-white max-w-2xl">
             Choose from bikes, cars, vans, and electric vehicles with <br />{" "}
             instant booking and 24/7 support.
           </p>
-          <button className=" rounded-lg font-semibold bg-[#98A1BC] text-button-text w-fit  py-3 px-5">
+          <button
+            onClick={() => { window.location.href = '/vehicle'; }}
+            className=" rounded-lg font-semibold bg-primary hover:bg-primary-hover duration-300 text-text w-fit  py-3 px-5"
+          >
             Rent Vehicle
           </button>
           <div className="flex flex-wrap text-white text-xl font-semibold w-fit rounded-3xl  gap-5 ">

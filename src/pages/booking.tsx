@@ -33,7 +33,7 @@ const Booking = () => {
       </div>
 
       {/* Booking Container */}
-      <div className="bg-white w-full max-w-[1290px] mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+      <div className="bg-white w-full max-w-[1290px] mx-auto  px-4 sm:px-6 lg:px-8 my-10">
         <div className="flex flex-col lg:flex-row gap-10">
           {/* Left Section */}
           <div className="flex-1 space-y-6">
@@ -162,7 +162,7 @@ const Booking = () => {
           </div>
 
           {/* Booking Summary */}
-          <div className="w-full lg:w-[350px] border border-[var(--color-border)] rounded p-4 sm:p-6 shadow-sm space-y-5">
+          <div className="w-full lg:w-[350px] border h-fit border-[var(--color-border)] rounded p-4 sm:p-6 shadow-sm space-y-5">
             <h2 className="text-lg font-semibold border-b border-[var(--color-border)] pb-2">
               Booking Summary
             </h2>
