@@ -2,7 +2,7 @@ const About = () => {
   return (
     <div className="bg-white text-gray-800">
       {/* Header */}
-      <section className="bg-[#0D1117] text-white py-20 text-center">
+      <section className="bg-green-800 text-white py-20 text-center">
         <h1 className="text-4xl font-bold">About VuTungTung</h1>
         <p className="text-lg mt-4 max-w-2xl mx-auto">
           We’re passionate about providing reliable, affordable, and convenient
@@ -19,7 +19,7 @@ const About = () => {
           ["Always", "24/7 Support"],
         ].map(([stat, label]) => (
           <div key={label}>
-            <div className="text-orange-500 text-3xl font-bold">{stat}</div>
+            <div className="text-yellow text-3xl font-bold">{stat}</div>
             <div className="text-sm mt-2">{label}</div>
           </div>
         ))}
@@ -74,7 +74,7 @@ const About = () => {
               key={title}
               className="bg-gray-50 border border-gray-200 p-6 rounded-md shadow-sm"
             >
-              <h3 className="text-lg font-semibold text-orange-500">{title}</h3>
+              <h3 className="text-lg font-semibold text-yellow">{title}</h3>
               <p className="text-sm text-gray-600 mt-2">{desc}</p>
             </div>
           ))}
@@ -116,7 +116,7 @@ const About = () => {
             >
               <div className="w-20 h-20 rounded-full bg-gray-200 mx-auto mb-4" />
               <h3 className="font-bold">{name}</h3>
-              <p className="text-sm text-orange-500">{role}</p>
+              <p className="text-sm text-yellow">{role}</p>
               <p className="text-xs text-gray-600 mt-2">{desc}</p>
             </div>
           ))}

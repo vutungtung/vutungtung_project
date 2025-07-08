@@ -7,6 +7,7 @@ import Navbar from "./component/nav";
 import { Contact } from "./pages/contact";
 import Booking from "./pages/booking";
 import Footer from "./component/footer";
+import AuthForm from "./auth/signin";
 
 const router = createBrowserRouter([
   {
@@ -56,6 +57,14 @@ const router = createBrowserRouter([
         element: (
           <>
             <Contact />
+          </>
+        ),
+      },
+      {
+        path: "/auth",
+        element: (
+          <>
+            <AuthForm />
           </>
         ),
       },

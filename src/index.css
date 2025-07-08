@@ -2,26 +2,85 @@
 
 @theme {
   /* Primary Colors */
-  --color-primary: #2563eb; /* Deep Blue */
-  --color-primary-hover: #1d4ed8;
+  --color-royal-blue: #1d4ed8;
+  /* --color-light-blue: #3b82f6; */
+  --color-light-blue: #c4d9ff;
+  --color-deep-blue: #1e3a8a;
+  --color-gradient-blue-start: #526d82;
+  /* --color-gradient-blue-start: #16404d; */
+  --color-gradient-blue-end: #1d4ed8;
+  --color-new-base: #9db2bf;
+  --color-new-mid: #526d82;
+  --color-new-top: #27374d;
+  --color-new-end: #dde6ed;
 
-  --color-secondary: #1e293b; /* Navy Slate */
-  --color-accent: #10b981; /* Emerald Green */
+  /* Accent Colors */
+  /* --color-yellow: #f0b100; */
+  /* --color-yellow: #86ab89; */
+  /* --color-yellow: #a0d683; */
+  --color-yellow: #72bf78;
+  /* --color-yellow: #40A578; */
 
-  /* Text Colors */
-  --color-text: #111827; /* Graphite Gray */
-  --color-muted: #6b7280; /* Slate Gray */
+  --color-orange: #ca8a04;
+  --color-orangebg: #047857;
+  --color-light-orange: #fdba74;
 
-  /* UI Colors */
-  --color-bg: #f9fafb; /* Soft White */
-  --color-border: #e5e7eb; /* Light Gray */
-
-  /* States */
-  --color-success: #10b981;
-  --color-error: #ef4444;
-  --color-warning: #fbbf24;
-
-  /* Utility */
+  /* Neutral Colors */
   --color-white: #ffffff;
-  --color-black: #000000;
+  --color-light-gray: #f3f4f6;
+  --color-medium-gray: #9ca3af;
+  --color-dark-gray: #374151;
+
+  /* Category Colors */
+  --color-category-cars: #3b82f6;
+  --color-category-suvs: #10b981;
+  --color-category-trucks: #f97316;
+  --color-category-bikes: #a855f7;
+  --color-maroon: #8e1616;
+
+  /* ======================================> */
+
+  /* Primary Emerald Colors */
+  --color-primary-50: #f0fdf4;
+  --color-primary-100: #dcfce7;
+  --color-primary-200: #bbf7d0;
+  --color-primary-300: #86efac;
+  --color-primary-400: #4ade80;
+  --color-primary-500: #10b981; /* Main brand */
+  --color-primary-600: #059669;
+  --color-primary-700: #047857;
+  --color-primary-800: #065f46;
+  --color-primary-900: #064e3b;
+
+  /* Secondary Teal Colors */
+  --color-secondary-50: #f0fdfa;
+  --color-secondary-100: #ccfbf1;
+  --color-secondary-200: #99f6e4;
+  --color-secondary-300: #5eead4;
+  --color-secondary-400: #2dd4bf;
+  --color-secondary-500: #14b8a6; /* Main secondary */
+  --color-secondary-600: #0d9488;
+  --color-secondary-700: #0f766e;
+  --color-secondary-800: #115e59;
+  --color-secondary-900: #134e4a;
+
+  /* Utility Colors */
+  --color-accent: #4ade80;
+  --color-success: #16a34a;
+  --color-warning: #f59e0b;
+  --color-destructive: #ef4444;
+  --color-info: #3b82f6;
+
+  /* Base Colors */
+  --color-background: #ffffff;
+  --color-foreground: #0f172a; 
+  /* --color-muted: #f8fafc; */
+  --color-border: #E4E7E6;
+  --color-card: #ffffff;
+
+  --color-background: #0f1c14;
+  /* --color-foreground: #fafafa; */
+  --color-muted: #1f2937;
+  /* --color-border: #374151; */
+  --color-card: #111827;
 }
