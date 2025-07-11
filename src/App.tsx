@@ -8,6 +8,7 @@ import { Contact } from "./pages/contact";
 import Booking from "./pages/booking";
 import Footer from "./component/footer";
 import AuthForm from "./auth/signin";
+import VehicleDetails from "./pages/vehicleDetails";
 
 const router = createBrowserRouter([
   {
@@ -16,7 +17,7 @@ const router = createBrowserRouter([
       <>
         <Navbar />
         <Outlet />
-        <Footer/>
+        <Footer />
       </>
     ),
     children: [
@@ -65,6 +66,14 @@ const router = createBrowserRouter([
         element: (
           <>
             <AuthForm />
+          </>
+        ),
+      },
+      {
+        path: "/vehicleDetails",
+        element: (
+          <>
+            <VehicleDetails />
           </>
         ),
       },

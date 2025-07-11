@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@plugin "flowbite-react/plugin/tailwindcss";
+@source "../.flowbite-react/class-list.json";
 
 @theme {
   /* Primary Colors */
@@ -84,3 +86,4 @@
   /* --color-border: #374151; */
   --color-card: #111827;
 }
+

@@ -68,7 +68,7 @@ const Vehicle = () => {
                 name="category"
                 value={filters.category}
                 onChange={handleFilterChanger}
-                className="border text-b border-border rounded-xl px-2 py-2 w-full"
+                className="border text-b border-border focus:outline-0 rounded-xl px-2 py-2 w-full"
               >
                 <option value="">All Categories</option>
                 <option value="2-Wheeler">2-Wheeler</option>
@@ -85,7 +85,7 @@ const Vehicle = () => {
                 name="pricePerDay"
                 value={filters.pricePerDay}
                 onChange={handleFilterChanger}
-                className="border text-b border-border  rounded-xl px-2 py-2 w-full"
+                className="border text-b border-border  focus:outline-0 rounded-xl px-2 py-2 w-full"
               >
                 <option value="">Any Price</option>
                 <option value="Rs.1000 - Rs.2000">Rs.1000 - Rs.2000</option>
@@ -101,7 +101,7 @@ const Vehicle = () => {
                 name="transmission"
                 value={filters.transmission}
                 onChange={handleFilterChanger}
-                className="border text-b border-border rounded-xl px-2 py-2 w-full"
+                className="border text-b border-border focus:outline-0 rounded-xl px-2 py-2 w-full"
               >
                 <option value="">Any</option>
                 <option value="Manual">Manual</option>
@@ -116,12 +116,13 @@ const Vehicle = () => {
                 name="fuelType"
                 value={filters.fuelType}
                 onChange={handleFilterChanger}
-                className="border text-b border-border rounded-xl px-2 py-2 w-full"
+                className="border text-b border-border focus:outline-0 rounded-xl px-2 py-2 w-full"
               >
                 <option value="">All</option>
                 <option value="Petrol">Petrol</option>
                 <option value="Diesel">Diesel</option>
                 <option value="Electric">Electric</option>
+                <option value="Hybrid">Hybrid</option>
               </select>
             </div>
             <div className="flex items-end">
@@ -157,7 +158,7 @@ const Vehicle = () => {
             filteredVehicles.map((vehicle) => (
               <div
                 key={vehicle.id}
-                className="relative  md:h-[25rem] rounded-2xl hover:shadow-lg hover:-translate-y-5 duration-300 shadow-accent/30 overflow-hidden border border-border"
+                className="relative  md:h-[25rem] rounded-2xl hover:shadow-lg hover:-translate-y-5 duration-300 shadow-accent/30 overflow-hidden "
               >
                 <img
                   src={vehicle.image}
@@ -166,7 +167,7 @@ const Vehicle = () => {
                 />
                 <div className="space-y-2 p-5">
                   <h1 className="text-2xl font-semibold">{vehicle.title}</h1>
-                  <div className="text-sm text-gray-600 flex flex-wrap gap-x-5 items-center">
+                  <div className="text-sm text-gray-600 flex flex-wrap gap-x-3 items-center">
                     <p className="inline-flex justify-center items-center text-base gap-1">
                       <LuUsers size={15} />
                       {vehicle.seatingCapacity} Seats
@@ -189,7 +190,7 @@ const Vehicle = () => {
                       </span>
                     </p>
                     <button className="bg-primary-500 text-white font-medium p-2 rounded-lg">
-                      Book Now
+                      View Details
                     </button>
                   </div>
                 </div>
