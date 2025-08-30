@@ -34,7 +34,7 @@ const LocationForm = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-md mx-auto bg-white rounded-lg  space-y-4"
+      className="max-w-md mx-auto bg-light-gray rounded-lg  space-y-4"
     >
       {/* Pickup Location */}
       <div>
@@ -49,7 +49,7 @@ const LocationForm = () => {
             name="pickupLocation"
             value={formData.pickupLocation}
             onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none "
             required
           >
             <option value="">Select location</option>
@@ -72,7 +72,7 @@ const LocationForm = () => {
             name="returnLocation"
             value={formData.returnLocation}
             onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none"
             required
           >
             <option value="">Select return location</option>
@@ -95,7 +95,7 @@ const LocationForm = () => {
           name="pickupDate"
           value={formData.pickupDate}
           onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none "
           required
         />
       </div>
@@ -110,7 +110,7 @@ const LocationForm = () => {
           name="returnDate"
           value={formData.returnDate}
           onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none"
           required
         />
       </div>

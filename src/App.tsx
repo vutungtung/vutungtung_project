@@ -7,14 +7,24 @@ import Navbar from "./component/nav";
 import { Contact } from "./pages/contact";
 import Booking from "./pages/booking";
 import Footer from "./component/footer";
-import AuthForm from "./auth/signin";
 import VehicleDetails from "./pages/vehicleDetails";
+import { Login } from "./auth/login";
+
+import { ForgotPassword } from "./auth/ForgotPassword";
+import { Signup } from "./auth/signup";
+import { VerifyOTP } from "./auth/VerifyOTP";
+import { ResetPasswordOTP } from "./auth/ResetPasswordOTP";
+import { VerifySuccess } from "./auth/VerifySuccess";
+import { VerifyFailed } from "./auth/VerifyFailed";
+import ScrollToTop from "./component/ScrollToTop";
+import ConfirmBooking from "./component/ConfirmBooking";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: (
       <>
+        <ScrollToTop />
         <Navbar />
         <Outlet />
         <Footer />
@@ -38,7 +48,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/vehicle",
+        path: "/vehicles",
         element: (
           <>
             <Vehicle />
@@ -54,30 +64,86 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/contact",
-        element: (
-          <>
-            <Contact />
-          </>
-        ),
-      },
-      {
-        path: "/auth",
-        element: (
-          <>
-            <AuthForm />
-          </>
-        ),
-      },
-      {
-        path: "/vehicleDetails",
+        path: "/vehicles/:id",
         element: (
           <>
             <VehicleDetails />
           </>
         ),
       },
+      {
+        path: "/confirm-booking",
+        element: (
+          <>
+            <ConfirmBooking />
+          </>
+        ),
+      },
     ],
+  },
+  {
+    path: "/contact",
+    element: (
+      <>
+        <Contact />
+      </>
+    ),
+  },
+  {
+    path: "/login",
+    element: (
+      <>
+        <Login />
+      </>
+    ),
+  },
+  {
+    path: "/signup",
+    element: (
+      <>
+        <Signup />
+      </>
+    ),
+  },
+  {
+    path: "/forgot-password",
+    element: (
+      <>
+        <ForgotPassword />
+      </>
+    ),
+  },
+  {
+    path: "/verify-otp",
+    element: (
+      <>
+        <VerifyOTP />
+      </>
+    ),
+  },
+  {
+    path: "/reset-password-otp",
+    element: (
+      <>
+        <ResetPasswordOTP />
+      </>
+    ),
+  },
+  {
+    path: "/verify-success",
+    element: (
+      <>
+        <VerifySuccess />
+      </>
+    ),
+  },
+  {
+    path: "/verify-failed",
+    element: (
+      <>
+        <VerifyFailed />
+      </>
+    ),
   },
 ]);
 

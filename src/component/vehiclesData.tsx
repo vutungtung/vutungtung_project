@@ -13,8 +13,9 @@ export const vehiclesData = [
     features: ["AC", "GPS", "Bluetooth", "Airbags"],
     description:
       "A premium mid-size sedan perfect for long trips and city drives.",
-    image:
+    image: [
       "https://www.edmunds.com/assets/m/cs/blt95cf4db396c717b7/672bda61733622566a9c6cac/2024-toyota-camry-actf34.jpg",
+    ],
   },
   {
     id: "veh002",
@@ -29,8 +30,9 @@ export const vehiclesData = [
     pricePerDay: 2500,
     features: ["Bluetooth", "ABS"],
     description: "A powerful and sporty motorcycle built for thrill seekers.",
-    image:
-      "https://preview.redd.it/2023-ktm-duke-390-upgrade-suggestions-please-v0-9x2mqhvzwyqc1.jpeg?width=1080&crop=smart&auto=webp&s=bba6912b737a20bd622c7ad1f8afae94ada4aef8",
+    image: [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Ktm_duke_390.jpg/1200px-Ktm_duke_390.jpg",
+    ],
   },
   {
     id: "veh003",
@@ -45,8 +47,9 @@ export const vehiclesData = [
     pricePerDay: 2000,
     features: ["USB Charger", "Silent Start"],
     description: "India's most trusted scooter, great for everyday use.",
-    image:
-      "https://imgd.aeplcdn.com/1280x720/n/cw/ec/44686/activa-6g-right-front-three-quarter.jpeg",
+    image: [
+      "https://images.firstpost.com/wp-content/uploads/2020/02/Activa-6g-1280.jpg?im=FitAndFill=(596,336)",
+    ],
   },
   {
     id: "veh004",
@@ -61,8 +64,9 @@ export const vehiclesData = [
     pricePerDay: 4000,
     features: ["AC", "GPS", "Power Steering"],
     description: "A stylish compact sedan with great mileage and comfort.",
-    image:
-      "https://i0.wp.com/bestsellingcarsblog.com/wp-content/uploads/2025/06/Maruti-Suzuki-DZire-India-May-2025.jpg?resize=600%2C398",
+    image: [
+      "https://meromoto.com/_next/image?url=https%3A%2F%2Fs3.meromoto.com%2Fimages%2Fvehicles%2F875770de-1c9f-419a-92ef-9beb297f9a81%2F3e0d2a89-d927-43bc-bc66-fead807581c1.webp&w=3840&q=75",
+    ],
   },
   {
     id: "veh005",
@@ -77,8 +81,9 @@ export const vehiclesData = [
     pricePerDay: 1800,
     features: ["GPS", "Eco Mode"],
     description: "An eco-friendly rickshaw ideal for short city commutes.",
-    image:
-      "https://electrek.co/wp-content/uploads/sites/3/2024/03/mahindra-three-wheeler-trike.jpg?quality=82&strip=all&w=1600",
+    image: [
+      "https://truckcdn.cardekho.com/in/mahindra/treo-yaari/mahindra-treo-yaari-62610.jpg",
+    ],
   },
   {
     id: "veh006",
@@ -94,7 +99,8 @@ export const vehiclesData = [
     features: ["Heavy Load", "GPS"],
     description:
       "A reliable mini-truck suitable for transporting goods and cargo.",
-    image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQshZJEFwEIAJTgsLFNVPFnAWfFGuP-PP0SA&s",
+    image: [
+      "https://www.tatamotors.com.np/sites/nepal/files/styles/webp/public/product/images/image%20%2873%29.png.webp?itok=Lmmrst_y",
+    ],
   },
 ];

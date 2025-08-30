@@ -3,8 +3,12 @@ import { vehiclesData } from "../component/vehiclesData";
 import { MdOutlineFilterAltOff } from "react-icons/md";
 import { LuFuel, LuUsers } from "react-icons/lu";
 import { IoSettingsOutline } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
 const Vehicle = () => {
+
+const navigate = useNavigate()
+
   const [filters, setfilters] = useState({
     category: "",
     transmission: "",
@@ -135,7 +139,7 @@ const Vehicle = () => {
                     fuelType: "",
                   })
                 }
-                className="border bg-primary-500 h-fit hover:bg-primary-600 duration-300 inline-flex justify-center items-center text-white font-medium border-border rounded-xl px-3 py-2 w-full"
+                className="border bg-red h-fit hover:bg-gradient-red duration-300 inline-flex justify-center items-center text-white font-medium border-border rounded-xl px-3 py-2 w-full"
               >
                 <MdOutlineFilterAltOff size={25} /> Clear Filter
               </button>
@@ -161,7 +165,7 @@ const Vehicle = () => {
                 className="relative  md:h-[25rem] rounded-2xl hover:shadow-lg hover:-translate-y-5 duration-300 shadow-accent/30 overflow-hidden "
               >
                 <img
-                  src={vehicle.image}
+                  src={Array.isArray(vehicle.image) ? vehicle.image[0] : vehicle.image}
                   alt={vehicle.title}
                   className="h-48 w-full object-cover"
                 />
@@ -183,13 +187,15 @@ const Vehicle = () => {
                   </div>
                   <p className="text-gray-600">{vehicle.description}</p>
                   <div className=" md:absolute bottom-5 right-5 left-5 flex justify-between items-center">
-                    <p className="text-primary-500 text-xl font-semibold">
+                    <p className="text-red font-heading text-xl font-semibold">
                       Rs.{vehicle.pricePerDay}
                       <span className="text-sm text-gray-600 font-normal">
                         /day
                       </span>
                     </p>
-                    <button className="bg-primary-500 text-white font-medium p-2 rounded-lg">
+                    <button 
+                    onClick={()=>navigate(`/vehicles/${vehicle.id}`)}
+                    className="bg-red hover:bg-gradient-red text-white font-medium p-2 rounded-lg">
                       View Details
                     </button>
                   </div>

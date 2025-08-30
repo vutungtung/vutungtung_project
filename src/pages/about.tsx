@@ -2,7 +2,7 @@ const About = () => {
   return (
     <div className="bg-white text-gray-800">
       {/* Header */}
-      <section className="bg-green-800 text-white py-20 text-center">
+      <section className="bg-gradient-red text-white py-20 text-center">
         <h1 className="text-4xl font-bold">About VuTungTung</h1>
         <p className="text-lg mt-4 max-w-2xl mx-auto">
           We’re passionate about providing reliable, affordable, and convenient
@@ -19,7 +19,7 @@ const About = () => {
           ["Always", "24/7 Support"],
         ].map(([stat, label]) => (
           <div key={label}>
-            <div className="text-yellow text-3xl font-bold">{stat}</div>
+            <div className="text-red text-3xl font-bold">{stat}</div>
             <div className="text-sm mt-2">{label}</div>
           </div>
         ))}
@@ -31,7 +31,7 @@ const About = () => {
           <div>
             <h2 className="text-2xl font-semibold mb-4">Our Story</h2>
             <p className="text-gray-600 leading-relaxed">
-              Founded in 2009, VuTungTung started with a simple mission: to make
+              Founded in 2024, VuTungTung started with a simple mission: to make
               vehicle rental accessible, affordable, and hassle-free for
               everyone. What began as a small local business has grown into a
               trusted name in the transportation industry.
@@ -74,7 +74,7 @@ const About = () => {
               key={title}
               className="bg-gray-50 border border-gray-200 p-6 rounded-md shadow-sm"
             >
-              <h3 className="text-lg font-semibold text-yellow">{title}</h3>
+              <h3 className="text-lg font-semibold text-red">{title}</h3>
               <p className="text-sm text-gray-600 mt-2">{desc}</p>
             </div>
           ))}
@@ -116,7 +116,7 @@ const About = () => {
             >
               <div className="w-20 h-20 rounded-full bg-gray-200 mx-auto mb-4" />
               <h3 className="font-bold">{name}</h3>
-              <p className="text-sm text-yellow">{role}</p>
+              <p className="text-sm text-red">{role}</p>
               <p className="text-xs text-gray-600 mt-2">{desc}</p>
             </div>
           ))}

@@ -2,12 +2,14 @@ import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
-    <footer className="bg-foreground text-white py-10 px-4 md:px-20">
+    <footer className="bg-foreground text-white bg-gradient-red py-10 px-4 md:px-20">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Branding */}
         <div>
-          <h1 className="text-2xl font-bold text-white">vutungtung</h1>
-          <p className="text-sm text-gray-400 mt-2">
+          <h1 className="text-xl lg:text-2xl font-black text-white">
+            VUTUNG<span className="text-black">TUNG</span>
+          </h1>
+          <p className="text-sm text-black mt-2">
             Your trusted partner for vehicle rentals. Safe, reliable, and
             affordable.
           </p>
@@ -16,24 +18,24 @@ const Footer = () => {
         {/* Services */}
         <div>
           <h2 className="font-semibold mb-2">Services</h2>
-          <ul className="space-y-1 text-sm text-gray-400">
+          <ul className="space-y-1 text-sm text-white">
             <li>
-              <Link to="/car-rental" className="hover:underline">
+              <Link to="/car-rental" className="hover:text-red">
                 Car Rental
               </Link>
             </li>
             <li>
-              <Link to="/bike-rental" className="hover:underline">
+              <Link to="/bike-rental" className="hover:text-red">
                 Bike Rental
               </Link>
             </li>
             <li>
-              <Link to="/truck-rental" className="hover:underline">
+              <Link to="/truck-rental" className="hover:text-red">
                 Truck Rental
               </Link>
             </li>
             <li>
-              <Link to="/e-vehicle" className="hover:underline">
+              <Link to="/e-vehicle" className="hover:text-red">
                 E-Vehicle
               </Link>
             </li>
@@ -43,24 +45,24 @@ const Footer = () => {
         {/* Company */}
         <div>
           <h2 className="font-semibold mb-2">Company</h2>
-          <ul className="space-y-1 text-sm text-gray-400">
+          <ul className="space-y-1 text-sm text-white">
             <li>
-              <Link to="/about" className="hover:underline">
+              <Link to="/about" className="hover:text-red">
                 About Us
               </Link>
             </li>
             <li>
-              <Link to="/contact" className="hover:underline">
+              <Link to="/contact" className="hover:text-red">
                 Contact
               </Link>
             </li>
             <li>
-              <Link to="/support" className="hover:underline">
+              <Link to="/support" className="hover:text-red">
                 Support
               </Link>
             </li>
             <li>
-              <Link to="/terms" className="hover:underline">
+              <Link to="/terms" className="hover:text-red">
                 Terms
               </Link>
             </li>
@@ -70,7 +72,7 @@ const Footer = () => {
         {/* Contact */}
         <div>
           <h2 className="font-semibold mb-2">Contact</h2>
-          <ul className="space-y-1 text-sm text-gray-400">
+          <ul className="space-y-1 text-sm text-white">
             <li>24/7 Support</li>
             <li>+1 (555) 123-4567</li>
             <li>
@@ -83,7 +85,7 @@ const Footer = () => {
       </div>
 
       {/* Bottom Line */}
-      <div className="border-t border-gray-700 mt-8 pt-4 text-center text-gray-500 text-sm">
+      <div className="border-t border-white mt-8 pt-4 text-center text-white text-sm">
         © 2024 vutungtung. All rights reserved.
       </div>
     </footer>
