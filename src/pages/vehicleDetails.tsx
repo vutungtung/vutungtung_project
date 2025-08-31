@@ -161,21 +161,21 @@ const VehicleDetails = () => {
       <div className="p-5 xl:p-0 flex flex-wrap lg:flex-nowrap gap-5 justify-between">
         <div className="w-full space-y-2">
           {/* Carousel */}
-          <div className="relative w-full h-96 overflow-hidden rounded-xl">
+          <div className="relative w-full  h-96 overflow-hidden rounded-xl">
             <img
               src={images[currentImage]}
               alt=""
               className="w-full h-full object-cover"
-            />
+            />  
             <button
               onClick={prevImage}
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full"
+              className="absolute left-2 top-1/2 -translate-y-1/2  bg-black/30 text-white p-2 rounded-full"
             >
               {"<"}
             </button>
             <button
               onClick={nextImage}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full"
+              className="absolute right-2 top-1/2 -translate-y-1/2  bg-black/30 text-white p-2 rounded-full"
             >
               {">"}
             </button>

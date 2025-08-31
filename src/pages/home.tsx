@@ -1,4 +1,6 @@
+import Features from "../component/Features";
 import Hero from "../component/hero";
+import WhyChooseUs from "../component/WhyChooseUs";
 
 // import WhyChooseUs from "../component/WhyChooseUs";
 
@@ -7,6 +9,8 @@ const Home = () => {
     <>
       <div className="">
         <Hero />
+        <Features />
+        <WhyChooseUs/>
       </div>
     </>
   );

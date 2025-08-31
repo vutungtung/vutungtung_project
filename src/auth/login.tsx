@@ -34,7 +34,7 @@ export const Login = () => {
           {/* Left Side Image */}
           <div className="relative h-64 lg:h-auto">
             <img
-              src="public/image/login-image.webp"
+              src="https://cdn.leonardo.ai/users/285a086d-7df9-45dd-a98e-ed2a4f5446a7/generations/e1c79049-4f84-473f-a4fb-c5361e60c872/segments/2:4:1/Flux_Dev_artistic_portrait_photography_of_a_young_adult_with_a_1.jpg"
               alt="login"
               className="absolute inset-0 h-full w-full object-cover"
             />

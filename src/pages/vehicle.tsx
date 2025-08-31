@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { vehiclesData } from "../component/vehiclesData";
 import { MdOutlineFilterAltOff } from "react-icons/md";
-import { LuFuel, LuUsers } from "react-icons/lu";
-import { IoSettingsOutline } from "react-icons/io5";
-import { useNavigate } from "react-router-dom";
+// import { LuFuel, LuUsers } from "react-icons/lu";
+// import { IoSettingsOutline } from "react-icons/io5";
+// import { useNavigate } from "react-router-dom";
+import VehicleCard from "../component/VehicleCard";
 
 const Vehicle = () => {
-
-const navigate = useNavigate()
+  // const navigate = useNavigate();
 
   const [filters, setfilters] = useState({
     category: "",
@@ -63,7 +63,7 @@ const navigate = useNavigate()
           </p>
 
           {/* filters  */}
-          <div className="border border-border gap-5  rounded-2xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5  py-8 px-5 w-full mx-auto">
+          <div className="border border-gray-200 gap-5  rounded-2xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5  py-8 px-5 w-full mx-auto">
             <div className="w-full flex flex-col">
               <label className="mb-2 text-md text-gray-500 font-semibold">
                 Category
@@ -72,7 +72,7 @@ const navigate = useNavigate()
                 name="category"
                 value={filters.category}
                 onChange={handleFilterChanger}
-                className="border text-b border-border focus:outline-0 rounded-xl px-2 py-2 w-full"
+                className="border text-b border-gray-200 focus:outline-0 rounded-xl px-2 py-2 w-full"
               >
                 <option value="">All Categories</option>
                 <option value="2-Wheeler">2-Wheeler</option>
@@ -89,7 +89,7 @@ const navigate = useNavigate()
                 name="pricePerDay"
                 value={filters.pricePerDay}
                 onChange={handleFilterChanger}
-                className="border text-b border-border  focus:outline-0 rounded-xl px-2 py-2 w-full"
+                className="border text-b border-gray  focus:outline-0 rounded-xl px-2 py-2 w-full"
               >
                 <option value="">Any Price</option>
                 <option value="Rs.1000 - Rs.2000">Rs.1000 - Rs.2000</option>
@@ -105,7 +105,7 @@ const navigate = useNavigate()
                 name="transmission"
                 value={filters.transmission}
                 onChange={handleFilterChanger}
-                className="border text-b border-border focus:outline-0 rounded-xl px-2 py-2 w-full"
+                className="border text-b border-gray focus:outline-0 rounded-xl px-2 py-2 w-full"
               >
                 <option value="">Any</option>
                 <option value="Manual">Manual</option>
@@ -120,7 +120,7 @@ const navigate = useNavigate()
                 name="fuelType"
                 value={filters.fuelType}
                 onChange={handleFilterChanger}
-                className="border text-b border-border focus:outline-0 rounded-xl px-2 py-2 w-full"
+                className="border text-b border-gray focus:outline-0 rounded-xl px-2 py-2 w-full"
               >
                 <option value="">All</option>
                 <option value="Petrol">Petrol</option>
@@ -147,7 +147,7 @@ const navigate = useNavigate()
           </div>
         </div>
 
-        {/* vehicles card  */}
+        {/* vehicles */}
         <div className="text-base text-gray-500 mt-8">
           Showing {filteredVehicles.length} of {vehiclesData.length} vehicles
         </div>
@@ -160,47 +160,11 @@ const navigate = useNavigate()
             </div>
           ) : (
             filteredVehicles.map((vehicle) => (
-              <div
+              <VehicleCard
                 key={vehicle.id}
-                className="relative  md:h-[25rem] rounded-2xl hover:shadow-lg hover:-translate-y-5 duration-300 shadow-accent/30 overflow-hidden "
-              >
-                <img
-                  src={Array.isArray(vehicle.image) ? vehicle.image[0] : vehicle.image}
-                  alt={vehicle.title}
-                  className="h-48 w-full object-cover"
-                />
-                <div className="space-y-2 p-5">
-                  <h1 className="text-2xl font-semibold">{vehicle.title}</h1>
-                  <div className="text-sm text-gray-600 flex flex-wrap gap-x-3 items-center">
-                    <p className="inline-flex justify-center items-center text-base gap-1">
-                      <LuUsers size={15} />
-                      {vehicle.seatingCapacity} Seats
-                    </p>
-                    <p className="inline-flex items-center text-base gap-1">
-                      <IoSettingsOutline size={15} />
-                      {vehicle.transmission}
-                    </p>
-                    <p className="inline-flex justify-center items-center text-base gap-1">
-                      <LuFuel size={15} />
-                      {vehicle.fuelType}
-                    </p>
-                  </div>
-                  <p className="text-gray-600">{vehicle.description}</p>
-                  <div className=" md:absolute bottom-5 right-5 left-5 flex justify-between items-center">
-                    <p className="text-red font-heading text-xl font-semibold">
-                      Rs.{vehicle.pricePerDay}
-                      <span className="text-sm text-gray-600 font-normal">
-                        /day
-                      </span>
-                    </p>
-                    <button 
-                    onClick={()=>navigate(`/vehicles/${vehicle.id}`)}
-                    className="bg-red hover:bg-gradient-red text-white font-medium p-2 rounded-lg">
-                      View Details
-                    </button>
-                  </div>
-                </div>
-              </div>
+                {...vehicle}
+                id={parseInt(vehicle.id)}
+              />
             ))
           )}
         </div>

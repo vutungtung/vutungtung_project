@@ -66,6 +66,7 @@ export const vehiclesData = [
     description: "A stylish compact sedan with great mileage and comfort.",
     image: [
       "https://meromoto.com/_next/image?url=https%3A%2F%2Fs3.meromoto.com%2Fimages%2Fvehicles%2F875770de-1c9f-419a-92ef-9beb297f9a81%2F3e0d2a89-d927-43bc-bc66-fead807581c1.webp&w=3840&q=75",
+      "https://media.licdn.com/dms/image/v2/C4E1BAQFburGlX8VBSA/company-background_10000/company-background_10000/0/1593693109319/cimage_cover?e=2147483647&v=beta&t=g_VbV3v7jxduBq83_0vCwBmrrjLCY9xFTWERSyIwv7k",
     ],
   },
   {

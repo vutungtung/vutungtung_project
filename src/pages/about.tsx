@@ -91,12 +91,12 @@ const About = () => {
           {[
             [
               "Pyarjan Thapa",
-              "CEO & Founder",
+              "CEO & CO-Founder",
               "15+ years in the automotive industry",
             ],
             [
               "Sujan Pokharal",
-              "Operations Manager",
+              "CTO, CO-Founder",
               "Expert in fleet management and standards",
             ],
             [

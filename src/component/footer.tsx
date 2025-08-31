@@ -2,14 +2,14 @@ import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
-    <footer className="bg-foreground text-white bg-gradient-red py-10 px-4 md:px-20">
+    <footer className="bg-foreground text-white bg-black/90 py-10 px-4 md:px-20">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Branding */}
         <div>
           <h1 className="text-xl lg:text-2xl font-black text-white">
-            VUTUNG<span className="text-black">TUNG</span>
+            VUTUNG<span className="text-red">TUNG</span>
           </h1>
-          <p className="text-sm text-black mt-2">
+          <p className="text-sm text-white mt-2">
             Your trusted partner for vehicle rentals. Safe, reliable, and
             affordable.
           </p>
