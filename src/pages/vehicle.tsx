@@ -89,7 +89,7 @@ const Vehicle = () => {
                 name="pricePerDay"
                 value={filters.pricePerDay}
                 onChange={handleFilterChanger}
-                className="border text-b border-gray  focus:outline-0 rounded-xl px-2 py-2 w-full"
+                className="border text-b border-gray-200  focus:outline-0 rounded-xl px-2 py-2 w-full"
               >
                 <option value="">Any Price</option>
                 <option value="Rs.1000 - Rs.2000">Rs.1000 - Rs.2000</option>
@@ -105,7 +105,7 @@ const Vehicle = () => {
                 name="transmission"
                 value={filters.transmission}
                 onChange={handleFilterChanger}
-                className="border text-b border-gray focus:outline-0 rounded-xl px-2 py-2 w-full"
+                className="border text-b border-gray-200 focus:outline-0 rounded-xl px-2 py-2 w-full"
               >
                 <option value="">Any</option>
                 <option value="Manual">Manual</option>
@@ -120,7 +120,7 @@ const Vehicle = () => {
                 name="fuelType"
                 value={filters.fuelType}
                 onChange={handleFilterChanger}
-                className="border text-b border-gray focus:outline-0 rounded-xl px-2 py-2 w-full"
+                className="border text-b border-gray-200 focus:outline-0 rounded-xl px-2 py-2 w-full"
               >
                 <option value="">All</option>
                 <option value="Petrol">Petrol</option>

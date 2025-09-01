@@ -31,7 +31,7 @@ export const ForgotPassword = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[600px] shadow-xl bg-white rounded-2xl overflow-hidden">
           <div className="relative h-64 lg:h-auto">
             <img
-              src="public/image/forgot-image.webp"
+              src="https://lh3.googleusercontent.com/gg-dl/AJfQ9KTm617seik64-TVjUxmJMtti2tiPVdJL52x86g72QxNvz1-4YHX04k_k3jaBcCnLIGYB8oqrBmx4DTG2E_Aq7darkR6xqKJCgPaH86FEnmvpKbqFOGNFGt-cq0qMkPjloKemJGqvpUvsCCYRwQJZniKqXgTki2t0FaG014THb-8dG5w2w=s1024"
               alt="forgot"
               className="absolute inset-0 h-full w-full object-cover"
             />

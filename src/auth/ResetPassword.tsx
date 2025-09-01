@@ -37,7 +37,7 @@ export const ResetPassword = () => {
           {/* Left Image */}
           <div className="relative h-64 lg:h-auto">
             <img
-              src="public/image/reset-image.webp"
+              src="https://lh3.googleusercontent.com/gg-dl/AJfQ9KTm617seik64-TVjUxmJMtti2tiPVdJL52x86g72QxNvz1-4YHX04k_k3jaBcCnLIGYB8oqrBmx4DTG2E_Aq7darkR6xqKJCgPaH86FEnmvpKbqFOGNFGt-cq0qMkPjloKemJGqvpUvsCCYRwQJZniKqXgTki2t0FaG014THb-8dG5w2w=s1024"
               alt="reset"
               className="absolute inset-0 h-full w-full object-cover"
             />
@@ -59,9 +59,7 @@ export const ResetPassword = () => {
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#3CB8A4]"
               />
               {errors.password && (
-                <p className="text-red text-sm">
-                  {errors.password.message}
-                </p>
+                <p className="text-red text-sm">{errors.password.message}</p>
               )}
 
               <input

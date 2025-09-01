@@ -18,6 +18,8 @@ import { VerifySuccess } from "./auth/VerifySuccess";
 import { VerifyFailed } from "./auth/VerifyFailed";
 import ScrollToTop from "./component/ScrollToTop";
 import ConfirmBooking from "./component/ConfirmBooking";
+import AdminDashboard from "./pages/AdminDashboard";
+import Overview from "./component/AdminDashboard/Overview";
 
 const router = createBrowserRouter([
   {
@@ -143,6 +145,22 @@ const router = createBrowserRouter([
     element: (
       <>
         <VerifyFailed />
+      </>
+    ),
+  },
+  {
+    path: "/admin-dashboard",
+    element: (
+      <>
+        <AdminDashboard />
+      </>
+    ),
+  },
+  {
+    path: "/overview",
+    element: (
+      <>
+        <Overview />
       </>
     ),
   },

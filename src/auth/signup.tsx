@@ -47,7 +47,7 @@ export const Signup = () => {
           {/* Left Image */}
           <div className="relative h-64 lg:h-auto">
             <img
-              src="public/image/signup-image.webp"
+              src="https://cdn.leonardo.ai/users/681f98f9-2358-4fde-a8ae-88bf5a7c51e8/generations/9f75e008-106e-44d1-9e52-80c37952cdd7/segments/1:4:1/Lucid_Origin_A_minimalist_and_clean_website_signup_page_The_ba_0.jpg"
               alt="signup"
               className="absolute inset-0 h-full w-full object-cover"
             />
@@ -92,9 +92,7 @@ export const Signup = () => {
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red outline-0"
               />
               {errors.password && (
-                <p className="text-redtext-sm">
-                  {errors.password.message}
-                </p>
+                <p className="text-redtext-sm">{errors.password.message}</p>
               )}
 
               <input
