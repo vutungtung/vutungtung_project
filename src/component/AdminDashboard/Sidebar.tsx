@@ -1,5 +1,6 @@
-import { FaCar, FaHome } from "react-icons/fa";
-import { FiBarChart2, FiSettings } from "react-icons/fi";
+import { FaCar } from "react-icons/fa";
+import { FiSettings } from "react-icons/fi";
+import { LuLayoutDashboard } from "react-icons/lu";
 import { MdKeyboardArrowRight, MdOutlineCalendarToday } from "react-icons/md";
 import { TbUsers } from "react-icons/tb";
 
@@ -52,7 +53,7 @@ export const Sidebar = ({
             onClick={() => handleSelect("Overview")}
             className={getClass("Overview")}
           >
-            <FaHome /> Overview
+            <LuLayoutDashboard /> Overview
             {activePage === "Overview" && (
               <MdKeyboardArrowRight className="text-xl ml-auto" />
             )}
@@ -82,15 +83,6 @@ export const Sidebar = ({
           >
             <TbUsers /> Users
             {activePage === "Users" && (
-              <MdKeyboardArrowRight className="text-xl ml-auto" />
-            )}
-          </li>
-          <li
-            onClick={() => handleSelect("Analytics")}
-            className={getClass("Analytics")}
-          >
-            <FiBarChart2 /> Analytics
-            {activePage === "Analytics" && (
               <MdKeyboardArrowRight className="text-xl ml-auto" />
             )}
           </li>

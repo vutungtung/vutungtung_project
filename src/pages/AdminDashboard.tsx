@@ -6,7 +6,6 @@ import Vehicles from "../component/AdminDashboard/Vehicles";
 import Booking from "../component/AdminDashboard/Booking";
 import Setting from "../component/AdminDashboard/Setting";
 import Users from "../component/AdminDashboard/Users";
-import Analytics from "../component/AdminDashboard/Analytics";
 
 const AdminDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -21,7 +20,6 @@ const AdminDashboard = () => {
     Vehicles: <Vehicles />,
     Bookings: <Booking />,
     Users: <Users />,
-    Analytics: <Analytics />,
     Settings: <Setting />,
   };
 
@@ -37,7 +35,7 @@ const AdminDashboard = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        <AdminNavbar onMenuClick={toggleSidebar} />
+        <AdminNavbar onMenuClick={toggleSidebar} onSelectPage={setActivePage} />
         <div className="flex-1 p-6 overflow-y-auto">{pages[activePage]}</div>
       </div>
     </div>
