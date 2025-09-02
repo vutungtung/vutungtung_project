@@ -3,6 +3,7 @@ interface SearchFilterProps {
   setSearch: (value: string) => void;
   filter: string;
   setFilter: (value: string) => void;
+  placeholder?: string;
 }
 
 const SearchFilter = ({
@@ -10,6 +11,7 @@ const SearchFilter = ({
   setSearch,
   filter,
   setFilter,
+  placeholder = "Search...",
 }: SearchFilterProps) => {
   return (
     <div>
@@ -17,7 +19,8 @@ const SearchFilter = ({
         {/* Search Input */}
         <input
           type="text"
-          placeholder="Search by name, brand, or model..."
+          // placeholder="Search by name, brand, or model..."
+          placeholder={placeholder}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="border border-gray-300 outline-0 w-full rounded-md p-2 flex-1"

@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { FiX } from "react-icons/fi";
 
 interface Vehicle {
+  id?: string;
   title: string;
   brand: string;
   model: string;
@@ -11,7 +12,9 @@ interface Vehicle {
   seatingCapacity: number;
   mileage: string;
   pricePerDay: number;
+  features: string[];
   description: string;
+  image: string[]; // exactly 3 slots
 }
 
 interface EditVehicleModalProps {
@@ -25,16 +28,63 @@ const EditVehicleModal = ({
   onClose,
   onSave,
 }: EditVehicleModalProps) => {
-  const [formData, setFormData] = useState(vehicle);
+  // Ensure always 3 slots (fill missing with "")
+  const [formData, setFormData] = useState<Vehicle>({
+    ...vehicle,
+    image: [...vehicle.image, "", "", ""].slice(0, 3),
+  });
+
+  const featureOptions = [
+    "AC",
+    "GPS",
+    "Bluetooth",
+    "Airbags",
+    "Power Steering",
+  ];
+
+  const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleFeatureToggle = (feature: string) => {
+    const features = [...formData.features];
+    if (features.includes(feature)) {
+      setFormData({
+        ...formData,
+        features: features.filter((f) => f !== feature),
+      });
+    } else {
+      features.push(feature);
+      setFormData({ ...formData, features });
+    }
+  };
+
+  const handleImageChange = (index: number, file?: File) => {
+    const newImages = [...formData.image];
+    if (file) {
+      newImages[index] = URL.createObjectURL(file);
+    } else {
+      newImages[index] = "";
+      if (fileInputRefs.current[index]) {
+        fileInputRefs.current[index]!.value = ""; // reset input
+      }
+    }
+    setFormData({ ...formData, image: newImages });
+  };
+
   const handleSave = () => {
+    // Require at least 1 image
+    if (!formData.image.some((img) => img && img.trim() !== "")) {
+      alert("Please upload at least one image.");
+      return;
+    }
     onSave(formData);
     onClose();
   };
@@ -52,10 +102,9 @@ const EditVehicleModal = ({
           <FiX size={20} />
         </button>
 
-        {/* Title */}
         <h2 className="text-2xl font-bold mb-4">Edit Vehicle</h2>
 
-        {/* Form */}
+        {/* Form Fields */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input
             type="text"
@@ -81,30 +130,43 @@ const EditVehicleModal = ({
             placeholder="Model"
             className="border p-2 rounded"
           />
-          <input
-            type="text"
+
+          {/* Category */}
+          <select
             name="category"
             value={formData.category}
             onChange={handleChange}
-            placeholder="Category"
             className="border p-2 rounded"
-          />
-          <input
-            type="text"
+          >
+            <option value="Car">Car</option>
+            <option value="2-Wheeler">2-Wheeler</option>
+            <option value="Rickshaw">Rickshaw</option>
+            <option value="Truck">Truck</option>
+          </select>
+
+          {/* Transmission */}
+          <select
             name="transmission"
             value={formData.transmission}
             onChange={handleChange}
-            placeholder="Transmission"
             className="border p-2 rounded"
-          />
-          <input
-            type="text"
+          >
+            <option value="Manual">Manual</option>
+            <option value="Automatic">Automatic</option>
+          </select>
+
+          {/* Fuel */}
+          <select
             name="fuelType"
             value={formData.fuelType}
             onChange={handleChange}
-            placeholder="Fuel Type"
             className="border p-2 rounded"
-          />
+          >
+            <option value="Petrol">Petrol</option>
+            <option value="Diesel">Diesel</option>
+            <option value="Electric">Electric</option>
+          </select>
+
           <input
             type="number"
             name="seatingCapacity"
@@ -131,6 +193,24 @@ const EditVehicleModal = ({
           />
         </div>
 
+        {/* Features */}
+        <div className="mt-4">
+          <p className="font-semibold mb-2">Features:</p>
+          <div className="flex flex-wrap gap-2">
+            {featureOptions.map((f) => (
+              <label key={f} className="flex items-center gap-1">
+                <input
+                  type="checkbox"
+                  checked={formData.features.includes(f)}
+                  onChange={() => handleFeatureToggle(f)}
+                />
+                {f}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Description */}
         <textarea
           name="description"
           value={formData.description}
@@ -140,7 +220,42 @@ const EditVehicleModal = ({
           rows={4}
         />
 
-        {/* Save Button */}
+        {/* Images (3 inputs) */}
+        <div className="mt-4">
+          <p className="font-semibold mb-2">
+            Upload Images (3 slots, 1 required):
+          </p>
+          {formData.image.map((img, index) => (
+            <div key={index} className="mb-3">
+              <input
+                type="file"
+                accept="image/*"
+                ref={(el) => (fileInputRefs.current[index] = el)}
+                onChange={(e) => handleImageChange(index, e.target.files?.[0])}
+                className="border p-2 rounded w-full"
+              />
+
+              {img && (
+                <div className="mt-2 flex items-center gap-3">
+                  <img
+                    src={img}
+                    alt={`Preview ${index + 1}`}
+                    className="h-32 object-cover rounded border"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleImageChange(index, undefined)}
+                    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                  >
+                    Remove
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Save */}
         <div className="flex justify-end mt-4">
           <button
             onClick={handleSave}

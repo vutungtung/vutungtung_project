@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 interface Vehicle {
   id?: string;
   title: string;
@@ -104,10 +104,8 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
             X
           </button>
         </h2>
-
         {/* Error message */}
         {error && <p className="text-red-600 mb-4">{error}</p>}
-
         {/* Basic Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input
@@ -193,7 +191,6 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
             min={0}
           />
         </div>
-
         {/* Features */}
         <div className="mt-4">
           <p className="font-semibold mb-2">Features:</p>
@@ -224,18 +221,57 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
         {/* Images */}
         <div className="mt-4">
           <p className="font-semibold mb-2">
-            Image URLs (at least 1 required, up to 3):
+            Upload Images (at least 1 required, up to 3):
           </p>
-          {formData.image.map((img, index) => (
-            <input
-              key={index}
-              type="text"
-              placeholder={`Image URL ${index + 1}`}
-              value={img}
-              onChange={(e) => handleImageChange(index, e.target.value)}
-              className="border p-2 rounded w-full mb-2"
-            />
-          ))}
+          {formData.image.map((img, index) => {
+            const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+            return (
+              <div key={index} className="mb-3">
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={fileInputRef}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const newImages = [...formData.image];
+                      newImages[index] = URL.createObjectURL(file); // Store preview
+                      setFormData({ ...formData, image: newImages });
+                    }
+                  }}
+                  className="border p-2 rounded w-full"
+                />
+
+                {/* Show preview + remove option */}
+                {formData.image[index] && (
+                  <div className="mt-2 flex items-center gap-3">
+                    <img
+                      src={formData.image[index]}
+                      alt={`Preview ${index + 1}`}
+                      className="h-32 object-cover rounded border"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newImages = [...formData.image];
+                        newImages[index] = ""; // Clear state
+                        setFormData({ ...formData, image: newImages });
+
+                        // Also reset file input field
+                        if (fileInputRef.current) {
+                          fileInputRef.current.value = "";
+                        }
+                      }}
+                      className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {/* Submit */}

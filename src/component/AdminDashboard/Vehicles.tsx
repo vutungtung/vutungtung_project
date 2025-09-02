@@ -108,9 +108,12 @@ const Vehicles = () => {
               // Ensure newVehicle.id is a string
               const vehicleToAdd = {
                 ...newVehicle,
-                id: typeof newVehicle.id === "string" && newVehicle.id.length > 0
-                  ? newVehicle.id
-                  : `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+                id:
+                  typeof newVehicle.id === "string" && newVehicle.id.length > 0
+                    ? newVehicle.id
+                    : `${Date.now()}-${Math.random()
+                        .toString(36)
+                        .substr(2, 9)}`,
               };
               setVehicleList((prev) => [...prev, vehicleToAdd]);
             }}
@@ -124,6 +127,7 @@ const Vehicles = () => {
         setSearch={setSearch}
         filter={filter}
         setFilter={setFilter}
+        placeholder="Search vehicles by brand, model, or category..."
       />
 
       {/* Vehicle Cards */}
