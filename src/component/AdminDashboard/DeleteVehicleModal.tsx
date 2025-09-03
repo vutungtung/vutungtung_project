@@ -1,56 +1,27 @@
-import { FiX } from "react-icons/fi";
-
-interface Vehicle {
-  id: string;
-  title: string;
-  // Add other properties as needed
-}
-
-interface DeleteVehicleModalProps {
-  vehicle: Vehicle;
+type Props = {
+  vehicleTitle: string;
   onClose: () => void;
-  onDelete: (id: string) => void;
-}
+  onConfirm: () => void;
+};
 
-const DeleteVehicleModal = ({
-  vehicle,
-  onClose,
-  onDelete,
-}: DeleteVehicleModalProps) => {
-  if (!vehicle) return null;
-
+const DeleteVehicleModal = ({ vehicleTitle, onClose, onConfirm }: Props) => {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-      <div className="bg-white w-full max-w-md rounded-lg shadow-lg p-6 relative">
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-        >
-          <FiX size={20} />
-        </button>
-
-        {/* Title */}
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-lg p-6 w-[400px] text-center">
         <h2 className="text-xl font-bold mb-4">Delete Vehicle</h2>
-
-        {/* Message */}
-        <p className="text-gray-600 mb-6">
-          Are you sure you want to delete{" "}
-          <span className="font-semibold">{vehicle.title}</span>? This action
-          cannot be undone.
+        <p>
+          Are you sure you want to delete <strong>{vehicleTitle}</strong>?
         </p>
-
-        {/* Actions */}
-        <div className="flex justify-end gap-3">
+        <div className="flex justify-center gap-3 mt-5">
           <button
             onClick={onClose}
-            className="px-4 py-2 border rounded-lg hover:bg-gray-100"
+            className="px-4 py-2 border rounded hover:bg-gray-100"
           >
             Cancel
           </button>
           <button
-            onClick={() => onDelete(vehicle.id)}
-            className="px-4 py-2 bg-red text-white rounded-lg hover:bg-gradient-red"
+            onClick={onConfirm}
+            className="px-4 py-2 bg-red text-white rounded hover:bg-red/80"
           >
             Delete
           </button>

@@ -3,7 +3,7 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 
 interface VehicleCardProps {
-  id: number;
+  id: string; // must be string to match API
   title: string;
   image: string | string[];
   seatingCapacity: number;
@@ -26,7 +26,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
   const navigate = useNavigate();
 
   return (
-    <div className="relative md:h-[25rem] rounded-2xl hover:shadow-lg hover:-translate-y-5 duration-300 shadow-accent/30 overflow-hidden ">
+    <div className="relative md:h-[25rem] rounded-2xl hover:shadow-lg hover:-translate-y-5 duration-300 shadow-accent/30 overflow-hidden">
       <img
         src={Array.isArray(image) ? image[0] : image}
         alt={title}
@@ -48,14 +48,14 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
             {fuelType}
           </p>
         </div>
-        <p className="text-gray-600">{description}</p>
+        <p className="text-gray-600 line-clamp-1">{description}</p>
         <div className="md:absolute bottom-5 right-5 left-5 flex justify-between items-center">
           <p className="text-red font-heading text-xl font-semibold">
             Rs.{pricePerDay}
             <span className="text-sm text-gray-600 font-normal">/day</span>
           </p>
           <button
-            onClick={() => navigate(`/vehicles/${id}`)}
+            onClick={() => navigate(`/vehicles/${id}`)} // navigate with string ID
             className="bg-red hover:bg-gradient-red text-white font-medium p-2 rounded-lg"
           >
             View Details

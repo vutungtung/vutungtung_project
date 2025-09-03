@@ -5,11 +5,9 @@ import About from "./pages/about";
 import Vehicle from "./pages/vehicle";
 import Navbar from "./component/nav";
 import { Contact } from "./pages/contact";
-import Booking from "./pages/booking";
 import Footer from "./component/footer";
 import VehicleDetails from "./pages/vehicleDetails";
 import { Login } from "./auth/login";
-
 import { ForgotPassword } from "./auth/ForgotPassword";
 import { Signup } from "./auth/signup";
 import { VerifyOTP } from "./auth/VerifyOTP";
@@ -17,7 +15,7 @@ import { ResetPasswordOTP } from "./auth/ResetPasswordOTP";
 import { VerifySuccess } from "./auth/VerifySuccess";
 import { VerifyFailed } from "./auth/VerifyFailed";
 import ScrollToTop from "./component/ScrollToTop";
-import ConfirmBooking from "./component/ConfirmBooking";
+import ConfirmBooking from "./pages/ConfirmBooking";
 import AdminDashboard from "./pages/AdminDashboard";
 import Overview from "./component/AdminDashboard/Overview";
 
@@ -57,14 +55,7 @@ const router = createBrowserRouter([
           </>
         ),
       },
-      {
-        path: "/booking",
-        element: (
-          <>
-            <Booking />
-          </>
-        ),
-      },
+
       {
         path: "/vehicles/:id",
         element: (
@@ -74,7 +65,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/confirm-booking",
+        path: "/confirm-booking/",
         element: (
           <>
             <ConfirmBooking />

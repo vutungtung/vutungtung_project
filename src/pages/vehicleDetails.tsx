@@ -1,329 +1,346 @@
-// import { useState } from "react";
-// import LocationForm from "../component/locationTime";
-// import { FaRegClock, FaShieldAlt } from "react-icons/fa";
-
-// const VehicleDetails = () => {
-//   const [activeOption, setActiveOption] = useState("driver");
-
-//   return (
-//     <div className="mx-auto  h-full max-w-7xl py-10">
-//       <div className="p-5 xl:p-0 flex flex-wrap lg:flex-nowrap gap-5 justify-between">
-//         <div className="w-full space-y-2">
-//           <img
-//             src="https://imageio.forbes.com/specials-images/imageserve/5d35eacaf1176b0008974b54/0x0.jpg?format=jpg&crop=4560,2565,x790,y784,safe&height=900&width=1600&fit=bounds"
-//             alt=""
-//           />
-
-//           <div className="flex justify-between items-center text-justify">
-//             <div>
-//               <h1 className="text-2xl font-semibold">Honda CR-V</h1>
-//               <p className="font-semibold">4.7 (127 Reviews)</p>
-//             </div>
-//             <div className="font-heading">
-//               <p className="text-xl font-bold text-red">$65</p>
-//               <p>per day</p>
-//             </div>
-//           </div>
-//           <div></div>
-//           <h2 className="border-t border-border text-xl font-semibold pt-5">
-//             About Vehicles
-//           </h2>
-//           <p className="text-justify">
-//             Lorem, ipsum dolor sit amet consectetur adipisicing elit. Modi
-//             quisquam, repellendus eos facilis, veniam reiciendis praesentium
-//             commodi molestias rerum explicabo similique?
-//           </p>
-//         </div>
-
-//         {/* booking Section  */}
-//         <div className="lg:p-5 pt-5 bg-light-gray lg:shadow-lg border-t border-border lg:border-0 rounded-none  sticky top-25 w-full lg:w-[750px] h-fit  space-y-2 lg:rounded-xl">
-//           <h1 className="text-2xl text-foreground font-semibold">
-//             Book This Vehicle
-//           </h1>
-//           <div className="space-y-5">
-//             <h4 className="text-base font-semibold text-foreground/80">
-//               Rent Type
-//             </h4>
-//             <div className="flex gap-x-5">
-//               {/* With Driver Button */}
-//               <button
-//                 onClick={() => setActiveOption("driver")}
-//                 className={`inline-flex flex-col p-2 w-full border rounded text-xl font-semibold
-//           ${
-//             activeOption === "driver"
-//               ? " text-red bg-red/10 border-border"
-//               : "bg-accent/10 text-accent"
-//           }
-//         `}
-//               >
-//                 With Driver
-//                 <span
-//                   className={`text-sm font-normal ${
-//                     activeOption === "driver"
-//                       ? " text-red border-border"
-//                       : "bg-accent/10 text-accent"
-//                   }`}
-//                 >
-//                   +Rs.500/day
-//                 </span>
-//               </button>
-
-//               {/* Self Drive Button */}
-//               <button
-//                 onClick={() => setActiveOption("self")}
-//                 className={`inline-flex flex-col p-2 w-full border rounded text-xl font-semibold
-//           ${
-//             activeOption === "self"
-//               ? " text-red bg-red/10 border-border"
-//               : "bg-accent/10 text-accent"
-//           }
-//         `}
-//               >
-//                 Self Drive
-//                 <span
-//                   className={`text-sm font-normal ${
-//                     activeOption === "self"
-//                       ? " text-red  border-border"
-//                       : "bg-accent/10 text-accent"
-//                   }`}
-//                 >
-//                   License required
-//                 </span>
-//               </button>
-//             </div>
-//             <div>
-//               <LocationForm />
-//             </div>
-//             <button className="w-full border text-xl font-semibold text-white bg-red hover:bg-gradient-red rounded p-3">
-//               Book Now
-//             </button>
-//             <button className="w-full border  text-xl font-semibold text-red hover:text-gradient-red rounded p-3">
-//               Save for Checkout
-//             </button>
-//           </div>
-//           <div className="text-center text-sm text-background/50 p-3">
-//             <p className="flex justify-center  items-center gap-2">
-//               <FaRegClock />
-//               Instant confirmation
-//             </p>
-//             <p className="flex justify-center  items-center gap-2">
-//               <FaShieldAlt />
-//               Free cancellation up to 24h
-//             </p>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default VehicleDetails;
-
-import { useState } from "react";
-import LocationForm from "../component/locationTime";
-import { FaCheckCircle, FaRegClock, FaShieldAlt } from "react-icons/fa";
-import { vehiclesData } from "../component/vehiclesData";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import {
+  FaCheckCircle,
+  FaHeart,
+  FaRegClock,
+  FaRegHeart,
+  FaShieldAlt,
+} from "react-icons/fa";
+import { fetchVehicleById } from "../api/vehicleApi";
+import LocationForm from "../component/locationTime";
+import { LuCloudUpload } from "react-icons/lu";
+import BackButton from "../component/navigate";
+
+interface Vehicle {
+  id: string | number;
+  title: string;
+  image: string[];
+  pricePerDay: number;
+  description: string;
+  features?: string[];
+}
 
 const VehicleDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const vehicle = vehiclesData.find((v) => v.id.toString() === id);
-  const [activeOption, setActiveOption] = useState("driver");
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [vehicle, setVehicle] = useState<Vehicle | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
   const [currentImage, setCurrentImage] = useState(0);
-  const [locationData, setLocationData] = useState({});
   const [licenseNumber, setLicenseNumber] = useState("");
   const [licenseFile, setLicenseFile] = useState<File | null>(null);
+  const [locationData, setLocationData] = useState({
+    pickupLocation: "",
+    returnLocation: "",
+    pickupDate: "",
+    returnDate: "",
+  });
+  // Removed unused totalPrice state
 
-  const handleBooking = () => {
-    const bookingData = {
-      rentType: activeOption,
-      ...locationData,
-      licenseNumber,
-      licenseFile,
-    };
-
-    navigate("/confirm-booking", { state: bookingData });
+  // Handle file input change for license upload
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setLicenseFile(e.target.files[0]);
+    } else {
+      setLicenseFile(null);
+    }
   };
 
-  if (!vehicle) {
-    return <p className="text-center p-10">Vehicle not found.</p>;
-  }
+  const isLoggedIn = !!localStorage.getItem("token");
+  const SERVICE_FEE = 20; // flat fee
+  const INSURANCE_PER_DAY = 15; // per day
+  // Removed useEffect for totalPrice since it's unused
 
-  const images = vehicle.image;
+  const handleBooking = () => {
+    // Check if all fields are filled
+    if (
+      !locationData.pickupLocation ||
+      !locationData.returnLocation ||
+      !locationData.pickupDate ||
+      !locationData.returnDate ||
+      !licenseNumber ||
+      !licenseFile
+    ) {
+      alert("Please fill all required fields before booking.");
+      return;
+    }
 
+    const start = new Date(locationData.pickupDate);
+    const end = new Date(locationData.returnDate);
+    const days = Math.ceil(
+      (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    const base = days > 0 ? days * Number(vehicle?.pricePerDay || 0) : 0;
+    const insurance = days > 0 ? days * INSURANCE_PER_DAY : 0;
+    const finalTotal = base + SERVICE_FEE + insurance;
+
+    const bookingData = {
+      vehicle,
+      locationData,
+      licenseNumber,
+      licenseFile,
+      days,
+      breakdown: {
+        base,
+        serviceFee: SERVICE_FEE,
+        insurance,
+      },
+      totalPrice: finalTotal,
+    };
+
+    if (!isLoggedIn) {
+      //  navigate("/login", {
+      //   state: { redirectTo: "/confirm-booking", bookingData },
+      // });
+      navigate("/confirm-booking", { state: bookingData });
+    } else {
+      navigate("/confirm-booking", { state: bookingData });
+    }
+  };
+  useEffect(() => {
+    const loadVehicle = async () => {
+      try {
+        const data = await fetchVehicleById(id!);
+        setVehicle(data);
+      } catch {
+        setError("Vehicle not found.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadVehicle();
+  }, [id]);
+
+  if (loading)
+    return (
+      <p className="text-center py-20 text-gray-500 text-lg">Loading...</p>
+    );
+  if (error || !vehicle)
+    return <p className="text-center py-20 text-red-500 text-lg">{error}</p>;
+
+  const images = Array.isArray(vehicle.image) ? vehicle.image : [vehicle.image];
   const nextImage = () => setCurrentImage((prev) => (prev + 1) % images.length);
   const prevImage = () =>
     setCurrentImage((prev) => (prev - 1 + images.length) % images.length);
 
   return (
-    <div className="mx-auto h-full max-w-7xl py-10">
-      <div className="p-5 xl:p-0 flex flex-wrap lg:flex-nowrap gap-5 justify-between">
-        <div className="w-full space-y-2">
-          {/* Carousel */}
-          <div className="relative w-full  h-96 overflow-hidden rounded-xl">
+    <div className="max-w-7xl mx-auto py-10 px-5">
+      <BackButton />
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Vehicle Info */}
+        <div className="flex-1 space-y-6">
+          {/* Image Carousel */}
+          <div className="relative w-full h-96 rounded-xl overflow-hidden shadow-lg">
             <img
               src={images[currentImage]}
-              alt=""
-              className="w-full h-full object-cover"
-            />  
-            <button
-              onClick={prevImage}
-              className="absolute left-2 top-1/2 -translate-y-1/2  bg-black/30 text-white p-2 rounded-full"
-            >
-              {"<"}
-            </button>
-            <button
-              onClick={nextImage}
-              className="absolute right-2 top-1/2 -translate-y-1/2  bg-black/30 text-white p-2 rounded-full"
-            >
-              {">"}
-            </button>
+              alt={vehicle.title}
+              className="w-full h-full object-cover transition-transform duration-300"
+            />
+            {images.length > 1 && (
+              <>
+                <button
+                  onClick={prevImage}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/30 text-white p-3 rounded-full hover:bg-black/50 transition"
+                >
+                  {"<"}
+                </button>
+                <button
+                  onClick={nextImage}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/30 text-white p-3 rounded-full hover:bg-black/50 transition"
+                >
+                  {">"}
+                </button>
+              </>
+            )}
           </div>
 
-          <div className="flex justify-between items-center text-justify">
+          {/* Title & Price */}
+          <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-semibold">{vehicle.title}</h1>
-              <p className="font-semibold">4.7 (127 Reviews)</p>
+              <h1 className="text-3xl font-bold text-gray-900">
+                {vehicle.title}
+              </h1>
+              <p className="text-gray-500 mt-1">4.7 (127 Reviews)</p>
             </div>
-            <div className="font-heading">
-              <p className="text-xl font-bold text-red">
+            <div className="text-right">
+              <p className="text-2xl font-bold text-red-600">
                 {vehicle.pricePerDay}
               </p>
-              <p>per day</p>
+              <span className="text-gray-500 text-sm">per day</span>
             </div>
           </div>
 
-          <h2 className="border-t border-border text-xl font-semibold pt-5">
-            About Vehicles
-          </h2>
-          <p className="text-justify">{vehicle.description}</p>
-          <h2 className=" text-xl font-semibold pt-5">What's included</h2>
-          {/* Features list */}
-          <div className="grid grid-cols-2 gap-3 mt-2">
-            {vehicle.features.map((feature, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-2 text-green-600 text-sm font-medium"
-              >
-                <FaCheckCircle size={16} />
-                <span className="text-gray-700">{feature}</span>
-              </div>
-            ))}
+          {/* Description */}
+          <div className="space-y-3">
+            <h2 className="text-xl font-semibold border-t pt-5">
+              About Vehicle
+            </h2>
+            <p className="text-gray-600 text-justify">{vehicle.description}</p>
           </div>
+
+          {/* Features */}
+          {vehicle.features?.length && (
+            <div className="space-y-3">
+              <h2 className="text-xl font-semibold">What's Included</h2>
+              <div className="grid grid-cols-2 gap-3">
+                {vehicle.features.map((feature, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center gap-2 text-green-600 font-medium"
+                  >
+                    <FaCheckCircle />
+                    <span className="text-gray-700">{feature}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Booking Section */}
-        <div className="p-5 pt-5 bg-light-gray lg:shadow-lg rounded-xl sticky top-25 w-full lg:w-[750px] h-fit space-y-2 lg:rounded-xl">
-          <h1 className="text-2xl text-foreground font-semibold">
+        {/* Booking Card */}
+        <div className="lg:w-[400px] w-full bg-white p-6 rounded-xl shadow-lg sticky top-20 space-y-5">
+          <h2 className="text-2xl font-bold text-gray-900">
             Book This Vehicle
-          </h1>
-          <div className="space-y-5">
-            <h4 className="text-base font-semibold text-foreground/80">
-              Rent Type
-            </h4>
-            <div className="flex gap-x-5">
-              {/* With Driver Button */}
-              <button
-                onClick={() => setActiveOption("driver")}
-                className={`inline-flex flex-col p-2 w-full border rounded text-xl font-semibold
-                  ${
-                    activeOption === "driver"
-                      ? "text-red bg-red/10 border-border"
-                      : "bg-accent/10 text-accent"
-                  }`}
-              >
-                With Driver
-                <span
-                  className={`text-sm font-normal ${
-                    activeOption === "driver"
-                      ? "text-red border-border"
-                      : "bg-accent/10 text-accent"
-                  }`}
-                >
-                  +Rs.500/day
-                </span>
-              </button>
+          </h2>
 
-              {/* Self Drive Button */}
-              <button
-                onClick={() => setActiveOption("self")}
-                className={`inline-flex flex-col p-2 w-full border rounded text-xl font-semibold
-                  ${
-                    activeOption === "self"
-                      ? "text-red bg-red/10 border-border"
-                      : "bg-accent/10 text-accent"
-                  }`}
-              >
-                Self Drive
-                <span
-                  className={`text-sm font-normal ${
-                    activeOption === "self"
-                      ? "text-red border-border"
-                      : "bg-accent/10 text-accent"
-                  }`}
-                >
-                  License required
-                </span>
-              </button>
-            </div>
+          <LocationForm onFormChange={setLocationData} />
 
-            {/* Location Form */}
+          {/* License */}
+          <div className="border border-yellow-300 p-4 rounded-lg bg-yellow-50 space-y-3">
             <div>
-              <LocationForm onFormChange={setLocationData} />
+              <h3 className="font-semibold text-lg text-red">
+                License Verification
+              </h3>
+              <p className="text-xs text-red">Required*</p>
             </div>
+            <input
+              type="text"
+              value={licenseNumber}
+              onChange={(e) => setLicenseNumber(e.target.value)}
+              placeholder="Enter License Number"
+              className="w-full border border-yellow-300 p-2 rounded focus:outline-none focus:none "
+            />
+            <div className="border-dashed border-2 border-yellow-300 p-4 text-center rounded">
+              <p className="mb-2 text-gray-500">Upload License Photo</p>
+              <div className="w-full">
+                <label
+                  htmlFor="licenseUpload"
+                  className="flex flex-col items-center justify-center w-full cursor-pointertransition"
+                >
+                  <LuCloudUpload className="w-10 h-10 text-gray-400 mb-2" />
+                  <p className="text-blue-600 font-medium">
+                    {licenseFile ? licenseFile.name : "Upload a file"}
+                  </p>
+                  {!licenseFile && (
+                    <p className="text-xs text-gray-500">
+                      or drag and drop <br /> PNG, JPG up to 5MB
+                    </p>
+                  )}
+                </label>
 
-            {/* License Upload Form (Conditional) */}
-            {activeOption === "self" && (
-              <div className="mt-5 p-5 border border-red bg-red/10 rounded-lg">
-                <h3 className="font-semibold text-lg mb-3">
-                  License Verification Required
-                </h3>
                 <input
-                  type="text"
-                  value={licenseNumber}
-                  placeholder="Enter your license number"
-                  className="w-full mb-3 p-2 border rounded"
+                  id="licenseUpload"
+                  type="file"
+                  accept="image/png, image/jpeg"
+                  onChange={handleFileChange}
+                  className="hidden"
                 />
-                <div className="border-dashed border-2 border- p-5 text-center rounded mb-3">
-                  <p className="mb-2">Upload License Photo</p>
-                  <input
-                    type="file"
-                    accept="image/png, image/jpeg"
-                    onChange={(e) =>
-                      setLicenseFile(e.target.files?.[0] || null)
-                    }
-                    className="text-center"
-                  />
-                </div>
-                <ul className="text-sm text-gray-600 list-disc pl-5">
-                  <li>License must be valid and not expired</li>
-                  <li>Photo should be clear and readable</li>
-                  <li>International licenses accepted with translation</li>
-                  <li>Minimum age requirement: 21 years</li>
-                </ul>
               </div>
-            )}
-
-            <button
-              onClick={handleBooking}
-              className="w-full border text-xl font-semibold text-white bg-red hover:bg-gradient-red rounded p-3"
-            >
-              Book Now
-            </button>
-            <button className="w-full border text-xl font-semibold text-red hover:text-gradient-red rounded p-3">
-              Save for Checkout
-            </button>
+            </div>
           </div>
 
-          <div className="text-center text-sm text-background/50 p-3">
-            <p className="flex justify-center items-center gap-2">
-              <FaRegClock />
-              Instant confirmation
+          {/* Price Breakdown */}
+          {locationData.pickupDate && locationData.returnDate && (
+            <div className="border-t pt-4 space-y-2 text-gray-700">
+              <h3 className="text-lg font-semibold">Price Breakdown</h3>
+
+              <div className="flex justify-between">
+                <span>Daily Rate</span>
+                <span>${vehicle.pricePerDay}</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span>Duration</span>
+                <span>
+                  {Math.ceil(
+                    (new Date(locationData.returnDate).getTime() -
+                      new Date(locationData.pickupDate).getTime()) /
+                      (1000 * 60 * 60 * 24)
+                  )}{" "}
+                  days × ${vehicle.pricePerDay}
+                </span>
+              </div>
+
+              <div className="flex justify-between">
+                <span>Service Fee</span>
+                <span>${SERVICE_FEE}</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span>Insurance (self-drive)</span>
+                <span>
+                  $
+                  {INSURANCE_PER_DAY *
+                    Math.ceil(
+                      (new Date(locationData.returnDate).getTime() -
+                        new Date(locationData.pickupDate).getTime()) /
+                        (1000 * 60 * 60 * 24)
+                    )}
+                </span>
+              </div>
+
+              <div className="flex justify-between font-bold text-lg border-t pt-2">
+                <span>Total</span>
+                <span>
+                  $
+                  {(() => {
+                    const days = Math.ceil(
+                      (new Date(locationData.returnDate).getTime() -
+                        new Date(locationData.pickupDate).getTime()) /
+                        (1000 * 60 * 60 * 24)
+                    );
+                    if (days <= 0) return 0;
+                    return (
+                      days * Number(vehicle.pricePerDay) +
+                      SERVICE_FEE +
+                      INSURANCE_PER_DAY * days
+                    );
+                  })()}
+                </span>
+              </div>
+            </div>
+          )}
+
+          <button
+            onClick={handleBooking}
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg py-3 transition"
+          >
+            Book Now
+          </button>
+
+          {/* Wishlist */}
+          <button
+            onClick={() => setIsWishlisted(!isWishlisted)}
+            className={`w-full border rounded-lg py-3 flex items-center justify-center gap-2 font-semibold transition ${
+              isWishlisted
+                ? "bg-red-600 text-white hover:bg-red-700"
+                : "border-red-600 text-red-600 hover:bg-red-50"
+            }`}
+          >
+            {isWishlisted ? <FaHeart /> : <FaRegHeart />}
+            {isWishlisted ? "Added to Wishlist" : "Add to Wishlist"}
+          </button>
+
+          <div className="text-center text-gray-500 text-sm space-y-1">
+            <p className="flex items-center justify-center gap-2">
+              <FaRegClock /> Instant confirmation
             </p>
-            <p className="flex justify-center items-center gap-2">
-              <FaShieldAlt />
-              Free cancellation up to 24h
+            <p className="flex items-center justify-center gap-2">
+              <FaShieldAlt /> Free cancellation up to 24h
             </p>
           </div>
         </div>

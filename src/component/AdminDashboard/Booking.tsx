@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-
 import SearchFilter from "./SearchFilter"; // adjust path if needed
 import { FaCalendar, FaCheck, FaEye } from "react-icons/fa";
 import { FiX } from "react-icons/fi";
@@ -58,25 +57,22 @@ const Booking = () => {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
 
-  // Filtering logic
   const bookings = allBookings.filter((b) => {
     const matchesSearch =
       b.name.toLowerCase().includes(search.toLowerCase()) ||
       b.email.toLowerCase().includes(search.toLowerCase()) ||
       b.car.toLowerCase().includes(search.toLowerCase());
-
     const matchesFilter = filter === "All" || b.category === filter;
-
     return matchesSearch && matchesFilter;
   });
 
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div>
+      <div className=" p-4 rounded-lg">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Booking Management</h1>
-          <button className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-100">
+          <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100">
             <FaCalendar className="w-4 h-4" />
             Export Report
           </button>
@@ -86,29 +82,38 @@ const Booking = () => {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="p-4 border rounded-lg">
-          <p className="text-sm text-gray-500">Total Bookings</p>
-          <p className="text-2xl font-bold">{allBookings.length}</p>
-        </div>
-        <div className="p-4 border rounded-lg">
-          <p className="text-sm text-gray-500">Active</p>
-          <p className="text-2xl font-bold text-green-600">
-            {allBookings.filter((b) => b.status === "Active").length}
-          </p>
-        </div>
-        <div className="p-4 border rounded-lg">
-          <p className="text-sm text-gray-500">Pending</p>
-          <p className="text-2xl font-bold text-yellow-500">
-            {allBookings.filter((b) => b.status === "Pending").length}
-          </p>
-        </div>
-        <div className="p-4 border rounded-lg">
-          <p className="text-sm text-gray-500">Revenue</p>
-          <p className="text-2xl font-bold text-red-500">
-            $
-            {allBookings.reduce((acc, b) => acc + b.amount, 0).toLocaleString()}
-          </p>
-        </div>
+        {["Total Bookings", "Active", "Pending", "Revenue"].map(
+          (label, idx) => {
+            const value =
+              label === "Total Bookings"
+                ? allBookings.length
+                : label === "Active"
+                ? allBookings.filter((b) => b.status === "Active").length
+                : label === "Pending"
+                ? allBookings.filter((b) => b.status === "Pending").length
+                : `$${allBookings
+                    .reduce((acc, b) => acc + b.amount, 0)
+                    .toLocaleString()}`;
+            const textColor =
+              label === "Active"
+                ? "text-green-600"
+                : label === "Pending"
+                ? "text-yellow-500"
+                : label === "Revenue"
+                ? "text-red-500"
+                : "text-gray-900";
+
+            return (
+              <div
+                key={idx}
+                className="p-4 border border-gray-300 rounded-lg bg-white"
+              >
+                <p className="text-sm text-gray-500">{label}</p>
+                <p className={`text-2xl font-bold ${textColor}`}>{value}</p>
+              </div>
+            );
+          }
+        )}
       </div>
 
       {/* Search + Filter */}
@@ -121,7 +126,7 @@ const Booking = () => {
       />
 
       {/* Recent Bookings */}
-      <div>
+      <div className="bg-white border border-gray-300 p-4 rounded-lg">
         <h2 className="text-lg font-semibold mb-4">Recent Bookings</h2>
         {bookings.length === 0 ? (
           <p className="text-gray-500">No bookings found.</p>
@@ -130,7 +135,7 @@ const Booking = () => {
             {bookings.map((b) => (
               <div
                 key={b.id}
-                className="flex justify-between items-center p-4 border rounded-lg"
+                className="flex justify-between items-center p-4 border border-gray-300 rounded-lg bg-white"
               >
                 {/* Left side: user */}
                 <div>
