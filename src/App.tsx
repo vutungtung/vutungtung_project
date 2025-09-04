@@ -18,6 +18,7 @@ import ScrollToTop from "./component/ScrollToTop";
 import ConfirmBooking from "./pages/ConfirmBooking";
 import AdminDashboard from "./pages/AdminDashboard";
 import Overview from "./component/AdminDashboard/Overview";
+import UserDashboard from "./pages/UserDashboard";
 
 const router = createBrowserRouter([
   {
@@ -77,6 +78,14 @@ const router = createBrowserRouter([
         element: (
           <>
             <Contact />
+          </>
+        ),
+      },
+      {
+        path: "/user-dashboard",
+        element: (
+          <>
+            <UserDashboard/>
           </>
         ),
       },

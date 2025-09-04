@@ -87,48 +87,57 @@ const Nav = () => {
       {/* Mobile Dropdown */}
       {setisOpen && (
         <div
-          className={`md:hidden fixed  top-16 h-full w-full bg-gradientRed/80 backdrop-blur-xs text-red font-medium flex flex-col p-5 space-y-3 z-40 shadow-lg transform transition-transform duration-300 ease-in-out ${
-            isOpen ? "translate-y-0" : "-translate-y-full"
+          className={`md:hidden fixed  top-16 py-10 h-full w-full bg-white/90 backdrop-blur-xs text-red font-medium flex flex-col p-5 space-y-3 z-40 shadow-lg transform transition-transform duration-300 ease-in-out ${
+            isOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
           <NavLink
             to="/"
-            className={({ isActive }) => (isActive ? "text-foreground" : "")}
+            className={({ isActive }) =>
+              isActive
+                ? " p-2 bg-black/50 text-center text-white rounded-lg"
+                : " border p-2 rounded-lg text-center"
+            }
             onClick={() => setisOpen(!isOpen)}
           >
             Home
           </NavLink>
           <NavLink
             to="/vehicles"
-            className={({ isActive }) => (isActive ? "text-foreground" : "")}
+            className={({ isActive }) =>
+              isActive
+                ? " p-2 bg-black/50 text-center text-white rounded-lg"
+                : " border p-2 rounded-lg text-center"
+            }
             onClick={() => setisOpen(!isOpen)}
           >
             Vehicle
           </NavLink>
-          {/* <NavLink
-            to="/booking"
-            className={({ isActive }) => (isActive ? "text-foreground" : "")}
-            onClick={() => setisOpen(!isOpen)}
-          >
-            Booking
-          </NavLink> */}
           <NavLink
             to="/contact"
-            className={({ isActive }) => (isActive ? "text-foreground" : "")}
+            className={({ isActive }) =>
+              isActive
+                ? " p-2 bg-black/50 text-center text-white rounded-lg"
+                : " border p-2 rounded-lg text-center"
+            }
             onClick={() => setisOpen(!isOpen)}
           >
             Contact
           </NavLink>
           <NavLink
             to="/about"
-            className={({ isActive }) => (isActive ? "text-foreground" : "")}
+            className={({ isActive }) =>
+              isActive
+                ? " p-2 bg-black/50 text-center text-white rounded-lg"
+                : " border p-2 rounded-lg text-center"
+            }
             onClick={() => setisOpen(!isOpen)}
           >
             About Us
           </NavLink>
           <NavLink
             to="/login"
-            className="bg-primary text-red border bg-white/30 py-2 px-4 rounded text-center"
+            className=" bg-red border text-white py-2 px-4 rounded text-center"
           >
             Login / Register
           </NavLink>
