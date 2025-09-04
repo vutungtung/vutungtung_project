@@ -65,7 +65,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/confirm-booking/",
+        path: "/confirm-booking/:bookingData",
         element: (
           <>
             <ConfirmBooking />
@@ -162,3 +162,7 @@ function App() {
 }
 
 export default App;
+
+
+
+

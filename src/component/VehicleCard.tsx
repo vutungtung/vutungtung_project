@@ -25,6 +25,8 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
 }) => {
   const navigate = useNavigate();
 
+  
+
   return (
     <div className="relative md:h-[25rem] rounded-2xl hover:shadow-lg hover:-translate-y-5 duration-300 shadow-accent/30 overflow-hidden">
       <img
