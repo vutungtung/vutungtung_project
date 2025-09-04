@@ -6,11 +6,13 @@ import { IoMdAdd } from "react-icons/io";
 interface AdminNavbarProps {
   onMenuClick: () => void;
   onSelectPage: (page: string) => void;
+  onAddVehicleClick: () => void; // ✅ new prop
 }
 
 export const AdminNavbar = ({
   onMenuClick,
   onSelectPage,
+  onAddVehicleClick,
 }: AdminNavbarProps) => {
   const [open, setOpen] = useState(false);
   return (
@@ -57,6 +59,7 @@ export const AdminNavbar = ({
                     className=" flex justify-start w-full items-center gap-2  px-4 py-2 rounded-lg hover:text-white hover:bg-red"
                     onClick={() => {
                       onSelectPage("Vehicles");
+                      onAddVehicleClick();
                       setOpen(false);
                     }}
                   >

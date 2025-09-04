@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { IoMdAdd } from "react-icons/io";
-import { FiMoreVertical } from "react-icons/fi";
-import SearchFilter from "./SearchFilter";
+import { FiMoreVertical, FiFilter } from "react-icons/fi";
 import AddVehicleForm from "./AddVehicleForm";
 import ViewVehicleModal from "./ViewVehicleModal";
 import EditVehicleModal from "./EditVehicleModal";
@@ -25,13 +24,19 @@ export type Vehicle = {
   image: string[];
 };
 
-const Vehicles = () => {
+interface VehicleProps {
+  showAddModal: boolean;
+  setShowAddModal: (value: boolean) => void;
+}
+
+const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) =>  {
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("All");
+  const [filterCategory, setFilterCategory] = useState("All");
+  const [filterStatus, setFilterStatus] = useState("All");
   const [vehicleList, setVehicleList] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [showAddModal, setShowAddModal] = useState(false);
+  // const [showAddModal, setShowAddModal] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   // modal states
@@ -39,6 +44,20 @@ const Vehicles = () => {
   const [editVehicle, setEditVehicle] = useState<Vehicle | null>(null);
   const [deleteVehicleTarget, setDeleteVehicleTarget] =
     useState<Vehicle | null>(null);
+
+  const [showFilter, setShowFilter] = useState(false);
+  const filterRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(e.target as Node)) {
+        setShowFilter(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Fetch vehicles
   useEffect(() => {
@@ -61,8 +80,15 @@ const Vehicles = () => {
       v.title.toLowerCase().includes(search.toLowerCase()) ||
       v.brand.toLowerCase().includes(search.toLowerCase()) ||
       v.model.toLowerCase().includes(search.toLowerCase());
-    const matchesFilter = filter === "All" || v.category === filter;
-    return matchesSearch && matchesFilter;
+
+    const matchesCategory =
+      filterCategory === "All" || v.category === filterCategory;
+
+    // If you have status property in vehicle, adjust here
+    const matchesStatus =
+      filterStatus === "All" || v.transmission === filterStatus;
+
+    return matchesSearch && matchesCategory && matchesStatus;
   });
 
   return (
@@ -92,14 +118,90 @@ const Vehicles = () => {
         />
       )}
 
-      {/* Search & Filter */}
-      <SearchFilter
-        search={search}
-        setSearch={setSearch}
-        filter={filter}
-        setFilter={setFilter}
-        placeholder="Search vehicles by brand, model, or category..."
-      />
+      {/* Search + Filter */}
+      <div className="flex flex-wrap items-center justify-between bg-white p-5 rounded-2xl border border-gray-300 gap-4">
+        <input
+          type="text"
+          placeholder="Search vehicles by brand, model, or category..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="flex-1 min-w-[250px] px-4 py-2 border border-gray-300  bg-white rounded-lg focus:ring-2 focus:ring-red outline-none"
+        />
+
+        {/* Filters Dropdown */}
+        <div className="relative" ref={filterRef}>
+          <button
+            onClick={() => setShowFilter(!showFilter)}
+            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50"
+          >
+            <FiFilter size={18} /> Filters
+          </button>
+
+          {showFilter && (
+            <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-300 rounded-xl shadow-lg p-4 z-20">
+              <div className="flex justify-between items-center mb-3">
+                <p className="font-semibold text-gray-700">Filters</p>
+                <button
+                  className="text-sm text-red hover:underline"
+                  onClick={() => {
+                    setFilterCategory("All");
+                    setFilterStatus("All");
+                    setShowFilter(false);
+                  }}
+                >
+                  Clear
+                </button>
+              </div>
+
+              {/* Status */}
+              <div className="mb-3">
+                <label className="block text-sm text-gray-600 mb-1">
+                  Status
+                </label>
+                <select
+                  value={filterStatus}
+                  onChange={(e) => {
+                    setFilterStatus(e.target.value);
+                    // setShowFilter(false); // 👈 close dropdown after selecting
+                  }}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red outline-none"
+                >
+                  <option value="All">All Statuses</option>
+                  <option value="Available">Available</option>
+                  <option value="Rented">Rented</option>
+                  <option value="Maintenance">Maintenance</option>
+                </select>
+              </div>
+
+              {/* Category */}
+              <div className="mb-3">
+                <label className="block text-sm text-gray-600 mb-1">
+                  Category
+                </label>
+                <select
+                  value={filterCategory}
+                  onChange={(e) => {
+                    setFilterCategory(e.target.value);
+                    setShowFilter(false); // 👈 close dropdown after selecting
+                  }}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red outline-none"
+                >
+                  <option value="All">All Categories</option>
+                  <option value="2-Wheeler">2-Wheeler</option>
+                  <option value="Car">Car</option>
+                  <option value="Truck">Truck</option>
+                  <option value="Rickshaw">Rickshaw</option>
+                </select>
+              </div>
+
+              <p className="text-xs text-gray-500 mt-3">
+                Showing {filteredVehicles.length} of {vehicleList.length}{" "}
+                vehicles
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Vehicle Cards */}
       {loading ? (

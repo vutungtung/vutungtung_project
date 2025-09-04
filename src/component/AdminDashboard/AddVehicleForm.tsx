@@ -54,12 +54,6 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleImageChange = (index: number, value: string) => {
-    const newImages = [...formData.image];
-    newImages[index] = value;
-    setFormData({ ...formData, image: newImages });
-  };
-
   const handleFeatureToggle = (feature: string) => {
     const features = [...formData.features];
     if (features.includes(feature)) {
@@ -88,8 +82,10 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
     onClose();
   };
 
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+    <div className="fixed inset-0 backdrop-blur-xs bg-opacity-40 flex justify-center items-center z-50">
       <form
         onSubmit={handleSubmit}
         className="bg-white w-full max-w-2xl rounded-lg shadow-lg p-6 overflow-y-auto max-h-[90vh]"
@@ -224,8 +220,6 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
             Upload Images (at least 1 required, up to 3):
           </p>
           {formData.image.map((img, index) => {
-            const fileInputRef = useRef<HTMLInputElement | null>(null);
-
             return (
               <div key={index} className="mb-3">
                 <input

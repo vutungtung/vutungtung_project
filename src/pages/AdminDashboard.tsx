@@ -10,14 +10,16 @@ import Users from "../component/AdminDashboard/Users";
 const AdminDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activePage, setActivePage] = useState("Overview");
-
+  const [showAddModal, setShowAddModal] = useState(false);
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
   };
 
   const pages: Record<string, React.JSX.Element> = {
     Overview: <Overview />,
-    Vehicles: <Vehicles />,
+    Vehicles: (
+      <Vehicles showAddModal={showAddModal} setShowAddModal={setShowAddModal} />
+    ),
     Bookings: <Booking />,
     Users: <Users />,
     Settings: <Setting />,
@@ -35,7 +37,14 @@ const AdminDashboard = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        <AdminNavbar onMenuClick={toggleSidebar} onSelectPage={setActivePage} />
+        <AdminNavbar
+          onMenuClick={toggleSidebar}
+          onSelectPage={setActivePage}
+          onAddVehicleClick={() => {
+            setActivePage("Vehicles"); // ✅ Switch to Vehicles page
+            setShowAddModal(true); // ✅ Open Add Vehicle modal
+          }}
+        />
         <div className="flex-1 p-6 overflow-y-auto">{pages[activePage]}</div>
       </div>
     </div>
