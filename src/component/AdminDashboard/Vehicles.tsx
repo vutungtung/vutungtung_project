@@ -6,28 +6,12 @@ import ViewVehicleModal from "./ViewVehicleModal";
 import EditVehicleModal from "./EditVehicleModal";
 import DeleteVehicleModal from "./DeleteVehicleModal";
 import {
-  addVehicle,
   deleteVehicle,
   fetchVehicles,
   updateVehicle,
 } from "../../api/vehicleApi";
-
-// Vehicle type
-export type Vehicle = {
-  id: string;
-  title: string;
-  brand: string;
-  model: string;
-  transmission: string;
-  category: string;
-  pricePerDay: number;
-  image: string[];
-  fuelType: string;
-  seatingCapacity: number;
-  mileage: string;
-  features: string[];
-  description: string;
-};
+import { addVehicle } from "../../services/vehicles";
+import type { Vehicle, NewVehicle } from "../../types/vehicle";
 
 interface VehicleProps {
   showAddModal: boolean;
@@ -41,7 +25,6 @@ const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) => {
   const [vehicleList, setVehicleList] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // const [showAddModal, setShowAddModal] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   // modal states
@@ -53,6 +36,7 @@ const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) => {
   const [showFilter, setShowFilter] = useState(false);
   const filterRef = useRef<HTMLDivElement | null>(null);
 
+  // Close filter dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (filterRef.current && !filterRef.current.contains(e.target as Node)) {
@@ -89,7 +73,6 @@ const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) => {
     const matchesCategory =
       filterCategory === "All" || v.category === filterCategory;
 
-    // If you have status property in vehicle, adjust here
     const matchesStatus =
       filterStatus === "All" || v.transmission === filterStatus;
 
@@ -112,11 +95,12 @@ const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) => {
         </button>
       </div>
 
+      {/* Add Vehicle Modal */}
       {showAddModal && (
         <AddVehicleForm
           onClose={() => setShowAddModal(false)}
-          onSave={async (newVehicle) => {
-            const saved = await addVehicle(newVehicle);
+          onSave={async (newVehicle: NewVehicle) => {
+            const saved: Vehicle = await addVehicle(newVehicle);
             setVehicleList((prev) => [...prev, saved]);
             setShowAddModal(false);
           }}
@@ -130,7 +114,7 @@ const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) => {
           placeholder="Search vehicles by brand, model, or category..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 min-w-[250px] px-4 py-2 border border-gray-300  bg-white rounded-lg focus:ring-2 focus:ring-red outline-none"
+          className="flex-1 min-w-[250px] px-4 py-2 border border-gray-300 bg-white rounded-lg focus:ring-2 focus:ring-red outline-none"
         />
 
         {/* Filters Dropdown */}
@@ -165,10 +149,7 @@ const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) => {
                 </label>
                 <select
                   value={filterStatus}
-                  onChange={(e) => {
-                    setFilterStatus(e.target.value);
-                    // setShowFilter(false); // 👈 close dropdown after selecting
-                  }}
+                  onChange={(e) => setFilterStatus(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red outline-none"
                 >
                   <option value="All">All Statuses</option>
@@ -187,7 +168,7 @@ const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) => {
                   value={filterCategory}
                   onChange={(e) => {
                     setFilterCategory(e.target.value);
-                    setShowFilter(false); // 👈 close dropdown after selecting
+                    setShowFilter(false);
                   }}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red outline-none"
                 >

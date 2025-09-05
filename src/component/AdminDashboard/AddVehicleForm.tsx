@@ -1,22 +1,8 @@
 import { useRef, useState } from "react";
-interface Vehicle {
-  id?: string;
-  title: string;
-  category: string;
-  brand: string;
-  model: string;
-  transmission: string;
-  fuelType: string;
-  seatingCapacity: number;
-  mileage: string;
-  pricePerDay: number;
-  features: string[];
-  description: string;
-  image: string[];
-}
+import type { NewVehicle } from "../../types/vehicle";
 
 interface AddVehicleFormProps {
-  onSave: (vehicle: Vehicle) => void;
+  onSave: (vehicle: NewVehicle) => void;
   onClose: () => void;
 }
 
@@ -77,8 +63,8 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
       return;
     }
 
-    const newVehicle = { ...formData, id: "veh" + Date.now() };
-    onSave(newVehicle);
+    // Just use formData, no id here
+    onSave(formData as NewVehicle);
     onClose();
   };
 
@@ -221,7 +207,7 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
           <p className="font-semibold mb-2">
             Upload Images (at least 1 required, up to 3):
           </p>
-          {formData.image.map((img, index) => {
+          {formData.image.map((_, index) => {
             return (
               <div key={index} className="mb-3">
                 <input

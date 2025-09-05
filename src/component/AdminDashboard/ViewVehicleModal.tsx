@@ -1,4 +1,5 @@
-import type { Vehicle } from "./Vehicles";
+import type { Vehicle } from "../../types/vehicle";
+
 
 type Props = {
   vehicle: Vehicle;
@@ -57,7 +58,7 @@ const ViewVehicleModal = ({ vehicle, onClose }: Props) => {
               Features
             </h3>
             <div className="flex flex-wrap gap-2">
-              {vehicle.features.map((f, index) => (
+              {vehicle.features.map((f:string, index:number) => (
                 <span
                   key={index}
                   className="px-3 py-1 text-xs bg-gray-100 rounded-full border"
@@ -88,7 +89,7 @@ const ViewVehicleModal = ({ vehicle, onClose }: Props) => {
               Gallery
             </h3>
             <div className="grid grid-cols-3 gap-2">
-              {vehicle.image.slice(1).map((img, index) => (
+              {vehicle.image.slice(1).map((img:string, index:number) => (
                 <img
                   key={index}
                   src={img}

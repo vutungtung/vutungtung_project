@@ -1,15 +1,25 @@
-// export interface Vehicle {
-//   id: string;
-//   title: string;
-//   category: string;
-//   brand: string;
-//   model: string;
-//   transmission: string;
-//   fuelType: string;
-//   seatingCapacity: number;
-//   mileage: string;
-//   pricePerDay: number;
-//   features: string[];
-//   description: string;
-//   image: string[];
-// }
+export type FuelType = "petrol" | "diesel" | "electric" | "hybrid";
+export type Transmission = "manual" | "automatic";
+
+export type VehicleBase = {
+  id?: string;
+  title: string;
+  name: string; // not title
+  brand: string;
+  model: string;
+  type: string; // e.g., "SUV", "Sedan"
+  seats: number;
+  description: string;
+  category: string;
+  fuelType: FuelType;
+  seatingCapacity: number;
+  transmission: Transmission;
+  mileage: string;
+  pricePerDay: number;
+  features: string[]; // ["AC", "ABS", ...]
+  image: string[]; // array of image URLs
+  licenseNumber?: string; // optional if you use it
+};
+
+export type Vehicle = VehicleBase & { id: string }; // server records always have id
+export type NewVehicle = VehicleBase; // when creating (id is server-generated)

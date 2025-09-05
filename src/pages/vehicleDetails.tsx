@@ -70,6 +70,7 @@ const VehicleDetails = () => {
     }
 
     const pickupDate = new Date(locationData.pickupDate);
+    console.log("date show", pickupDate);
     const returnDate = new Date(locationData.returnDate);
     const days = Math.max(
       1,
