@@ -22,6 +22,11 @@ export type Vehicle = {
   category: string;
   pricePerDay: number;
   image: string[];
+  fuelType: string;
+  seatingCapacity: number;
+  mileage: string;
+  features: string[];
+  description: string;
 };
 
 interface VehicleProps {
@@ -29,7 +34,7 @@ interface VehicleProps {
   setShowAddModal: (value: boolean) => void;
 }
 
-const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) =>  {
+const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) => {
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("All");
   const [filterStatus, setFilterStatus] = useState("All");
@@ -232,7 +237,7 @@ const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) =>  {
                 {/* 3-dot Menu */}
                 <div className="absolute top-3 right-3">
                   <button
-                    className="menu-button p-2 rounded-full hover:bg-gray-100"
+                    className="menu-button p-2 rounded-full bg-gray-100"
                     onClick={() =>
                       setOpenMenuId(openMenuId === v.id ? null : v.id)
                     }
@@ -241,9 +246,9 @@ const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) =>  {
                   </button>
 
                   {openMenuId === v.id && (
-                    <div className="menu-dropdown absolute right-0 mt-2 w-36 bg-white border rounded-lg shadow-md z-10">
+                    <div className="menu-dropdown absolute right-0 mt-2 w-36 bg-white overflow-hidden rounded-lg shadow-md z-10">
                       <button
-                        className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                        className="block w-full text-left px-4 py-2 text-sm hover:bg-red/50"
                         onClick={() => setViewVehicle(v)}
                       >
                         View

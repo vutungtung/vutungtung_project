@@ -138,8 +138,9 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
             className="border p-2 rounded"
           >
             <option value="Car">Car</option>
-            <option value="Bike">Bike</option>
+            <option value="2-Wheeler">2-Wheeler</option>
             <option value="Truck">Truck</option>
+            <option value="Rickshaw">Rickshaw</option>
           </select>
           <select
             name="transmission"
@@ -159,6 +160,7 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
             <option value="Petrol">Petrol</option>
             <option value="Diesel">Diesel</option>
             <option value="Electric">Electric</option>
+            <option value="Hybrid">Hybrid</option>
           </select>
           <input
             type="number"

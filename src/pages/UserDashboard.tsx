@@ -32,8 +32,8 @@ const UserDashboard = () => {
           </div>
         </div>
       </div>
-      <div className="max-w-7xl mx-auto py-5">
-        <div className="grid grid-cols-4 gap-5 mb-5 bg-light-gray p-2 rounded-2xl">
+      <div className="max-w-7xl mx-auto xl:px-0 px-2 py-5">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-5 mb-5 bg-light-gray p-2 rounded-2xl">
           {["bookings", "wishlist", "profile", "settings"].map((tab) => (
             <div
               key={tab}
@@ -51,7 +51,7 @@ const UserDashboard = () => {
         </div>
 
         {/* Tabs Content */}
-        <div className="">
+        <div className="p-2 xl:p-0">
           {activeTab === "bookings" && (
             <div>
               <MyBookings />

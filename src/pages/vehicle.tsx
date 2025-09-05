@@ -88,7 +88,7 @@ const Vehicle = () => {
               <option value="2-Wheeler">2-Wheeler</option>
               <option value="Car">Car</option>
               <option value="Truck">Truck</option>
-              <option value="E-Rickshaw">E-Rickshaw</option>
+              <option value="Rickshaw">Rickshaw</option>
             </select>
           </div>
 
