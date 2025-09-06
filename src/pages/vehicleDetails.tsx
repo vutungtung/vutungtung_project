@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import {
   FaCheckCircle,
   FaHeart,
@@ -7,10 +7,10 @@ import {
   FaRegHeart,
   FaShieldAlt,
 } from "react-icons/fa";
-import { fetchVehicleById } from "../api/vehicleApi";
-import LocationForm from "../component/locationTime";
 import { LuCloudUpload } from "react-icons/lu";
 import BackButton from "../component/navigate";
+import LocationForm from "../component/locationTime";
+import { fetchVehicleById } from "../api/vehicleApi";
 
 interface Vehicle {
   id: string | number;
@@ -21,22 +21,27 @@ interface Vehicle {
   features?: string[];
 }
 
+const SERVICE_FEE = 20;
+const INSURANCE_PER_DAY = 15;
+
 const VehicleDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [searchParams] = useSearchParams();
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
   const [currentImage, setCurrentImage] = useState(0);
-  const [licenseNumber, setLicenseNumber] = useState("");
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [licenseNumber, setLicenseNumber] = useState(
+    searchParams.get("licenseNumber") || ""
+  );
   const [licenseFile, setLicenseFile] = useState<File | null>(null);
   const [locationData, setLocationData] = useState({
-    pickupLocation: "",
-    returnLocation: "",
-    pickupDate: "",
-    returnDate: "",
+    pickupLocation: searchParams.get("pickupLocation") || "",
+    returnLocation: searchParams.get("returnLocation") || "",
+    pickupDate: searchParams.get("pickupDate") || "",
+    returnDate: searchParams.get("returnDate") || "",
   });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,17 +52,19 @@ const VehicleDetails = () => {
     }
   };
 
-  // const isLoggedIn = () => !!localStorage.getItem("user");
-  const SERVICE_FEE = 20;
-  const INSURANCE_PER_DAY = 15;
+  const handleWishlist = () => {
+    let wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
+    if (isWishlisted) {
+      wishlist = wishlist.filter((item: Vehicle) => item.id !== vehicle!.id);
+      setIsWishlisted(false);
+    } else {
+      wishlist.push(vehicle);
+      setIsWishlisted(true);
+    }
+    localStorage.setItem("wishlist", JSON.stringify(wishlist));
+  };
 
   const handleBooking = () => {
-    // if (!isLoggedIn()) {
-    //   alert("Please login to book a vehicle.");
-    //   navigate("/login");
-    //   return;
-    // }
-
     if (
       !licenseNumber ||
       !locationData.pickupLocation ||
@@ -70,7 +77,6 @@ const VehicleDetails = () => {
     }
 
     const pickupDate = new Date(locationData.pickupDate);
-    console.log("date show", pickupDate);
     const returnDate = new Date(locationData.returnDate);
     const days = Math.max(
       1,
@@ -81,16 +87,19 @@ const VehicleDetails = () => {
 
     const totalPrice =
       vehicle!.pricePerDay * days + SERVICE_FEE + INSURANCE_PER_DAY * days;
-    const bookingData = {
-      vehicle,
-      licenseNumber,
-      locationData,
-      totalPrice,
-    };
 
-    // Encode bookingData BEFORE using it
-    const bookingParam = encodeURIComponent(JSON.stringify(bookingData));
-    navigate(`/confirm-booking/${bookingParam}`);
+    // Update URL with query parameters
+    const params = new URLSearchParams({
+      licenseNumber,
+      pickupLocation: locationData.pickupLocation,
+      returnLocation: locationData.returnLocation,
+      pickupDate: locationData.pickupDate,
+      returnDate: locationData.returnDate,
+      totalPrice: totalPrice.toString(),
+    });
+
+    // Navigate with path parameter for vehicle ID and query parameters for booking data
+    navigate(`/confirm-booking/${id}?${params.toString()}`);
   };
 
   useEffect(() => {
@@ -114,9 +123,7 @@ const VehicleDetails = () => {
   if (error || !vehicle)
     return <p className="text-center py-20 text-red-500 text-lg">{error}</p>;
 
-  const images = Array.isArray(vehicle!.image)
-    ? vehicle.image
-    : [vehicle!.image];
+  const images = Array.isArray(vehicle.image) ? vehicle.image : [vehicle.image];
   const nextImage = () => setCurrentImage((prev) => (prev + 1) % images.length);
   const prevImage = () =>
     setCurrentImage((prev) => (prev - 1 + images.length) % images.length);
@@ -127,11 +134,10 @@ const VehicleDetails = () => {
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Vehicle Info */}
         <div className="flex-1 space-y-6">
-          {/* Image Carousel */}
           <div className="relative w-full h-96 rounded-xl overflow-hidden shadow-lg">
             <img
               src={images[currentImage]}
-              alt={vehicle!.title}
+              alt={vehicle.title}
               className="w-full h-full object-cover transition-transform duration-300"
             />
             {images.length > 1 && (
@@ -152,23 +158,21 @@ const VehicleDetails = () => {
             )}
           </div>
 
-          {/* Title & Price */}
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
-                {vehicle!.title}
+                {vehicle.title}
               </h1>
               <p className="text-gray-500 mt-1">4.7 (127 Reviews)</p>
             </div>
             <div className="text-right">
               <p className="text-2xl font-bold text-red-600">
-                ${vehicle!.pricePerDay}
+                ${vehicle.pricePerDay}
               </p>
               <span className="text-gray-500 text-sm">per day</span>
             </div>
           </div>
 
-          {/* Description */}
           <div className="space-y-3">
             <h2 className="text-xl font-semibold border-t pt-5">
               About Vehicle
@@ -176,7 +180,6 @@ const VehicleDetails = () => {
             <p className="text-gray-600 text-justify">{vehicle.description}</p>
           </div>
 
-          {/* Features */}
           {vehicle.features?.length && (
             <div className="space-y-3">
               <h2 className="text-xl font-semibold">What's Included</h2>
@@ -200,10 +203,11 @@ const VehicleDetails = () => {
           <h2 className="text-2xl font-bold text-gray-900">
             Book This Vehicle
           </h2>
+          <LocationForm
+            onFormChange={setLocationData}
+            initialData={locationData}
+          />
 
-          <LocationForm onFormChange={setLocationData} />
-
-          {/* License */}
           <div className="border border-yellow-300 p-4 rounded-lg bg-yellow-50 space-y-3">
             <div>
               <h3 className="font-semibold text-lg text-red">
@@ -219,44 +223,37 @@ const VehicleDetails = () => {
               className="w-full border border-yellow-300 p-2 rounded focus:outline-none focus:none"
             />
             <div className="border-dashed border-2 border-yellow-300 p-4 text-center rounded">
-              <p className="mb-2 text-gray-500">Upload License Photo</p>
-              <div className="w-full">
-                <label
-                  htmlFor="licenseUpload"
-                  className="flex flex-col items-center justify-center w-full cursor-pointertransition"
-                >
-                  <LuCloudUpload className="w-10 h-10 text-gray-400 mb-2" />
-                  <p className="text-blue-600 font-medium">
-                    {licenseFile ? licenseFile.name : "Upload a file"}
+              <label
+                htmlFor="licenseUpload"
+                className="flex flex-col items-center justify-center w-full cursor-pointertransition"
+              >
+                <LuCloudUpload className="w-10 h-10 text-gray-400 mb-2" />
+                <p className="text-blue-600 font-medium">
+                  {licenseFile ? licenseFile.name : "Upload a file"}
+                </p>
+                {!licenseFile && (
+                  <p className="text-xs text-gray-500">
+                    or drag and drop PNG, JPG up to 5MB
                   </p>
-                  {!licenseFile && (
-                    <p className="text-xs text-gray-500">
-                      or drag and drop <br /> PNG, JPG up to 5MB
-                    </p>
-                  )}
-                </label>
-
-                <input
-                  id="licenseUpload"
-                  type="file"
-                  accept="image/png, image/jpeg"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-              </div>
+                )}
+              </label>
+              <input
+                id="licenseUpload"
+                type="file"
+                accept="image/png, image/jpeg"
+                onChange={handleFileChange}
+                className="hidden"
+              />
             </div>
           </div>
 
-          {/* Price Breakdown */}
           {locationData.pickupDate && locationData.returnDate && (
             <div className="border-t pt-4 space-y-2 text-gray-700">
               <h3 className="text-lg font-semibold">Price Breakdown</h3>
-
               <div className="flex justify-between">
                 <span>Daily Rate</span>
                 <span>${vehicle.pricePerDay}</span>
               </div>
-
               <div className="flex justify-between">
                 <span>Duration</span>
                 <span>
@@ -265,15 +262,13 @@ const VehicleDetails = () => {
                       new Date(locationData.pickupDate).getTime()) /
                       (1000 * 60 * 60 * 24)
                   )}{" "}
-                  days × ${vehicle!.pricePerDay}
+                  days × ${vehicle.pricePerDay}
                 </span>
               </div>
-
               <div className="flex justify-between">
                 <span>Service Fee</span>
                 <span>${SERVICE_FEE}</span>
               </div>
-
               <div className="flex justify-between">
                 <span>Insurance (self-drive)</span>
                 <span>
@@ -286,7 +281,6 @@ const VehicleDetails = () => {
                     )}
                 </span>
               </div>
-
               <div className="flex justify-between font-bold text-lg border-t pt-2">
                 <span>Total</span>
                 <span>
@@ -297,9 +291,8 @@ const VehicleDetails = () => {
                         new Date(locationData.pickupDate).getTime()) /
                         (1000 * 60 * 60 * 24)
                     );
-                    if (days <= 0) return 0;
                     return (
-                      days * Number(vehicle!.pricePerDay) +
+                      days * vehicle.pricePerDay +
                       SERVICE_FEE +
                       INSURANCE_PER_DAY * days
                     );
@@ -316,9 +309,8 @@ const VehicleDetails = () => {
             Book Now
           </button>
 
-          {/* Wishlist */}
           <button
-            onClick={() => setIsWishlisted(!isWishlisted)}
+            onClick={handleWishlist}
             className={`w-full border rounded-lg py-3 flex items-center justify-center gap-2 font-semibold transition ${
               isWishlisted
                 ? "bg-red-600 text-white hover:bg-red-700"

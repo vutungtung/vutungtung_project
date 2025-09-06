@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { IoLocationOutline } from "react-icons/io5";
 import {
   MdCalendarToday,
@@ -7,17 +7,32 @@ import {
   MdLockOutline,
   MdNavigateNext,
 } from "react-icons/md";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import BackButton from "../component/navigate";
 import { FiMail, FiPhone, FiUser } from "react-icons/fi";
+import { fetchVehicleById } from "../api/vehicleApi";
+import ESewaForm from "../esewa/ESewaForm";
+
+interface Vehicle {
+  id: string | number;
+  title: string;
+  image: string[];
+  pricePerDay: number;
+  description: string;
+  features?: string[];
+}
 
 const ConfirmBooking = () => {
   const navigate = useNavigate();
-  const { bookingData: bookingParam } = useParams();
+  const { id } = useParams();
+  const [searchParams] = useSearchParams();
 
   // Hooks must be at the top
   const [step, setStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  const [vehicle, setVehicle] = useState<Vehicle | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [contactInfo, setContactInfo] = useState({
     firstName: "",
     lastName: "",
@@ -35,12 +50,43 @@ const ConfirmBooking = () => {
     agreed: false,
   });
 
-  // Now parse bookingParam
-  let bookingData;
-  if (!bookingParam) {
+  // Extract data from query parameters
+  const licenseNumber = searchParams.get("licenseNumber") || "";
+  const pickupLocation = searchParams.get("pickupLocation") || "";
+  const returnLocation = searchParams.get("returnLocation") || "";
+  const pickupDate = searchParams.get("pickupDate") || "";
+  const returnDate = searchParams.get("returnDate") || "";
+  const totalPrice = parseFloat(searchParams.get("totalPrice") || "0");
+
+  useEffect(() => {
+    const loadVehicle = async () => {
+      if (!id) {
+        setError("Vehicle ID is missing.");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const data = await fetchVehicleById(id);
+        setVehicle(data);
+      } catch {
+        setError("Vehicle not found.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadVehicle();
+  }, [id]);
+
+  if (loading)
+    return (
+      <p className="text-center py-20 text-gray-500 text-lg">Loading...</p>
+    );
+  if (error || !vehicle)
     return (
       <div className="text-center py-20">
-        <p className="text-red-500 text-lg">No booking data found.</p>
+        <p className="text-red-500 text-lg">{error || "Vehicle not found"}</p>
         <button
           className="mt-4 px-4 py-2 bg-red-500 text-white rounded"
           onClick={() => navigate("/")}
@@ -49,17 +95,21 @@ const ConfirmBooking = () => {
         </button>
       </div>
     );
-  }
 
-  try {
-    bookingData = JSON.parse(decodeURIComponent(bookingParam));
-  } catch {
+  // Validate required parameters
+  if (
+    !licenseNumber ||
+    !pickupLocation ||
+    !returnLocation ||
+    !pickupDate ||
+    !returnDate
+  ) {
     return (
       <div className="text-center py-20">
-        <p className="text-red-500 text-lg">Invalid booking data.</p>
+        <p className="text-red-500 text-lg">Incomplete booking information.</p>
         <button
           className="mt-4 px-4 py-2 bg-red-500 text-white rounded"
-          onClick={() => navigate("/")}
+          onClick={() => navigate(`/vehicle/${id}`)}
         >
           Go Back
         </button>
@@ -67,16 +117,15 @@ const ConfirmBooking = () => {
     );
   }
 
-  const pickup = new Date(bookingData.locationData.pickupDate);
-  const ret = new Date(bookingData.locationData.returnDate);
+  const pickup = new Date(pickupDate);
+  const ret = new Date(returnDate);
 
   const days = Math.max(
     1,
     Math.ceil((ret.getTime() - pickup.getTime()) / (1000 * 60 * 60 * 24))
   );
 
-  const totalPrice =
-    bookingData.totalPrice || bookingData.vehicle.pricePerDay * days;
+  const finalTotalPrice = totalPrice || vehicle.pricePerDay * days;
 
   const validateStep = () => {
     if (step === 1) return true;
@@ -111,10 +160,17 @@ const ConfirmBooking = () => {
     }
 
     const finalBooking = {
-      ...bookingData,
+      vehicle,
+      licenseNumber,
+      locationData: {
+        pickupLocation,
+        returnLocation,
+        pickupDate,
+        returnDate,
+      },
       contactInfo,
       paymentInfo,
-      totalPrice,
+      totalPrice: finalTotalPrice,
     };
 
     console.log("Booking Confirmed:", finalBooking);
@@ -172,16 +228,14 @@ const ConfirmBooking = () => {
                   </h2>
                   <div className="flex flex-wrap items-center mb-5 gap-5 p-5 border rounded-2xl border-gray-300">
                     <img
-                      src={bookingData.vehicle.image[0]}
-                      alt={bookingData.vehicle.title}
+                      src={vehicle.image[0]}
+                      alt={vehicle.title}
                       className="h-20"
                     />
                     <div>
-                      <p className="text-xl font-semibold">
-                        {bookingData.vehicle.title}
-                      </p>
+                      <p className="text-xl font-semibold">{vehicle.title}</p>
                       <p className="text-xl font-semibold text-red">
-                        ${bookingData.vehicle.pricePerDay}/day
+                        ${vehicle.pricePerDay}/day
                       </p>
                     </div>
                   </div>
@@ -191,14 +245,14 @@ const ConfirmBooking = () => {
                         <MdCalendarToday className="text-red" />
                         <span>
                           <p className="font-medium">Pickup</p>
-                          {bookingData.locationData.pickupDate}
+                          {pickupDate}
                         </span>
                       </p>
                       <p className="flex items-center gap-2">
                         <MdCalendarToday className="text-red" />
                         <span>
                           <p className="font-medium">Return</p>
-                          {bookingData.locationData.returnDate}
+                          {returnDate}
                         </span>
                       </p>
                     </div>
@@ -207,20 +261,20 @@ const ConfirmBooking = () => {
                         <IoLocationOutline className="text-red" />
                         <span>
                           <p className="font-medium">Pickup Location</p>
-                          {bookingData.locationData.pickupLocation}
+                          {pickupLocation}
                         </span>
                       </p>
                       <p className="flex items-center gap-2">
                         <IoLocationOutline className="text-red" />
                         <span>
                           <p className="font-medium">Return Location</p>
-                          {bookingData.locationData.returnLocation}
+                          {returnLocation}
                         </span>
                       </p>
                     </div>
                   </div>
                   <p className="mt-5">
-                    <strong>License Number:</strong> {bookingData.licenseNumber}
+                    <strong>License Number:</strong> {licenseNumber}
                   </p>
                   <div className="w-full flex items-center justify-between mt-5 bg-gray-100 p-5 rounded-2xl ">
                     <div>
@@ -419,32 +473,13 @@ const ConfirmBooking = () => {
                     {/* Payment Instructions */}
                     {paymentInfo.method === "esewa" && (
                       <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
-                        <p className="mb-4 text-gray-700">
-                          You’ll be redirected to{" "}
-                          <span className="font-semibold">eSewa</span> to
-                          complete your payment securely.
-                        </p>
-                        <button
-                          onClick={() => {
-                            if (!paymentInfo.agreed) {
-                              alert(
-                                "Please agree to Terms and Conditions before proceeding."
-                              );
-                              return;
-                            }
-                            const esewaUrl = `https://esewa.com.np/#/pay?amt=${totalPrice}&pid=BOOKING_${Date.now()}`;
-                            window.open(esewaUrl, "_blank");
-                          }}
-                          className="bg-green-500 text-white px-6 py-2 rounded-lg shadow hover:bg-green-600 transition"
-                        >
-                          Pay with eSewa
-                        </button>
+                        <ESewaForm amount={finalTotalPrice} bookingId={id!} />
                       </div>
                     )}
                     {paymentInfo.method === "khalti" && (
                       <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
                         <p className="mb-4 text-gray-700">
-                          You’ll be redirected to{" "}
+                          You'll be redirected to{" "}
                           <span className="font-semibold">Khalti</span> to
                           complete your payment securely.
                         </p>
@@ -456,7 +491,7 @@ const ConfirmBooking = () => {
                               );
                               return;
                             }
-                            const khaltiUrl = `https://khalti.com/#/pay?amount=${totalPrice}&product_identity=BOOKING_${Date.now()}`;
+                            const khaltiUrl = `https://khalti.com/#/pay?amount=${finalTotalPrice}&product_identity=BOOKING_${Date.now()}`;
                             window.open(khaltiUrl, "_blank");
                           }}
                           className="bg-purple-600 text-white px-6 py-2 rounded-lg shadow hover:bg-purple-700 transition"
@@ -535,41 +570,37 @@ const ConfirmBooking = () => {
 
             <div className="overflow-hidden rounded-xl mb-4">
               <img
-                src={bookingData.vehicle.image[0]}
-                alt={bookingData.vehicle.title}
+                src={vehicle.image[0]}
+                alt={vehicle.title}
                 className="w-full h-40 object-cover transition-transform hover:scale-105"
               />
             </div>
 
             <div className="flex justify-between items-center mb-6">
               <p className="text-lg font-medium text-gray-800">
-                {bookingData.vehicle.title}
+                {vehicle.title}
               </p>
               <p className="text-lg font-semibold text-red-500">
-                ${bookingData.vehicle.pricePerDay}/day
+                ${vehicle.pricePerDay}/day
               </p>
             </div>
 
             <div className="space-y-3 text-sm text-gray-700">
               <p className="flex justify-between">
                 <span className="text-gray-500">Pickup Date</span>
-                <span>{bookingData.locationData.pickupDate}</span>
+                <span>{pickupDate}</span>
               </p>
               <p className="flex justify-between">
                 <span className="text-gray-500">Return Date</span>
-                <span>{bookingData.locationData.returnDate}</span>
+                <span>{returnDate}</span>
               </p>
               <p className="flex justify-between">
                 <span className="text-gray-500">Pickup Location</span>
-                <span className="text-right">
-                  {bookingData.locationData.pickupLocation}
-                </span>
+                <span className="text-right">{pickupLocation}</span>
               </p>
               <p className="flex justify-between">
                 <span className="text-gray-500">Return Location</span>
-                <span className="text-right">
-                  {bookingData.locationData.returnLocation}
-                </span>
+                <span className="text-right">{returnLocation}</span>
               </p>
               <p className="flex justify-between">
                 <span className="text-gray-500">Rental Type</span>
@@ -582,7 +613,7 @@ const ConfirmBooking = () => {
             <div className="flex justify-between items-center mb-4">
               <span className="text-gray-600 font-medium">Total</span>
               <span className="text-xl font-semibold text-gray-900">
-                ${totalPrice}
+                ${finalTotalPrice}
               </span>
             </div>
 

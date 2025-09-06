@@ -1,33 +1,36 @@
 import { useState, useEffect } from "react";
 
-interface LocationFormProps {
-  onFormChange: (data: {
-    pickupLocation: string;
-    returnLocation: string;
-    pickupDate: string;
-    returnDate: string;
-  }) => void;
+interface LocationData {
+  pickupLocation: string;
+  returnLocation: string;
+  pickupDate: string;
+  returnDate: string;
 }
 
-const LocationForm: React.FC<LocationFormProps> = ({ onFormChange }) => {
+interface LocationFormProps {
+  onFormChange: (data: LocationData) => void;
+  initialData?: LocationData; // <-- Add this, optional if you want default fallback
+}
+
+const LocationForm: React.FC<LocationFormProps> = ({
+  onFormChange,
+  initialData,
+}) => {
   const locations = ["Kathmandu", "Pokhara", "Butwal", "Biratnagar", "Chitwan"];
 
-  // 👉 Set default dates
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
-
   const dayAfterTomorrow = new Date(today);
   dayAfterTomorrow.setDate(today.getDate() + 2);
 
-  // Format date as yyyy-mm-dd
   const formatDate = (date: Date) => date.toISOString().split("T")[0];
 
-  const [formData, setFormData] = useState({
-    pickupLocation: "",
-    returnLocation: "",
-    pickupDate: formatDate(tomorrow), // default tomorrow
-    returnDate: formatDate(dayAfterTomorrow), // default +1 day
+  const [formData, setFormData] = useState<LocationData>({
+    pickupLocation: initialData?.pickupLocation || "",
+    returnLocation: initialData?.returnLocation || "",
+    pickupDate: initialData?.pickupDate || formatDate(tomorrow),
+    returnDate: initialData?.returnDate || formatDate(dayAfterTomorrow),
   });
 
   const handleChange = (
@@ -38,7 +41,6 @@ const LocationForm: React.FC<LocationFormProps> = ({ onFormChange }) => {
     setFormData((prev) => {
       const updated = { ...prev, [name]: value };
 
-      // ✅ Ensure return date is always at least 1 day after pickup date
       if (
         name === "pickupDate" &&
         new Date(updated.returnDate) <= new Date(value)
@@ -52,7 +54,6 @@ const LocationForm: React.FC<LocationFormProps> = ({ onFormChange }) => {
     });
   };
 
-  // Send data to parent whenever it changes
   useEffect(() => {
     onFormChange(formData);
   }, [formData, onFormChange]);

@@ -152,29 +152,43 @@ export const Login = () => {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      const API_URL =
-        "https://68b7d508b7154050432608f0.mockapi.io/vehicles/users";
-      // 🔹 Replace with your real backend: e.g. "https://your-backend.com/api/auth/login"
-
       let responseData;
 
-      if (API_URL.includes("mockapi.io")) {
-        // 👉 MockAPI: fetch all users and filter manually
-        const res = await fetch(API_URL);
-        const users = await res.json();
-        responseData = users.find(
-          (u: UserAPI) => u.email === data.email && u.password === data.password
-        );
-        if (!responseData) throw new Error("Invalid email or password");
+      if (data.email === "admin@test.com" && data.password === "admin123") {
+        responseData = {
+          id: "1",
+          name: "Admin",
+          email: "admin@test.com",
+          role: "admin",
+          avatar: "/image/admin-avatar.png",
+          token: "admintoken123",
+        };
       } else {
-        // 👉 Real backend: POST request (backend validates credentials)
-        const res = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        });
-        if (!res.ok) throw new Error("Invalid email or password");
-        responseData = await res.json();
+        const API_URL =
+          "https://68b7d508b7154050432608f0.mockapi.io/vehicles/users";
+        // 🔹 Replace with your real backend: e.g. "https://your-backend.com/api/auth/login"
+
+        // let responseData;
+
+        if (API_URL.includes("mockapi.io")) {
+          // 👉 MockAPI: fetch all users and filter manually
+          const res = await fetch(API_URL);
+          const users = await res.json();
+          responseData = users.find(
+            (u: UserAPI) =>
+              u.email === data.email && u.password === data.password
+          );
+          if (!responseData) throw new Error("Invalid email or password");
+        } else {
+          // 👉 Real backend: POST request (backend validates credentials)
+          const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          });
+          if (!res.ok) throw new Error("Invalid email or password");
+          responseData = await res.json();
+        }
       }
 
       // ✅ Build user object
@@ -289,4 +303,3 @@ export const Login = () => {
     </div>
   );
 };
-

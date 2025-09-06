@@ -13,6 +13,7 @@ type AuthContextType = {
   user: User | null;
   login: (userData: User) => void;
   logout: () => void;
+  loading: boolean; // Add loading to context
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(

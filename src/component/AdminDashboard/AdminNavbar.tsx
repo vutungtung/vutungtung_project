@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { FaBell, FaSearch, FaBars } from "react-icons/fa";
+import { FaBell, FaBars } from "react-icons/fa";
 import { FiSettings } from "react-icons/fi";
 import { IoMdAdd } from "react-icons/io";
+import NotificationPanel from "./NotificationPanel";
 
 interface AdminNavbarProps {
   onMenuClick: () => void;
@@ -9,12 +10,21 @@ interface AdminNavbarProps {
   onAddVehicleClick: () => void; // ✅ new prop
 }
 
+
+const notificationsData = [
+  { id: 1, message: "New booking received", time: "2 min ago" },
+  { id: 2, message: "Vehicle maintenance completed", time: "1 hr ago" },
+  { id: 3, message: "Payment received from John", time: "Yesterday" },
+];
+// 
 export const AdminNavbar = ({
   onMenuClick,
   onSelectPage,
   onAddVehicleClick,
 }: AdminNavbarProps) => {
   const [open, setOpen] = useState(false);
+  //  const [quickOpen, setQuickOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
   return (
     <div className="w-full flex justify-between items-center bg-white shadow px-4 md:px-6 py-3 sticky top-0 z-30">
       {/* Left side */}
@@ -31,16 +41,6 @@ export const AdminNavbar = ({
 
       {/* Right side */}
       <div className="flex items-center gap-2 md:gap-4">
-        {/* Search */}
-        <div className="hidden md:flex items-center bg-gray-100 rounded-lg px-2 py-1">
-          <FaSearch className="w-4 h-4 text-gray-500" />
-          <input
-            type="text"
-            placeholder="Search..."
-            className="bg-transparent outline-none text-sm px-2"
-          />
-        </div>
-
         {/* Quick Action */}
         <div className="relative ">
           <button
@@ -82,9 +82,12 @@ export const AdminNavbar = ({
           )}
         </div>
         {/* Notification */}
-        <button className="relative p-2 rounded-full hover:bg-gray-100">
+        <button
+          onClick={() => setNotifOpen(true)}
+          className="relative p-2 rounded-full hover:bg-gray-100"
+        >
           <FaBell className="w-5 h-5 text-gray-600" />
-          {/* <span className="absolute top-1 right-1 w-2 h-2 bg-red rounded-full"></span> */}
+          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
         </button>
 
         {/* Sidebar toggle (mobile only) */}
@@ -95,6 +98,13 @@ export const AdminNavbar = ({
           <FaBars className="w-5 h-5 text-gray-700" />
         </button>
       </div>
+
+      {/* Notification Panel */}
+      <NotificationPanel
+        isOpen={notifOpen}
+        onClose={() => setNotifOpen(false)}
+        notifications={notificationsData}
+      />
     </div>
   );
 };

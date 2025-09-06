@@ -11,7 +11,12 @@ const PrivateRoute = ({ children, role }: PrivateRouteProps) => {
   const auth = useContext(AuthContext);
   if (!auth) throw new Error("AuthContext is missing");
 
-  const { user } = auth;
+  const { user, loading } = auth;
+
+  // Show nothing or loading spinner while checking authentication
+  if (loading) {
+    return <div>Loading...</div>; // Or your custom loading component
+  }
 
   if (!user) return <Navigate to="/login" replace />; // Not logged in
   if (role && user.role !== role) return <Navigate to="/" replace />; // Role mismatch

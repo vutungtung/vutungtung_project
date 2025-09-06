@@ -22,6 +22,7 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }: Props) => {
       vehicle.image?.[2] || "",
     ],
     features: vehicle.features ?? [],
+    status: vehicle.status || "Available",
   });
 
   const [error, setError] = useState("");
@@ -167,6 +168,20 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }: Props) => {
             className="border p-2 rounded"
             placeholder="Price Per Day"
           />
+        </div>
+        {/* Status */}
+        <div className="mt-4">
+          <label className="block font-semibold mb-2">Status</label>
+          <select
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            className="border p-2 rounded w-full"
+          >
+            <option value="Available">Available</option>
+            <option value="Rented">Rented</option>
+            <option value="Maintenance">Maintenance</option>
+          </select>
         </div>
 
         {/* Features */}

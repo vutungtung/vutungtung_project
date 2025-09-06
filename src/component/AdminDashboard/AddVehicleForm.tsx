@@ -20,6 +20,7 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
     features: [] as string[],
     description: "",
     image: ["", "", ""], // 3 optional images
+    status: "All Statues",
   });
 
   const featureOptions = [
@@ -174,6 +175,19 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
             className="border p-2 rounded"
             min={0}
           />
+        </div>
+        <div className="mt-4">
+          <label className="block font-semibold mb-2">Status</label>
+          <select
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            className="border p-2 rounded w-full"
+          >
+            <option value="Available">Available</option>
+            <option value="Rented">Rented</option>
+            <option value="Maintenance">Maintenance</option>
+          </select>
         </div>
         {/* Features */}
         <div className="mt-4">

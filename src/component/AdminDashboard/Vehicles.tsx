@@ -22,6 +22,7 @@ const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) => {
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("All");
   const [filterStatus, setFilterStatus] = useState("All");
+  const [filterTransmission, setFilterTransmission] = useState("All");
   const [vehicleList, setVehicleList] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -73,18 +74,23 @@ const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) => {
     const matchesCategory =
       filterCategory === "All" || v.category === filterCategory;
 
-    const matchesStatus =
-      filterStatus === "All" || v.transmission === filterStatus;
+    const matchesTransmission =
+      filterTransmission === "All" || v.transmission === filterTransmission;
 
-    return matchesSearch && matchesCategory && matchesStatus;
+    const matchesStatus =
+      filterStatus === "Available" || v.status === filterStatus;
+
+    return (
+      matchesSearch && matchesCategory && matchesTransmission && matchesStatus
+    );
   });
 
   return (
     <div>
       {/* Header */}
-      <div className="flex justify-between mb-10 items-center">
+      <div className="flex flex-wrap gap-2 justify-between mb-10 items-center">
         <div>
-          <p className="text-2xl font-black">Vehicle Management</p>
+          <h1 className="text-2xl font-bold">Vehicle Management</h1>
           <p className="text-gray-500 text-sm">Manage your fleet of vehicles</p>
         </div>
         <button
@@ -118,10 +124,10 @@ const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) => {
         />
 
         {/* Filters Dropdown */}
-        <div className="relative" ref={filterRef}>
+        <div className="relative w-full sm:w-auto " ref={filterRef}>
           <button
             onClick={() => setShowFilter(!showFilter)}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50"
+            className="flex items-center w-full gap-2 px-4 py-2 border text-center border-gray-300 rounded-lg bg-white hover:bg-gray-50"
           >
             <FiFilter size={18} /> Filters
           </button>
@@ -135,6 +141,7 @@ const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) => {
                   onClick={() => {
                     setFilterCategory("All");
                     setFilterStatus("All");
+                    setFilterTransmission("All");
                     setShowFilter(false);
                   }}
                 >
@@ -152,7 +159,6 @@ const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) => {
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red outline-none"
                 >
-                  <option value="All">All Statuses</option>
                   <option value="Available">Available</option>
                   <option value="Rented">Rented</option>
                   <option value="Maintenance">Maintenance</option>
@@ -210,9 +216,24 @@ const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) => {
                   <p className="text-sm text-gray-500">
                     {v.brand} • {v.model} • {v.transmission}
                   </p>
-                  <p className="text-red font-semibold mt-2">
-                    Rs. {v.pricePerDay} / day
-                  </p>
+
+                  <div className="flex items-center  justify-between">
+                    <p className="text-red font-semibold mt-2">
+                      Rs. {v.pricePerDay} / day
+                    </p>
+                    {/* Status Badge */}
+                    <p
+                      className={`text-sm font-semibold mt-1 inline-block px-2 py-1 rounded ${
+                        v.status === "Available"
+                          ? "bg-green-100 text-green-800"
+                          : v.status === "Rented"
+                          ? "bg-red-100 text-red"
+                          : "bg-orange-100 text-orange-800"
+                      }`}
+                    >
+                      {v.status}
+                    </p>
+                  </div>
                 </div>
 
                 {/* 3-dot Menu */}

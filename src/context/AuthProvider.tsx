@@ -1,32 +1,5 @@
-// import { useState, type ReactNode } from "react";
-// import { AuthContext } from "./AuthContext";
-
 import { useEffect, useState, type ReactNode } from "react";
 import { AuthContext } from "./AuthContext";
-
-// export type User = {
-//   id: string;
-//   name: string;
-//   role: "user" | "admin";
-// };
-
-// export const AuthProvider = ({ children }: { children: ReactNode }) => {
-//   const [user, setUser] = useState<User | null>(null);
-
-//   const login = (userData: User) => {
-//     setUser(userData);
-//   };
-
-//   const logout = () => {
-//     setUser(null);
-//   };
-
-//   return (
-//     <AuthContext.Provider value={{ user, login, logout }}>
-//       {children}
-//     </AuthContext.Provider>
-//   );
-// };
 
 export type User = {
   id: string;
@@ -36,9 +9,12 @@ export type User = {
   avatar?: string;
   token?: string;
 };
+
 type AuthProviderProps = { children: ReactNode };
+
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true); // Add loading state
 
   // ✅ Load user from localStorage on first render
   useEffect(() => {
@@ -46,6 +22,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
+    setLoading(false); // Set loading to false after checking
   }, []);
 
   // ✅ Save user to localStorage when logging in
@@ -61,7 +38,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

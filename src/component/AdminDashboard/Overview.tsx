@@ -59,6 +59,7 @@ const OverviewData = [
 const Overview = () => {
   return (
     <div>
+      <h1 className="text-2xl py-5 font-bold">Analytics</h1>
       <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-5">
         {OverviewData.map((data, index) => (
           <div

@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { AuthContext } from "../../context/AuthContext";
+import { FiLogOut } from "react-icons/fi";
 
 interface Settings {
   companyName: string;
@@ -9,6 +11,7 @@ interface Settings {
 }
 
 const Settings = () => {
+  const { logout } = useContext(AuthContext)!;
   const [settings, setSettings] = useState<Settings>({
     companyName: "",
     supportEmail: "",
@@ -44,7 +47,8 @@ const Settings = () => {
     const { name, value, type } = target;
     setSettings((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? (target as HTMLInputElement).checked : value,
+      [name]:
+        type === "checkbox" ? (target as HTMLInputElement).checked : value,
     }));
   };
 
@@ -66,14 +70,6 @@ const Settings = () => {
     }
   };
 
-  // Handle logout
-  const handleLogout = () => {
-    // Clear tokens/session (example)
-    localStorage.removeItem("token");
-    alert("Logged out successfully!");
-    window.location.href = "/login"; // redirect to login page
-  };
-
   if (loading) {
     return <p className="text-center mt-10">Loading settings...</p>;
   }
@@ -82,18 +78,20 @@ const Settings = () => {
     <div>
       {/* Header */}
       <div className="mb-6 flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Settings</h1>
-          <p className="text-gray-500">
-            Manage organization and system preferences
-          </p>
+        <div className="flex w-full justify-between items-center gap-4  flex-wrap">
+          <div>
+            <h1 className="text-2xl font-bold">Settings</h1>
+            <p className="text-gray-500">
+              Manage organization and system preferences
+            </p>
+          </div>
+          <button
+            onClick={logout}
+            className="bg-red-500 text-white flex justify-center items-center gap-2 px-4 py-2 rounded-lg hover:bg-red-600"
+          >
+            Logout <FiLogOut />
+          </button>
         </div>
-        <button
-          onClick={handleLogout}
-          className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
-        >
-          Logout
-        </button>
       </div>
 
       {/* Card */}

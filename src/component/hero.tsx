@@ -1,9 +1,5 @@
 import { FiCheckCircle } from "react-icons/fi";
-import { MdOutlineElectricRickshaw } from "react-icons/md";
-import { TbCarSuv } from "react-icons/tb";
-import { PiTruck } from "react-icons/pi";
-import { LiaCarSolid } from "react-icons/lia";
-import { RiMotorbikeLine } from "react-icons/ri";
+import { NavLink } from "react-router-dom";
 
 export default function Hero() {
   return (
@@ -52,15 +48,15 @@ export default function Hero() {
             </p>
 
             <div className="flex items-center gap-5">
-              <button
-                onClick={() => (window.location.href = "/vehicle")}
-                className="bg-red text-white px-6 py-2 border-2 border-red rounded hover:opacity-90 transition font-semibold"
+              <NavLink
+                to={"/vehicles"}
+                className="bg-red text-white  inset-0 z-10 px-6 py-2 border-2 border-red rounded hover:opacity-90 transition font-semibold"
               >
                 Browse Vehicle
-              </button>
+              </NavLink>
               <button
-                onClick={() => (window.location.href = "/vehicle")}
-                className="border-2 border-white bg-white text-red px-6 py-2 rounded hover:bg-[#5A8DEE]/10 transition font-semibold"
+                onClick={() => (window.location.href = "/about")}
+                className="border-2 border-white bg-white inset-0 z-10 text-red px-6 py-2 rounded hover:bg-[#5A8DEE]/10 transition font-semibold"
               >
                 Learn More
               </button>
@@ -81,28 +77,6 @@ export default function Hero() {
               </p>
             </div>
           </div>
-          <div>{/* You can re-add <RotatingWheel /> here later */}</div>
-        </div>
-
-        <div className="grid hidden grid-cols-3 md:grid-cols-5 gap-5 bg-white/30 backdrop-blur-xl p-5 rounded-xl text-gray-900">
-          {[
-            { icon: <LiaCarSolid size={30} />, label: "Car" },
-            { icon: <RiMotorbikeLine size={30} />, label: "Bike" },
-            { icon: <PiTruck size={30} />, label: "Truck" },
-            { icon: <TbCarSuv size={30} />, label: "SUV" },
-            {
-              icon: <MdOutlineElectricRickshaw size={30} />,
-              label: "E-Rickshaw",
-            },
-          ].map(({ icon, label }, idx) => (
-            <div
-              key={idx}
-              className="flex flex-col items-center bg-white/40 border border-white/30 backdrop-blur-sm p-3 rounded-md min-w-[90px]"
-            >
-              {icon}
-              {label}
-            </div>
-          ))}
         </div>
       </div>
     </div>
