@@ -13,6 +13,7 @@ export default function Hero() {
         className="absolute inset-0 -z-10 bg-cover bg-center"
         style={{
           backgroundImage:
+            // "url('/image/image-5.png')",
             "url('https://images.pexels.com/photos/544542/pexels-photo-544542.jpeg')",
         }}
       />

@@ -1,21 +1,18 @@
-import BackButton from "../component/navigate";
-
 export const Contact = () => {
   return (
     <div className="bg-white min-h-screen flex justify-center items-center px-4">
       <div className="w-full max-w-7xl mx-auto py-10">
-        <BackButton />
         <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[600px] shadow-xl bg-white rounded-2xl overflow-hidden">
           {/* Left Side with Image */}
-          <div className="relative h-64 lg:h-auto">
+          <div className="relative h-64 overflow-hidden lg:h-auto">
             <img
-              src="public/image/contact-image.webp"
+              src="/image/image-7.png"
               alt="image"
               className="absolute inset-0 h-full w-full object-cover"
             />
-            <div className="absolute bottom-6 left-6  lg:bottom-8 lg:left-8 z-10 w-full text-red bg-white/70 lg:bg-transparent p-4 rounded-l-xl ">
+            <div className="absolute bottom-6 left-6  lg:bottom-8 lg:left-8 z-10 w-full text-white bg-gradient-red/50  p-4 rounded-l-xl ">
               <h1 className="text-2xl lg:text-4xl font-bold">Get in Touch</h1>
-              <p className="text-sm lg:text-lg max-w-sm">
+              <p className="text-sm  lg:text-lg max-w-sm">
                 We're here to help you with any questions about our vehicle
                 rental services.
               </p>
