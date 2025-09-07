@@ -3,13 +3,14 @@ import { AdminNavbar } from "../component/AdminDashboard/AdminNavbar";
 import { Sidebar } from "../component/AdminDashboard/Sidebar";
 import Overview from "../component/AdminDashboard/Overview";
 import Vehicles from "../component/AdminDashboard/Vehicles";
-import Booking from "../component/AdminDashboard/Booking";
 import Setting from "../component/AdminDashboard/Setting";
 import Users from "../component/AdminDashboard/Users";
+import Booking from "../component/AdminDashboard/Booking";
 
 const AdminDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activePage, setActivePage] = useState("Overview");
+  const [showAddModal, setShowAddModal] = useState(false);
 
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
@@ -17,7 +18,9 @@ const AdminDashboard = () => {
 
   const pages: Record<string, React.JSX.Element> = {
     Overview: <Overview />,
-    Vehicles: <Vehicles />,
+    Vehicles: (
+      <Vehicles showAddModal={showAddModal} setShowAddModal={setShowAddModal} />
+    ),
     Bookings: <Booking />,
     Users: <Users />,
     Settings: <Setting />,
@@ -35,7 +38,14 @@ const AdminDashboard = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        <AdminNavbar onMenuClick={toggleSidebar} onSelectPage={setActivePage} />
+        <AdminNavbar
+          onMenuClick={toggleSidebar}
+          onSelectPage={setActivePage}
+          onAddVehicleClick={() => {
+            setActivePage("Vehicles");
+            setShowAddModal(true);
+          }}
+        />
         <div className="flex-1 p-6 overflow-y-auto">{pages[activePage]}</div>
       </div>
     </div>

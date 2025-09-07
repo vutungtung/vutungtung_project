@@ -1,81 +1,115 @@
-import { FiX } from "react-icons/fi";
+import type { Vehicle } from "../../types/vehicle";
 
-interface Vehicle {
-  title: string;
-  image: string[];
-  brand: string;
-  model: string;
-  category: string;
-  transmission: string;
-  fuelType: string;
-  seatingCapacity: number;
-  mileage: number;
-  pricePerDay: number;
-  features: string[];
-  description: string;
-}
 
-interface ViewVehicleModalProps {
+type Props = {
   vehicle: Vehicle;
   onClose: () => void;
-}
+};
 
-const ViewVehicleModal = ({ vehicle, onClose }: ViewVehicleModalProps) => {
-  if (!vehicle) return null;
-
+const ViewVehicleModal = ({ vehicle, onClose }: Props) => {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-      <div className="bg-white w-full max-w-2xl rounded-lg shadow-lg p-6 relative">
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-        >
-          <FiX size={20} />
-        </button>
-
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50">
+      <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-xl max-h-[90vh] overflow-y-auto">
         {/* Title */}
-        <h2 className="text-2xl font-bold mb-4">{vehicle.title}</h2>
-
-        {/* Image */}
-        <img
-          src={vehicle.image[0]}
-          alt={vehicle.title}
-          className="w-full h-64 object-cover rounded mb-4"
-        />
-
-        {/* Info */}
-        <p className="text-gray-600 mb-2">
-          <strong>Brand:</strong> {vehicle.brand}
-        </p>
-        <p className="text-gray-600 mb-2">
-          <strong>Model:</strong> {vehicle.model}
-        </p>
-        <p className="text-gray-600 mb-2">
-          <strong>Category:</strong> {vehicle.category}
-        </p>
-        <p className="text-gray-600 mb-2">
-          <strong>Transmission:</strong> {vehicle.transmission}
-        </p>
-        <p className="text-gray-600 mb-2">
-          <strong>Fuel Type:</strong> {vehicle.fuelType}
-        </p>
-        <p className="text-gray-600 mb-2">
-          <strong>Seats:</strong> {vehicle.seatingCapacity}
-        </p>
-        <p className="text-gray-600 mb-2">
-          <strong>Mileage:</strong> {vehicle.mileage}
-        </p>
-        <p className="text-gray-600 mb-2">
-          <strong>Price:</strong> Rs. {vehicle.pricePerDay} / day
+        <h2 className="text-2xl font-bold mb-2 text-gray-800">
+          {vehicle.title}
+        </h2>
+        <p className="text-sm text-gray-500 mb-4">
+          {vehicle.brand} • {vehicle.model}
         </p>
 
-        <p className="text-gray-600 mb-2">
-          <strong>Features:</strong> {vehicle.features.join(", ")}
-        </p>
-        <p className="text-gray-600">
-          <strong>Description:</strong> {vehicle.description}
-        </p>
+        {/* Main Image */}
+        {vehicle.image?.[0] && (
+          <img
+            src={vehicle.image[0]}
+            alt={vehicle.title}
+            className="w-full h-56 object-cover rounded-xl mb-6"
+          />
+        )}
+
+        {/* Info Grid */}
+        <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm text-gray-700">
+          <p>
+            <span className="font-semibold">Category:</span> {vehicle.category}
+          </p>
+          <p>
+            <span className="font-semibold">Transmission:</span>{" "}
+            {vehicle.transmission}
+          </p>
+          <p>
+            <span className="font-semibold">Fuel:</span> {vehicle.fuelType}
+          </p>
+          <p>
+            <span className="font-semibold">Seats:</span>{" "}
+            {vehicle.seatingCapacity}
+          </p>
+          <p>
+            <span className="font-semibold">Mileage:</span> {vehicle.mileage}
+          </p>
+          <p className="text-red font-semibold text-base col-span-2">
+            Rs. {vehicle.pricePerDay} / day
+          </p>
+        </div>
+
+        {/* Features */}
+        {vehicle.features && vehicle.features.length > 0 && (
+          <div className="mt-6">
+            <h3 className="text-sm font-semibold text-gray-800 mb-2">
+              Features
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {vehicle.features.map((f:string, index:number) => (
+                <span
+                  key={index}
+                  className="px-3 py-1 text-xs bg-gray-100 rounded-full border"
+                >
+                  {f}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Description */}
+        {vehicle.description && (
+          <div className="mt-6">
+            <h3 className="text-sm font-semibold text-gray-800 mb-2">
+              Description
+            </h3>
+            <p className="text-gray-600 text-sm leading-relaxed">
+              {vehicle.description}
+            </p>
+          </div>
+        )}
+
+        {/* Extra Images */}
+        {vehicle.image && vehicle.image.length > 1 && (
+          <div className="mt-6">
+            <h3 className="text-sm font-semibold text-gray-800 mb-2">
+              Gallery
+            </h3>
+            <div className="grid grid-cols-3 gap-2">
+              {vehicle.image.slice(1).map((img:string, index:number) => (
+                <img
+                  key={index}
+                  src={img}
+                  alt={`${vehicle.title} ${index + 2}`}
+                  className="h-24 w-full object-cover rounded-lg border"
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Close Button */}
+        <div className="flex justify-end mt-8">
+          <button
+            className="px-4 py-2 bg-red text-white rounded-lg hover:bg-red/90 transition"
+            onClick={onClose}
+          >
+            Close
+          </button>
+        </div>
       </div>
     </div>
   );

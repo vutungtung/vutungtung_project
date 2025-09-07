@@ -29,13 +29,13 @@ export const ForgotPassword = () => {
       <div className="w-full max-w-7xl mx-auto py-10">
         <BackButton />
         <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[600px] shadow-xl bg-white rounded-2xl overflow-hidden">
-          <div className="relative h-64 lg:h-auto">
+          <div className="relative h-64 overflow-hidden lg:h-auto">
             <img
-              src="https://lh3.googleusercontent.com/gg-dl/AJfQ9KTm617seik64-TVjUxmJMtti2tiPVdJL52x86g72QxNvz1-4YHX04k_k3jaBcCnLIGYB8oqrBmx4DTG2E_Aq7darkR6xqKJCgPaH86FEnmvpKbqFOGNFGt-cq0qMkPjloKemJGqvpUvsCCYRwQJZniKqXgTki2t0FaG014THb-8dG5w2w=s1024"
+              src="/image/image-6.png"
               alt="forgot"
               className="absolute inset-0 h-full w-full object-cover"
             />
-            <div className="absolute bottom-6 left-6 lg:bottom-8 lg:left-8 z-10 text-red bg-white/70 lg:bg-transparent p-4 rounded-l-xl">
+            <div className="absolute bottom-6 left-6 lg:bottom-8 lg:left-8 z-10 text-white bg-gradient-red/50 w-full  p-4 rounded-l-xl">
               <h1 className="text-2xl lg:text-4xl font-bold">
                 Forgot Password?
               </h1>

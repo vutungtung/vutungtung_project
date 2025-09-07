@@ -1,22 +1,8 @@
 import { useRef, useState } from "react";
-interface Vehicle {
-  id?: string;
-  title: string;
-  category: string;
-  brand: string;
-  model: string;
-  transmission: string;
-  fuelType: string;
-  seatingCapacity: number;
-  mileage: string;
-  pricePerDay: number;
-  features: string[];
-  description: string;
-  image: string[];
-}
+import type { NewVehicle } from "../../types/vehicle";
 
 interface AddVehicleFormProps {
-  onSave: (vehicle: Vehicle) => void;
+  onSave: (vehicle: NewVehicle) => void;
   onClose: () => void;
 }
 
@@ -34,6 +20,7 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
     features: [] as string[],
     description: "",
     image: ["", "", ""], // 3 optional images
+    status: "All Statues",
   });
 
   const featureOptions = [
@@ -52,12 +39,6 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
   ) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-  };
-
-  const handleImageChange = (index: number, value: string) => {
-    const newImages = [...formData.image];
-    newImages[index] = value;
-    setFormData({ ...formData, image: newImages });
   };
 
   const handleFeatureToggle = (feature: string) => {
@@ -83,13 +64,15 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
       return;
     }
 
-    const newVehicle = { ...formData, id: "veh" + Date.now() };
-    onSave(newVehicle);
+    // Just use formData, no id here
+    onSave(formData as NewVehicle);
     onClose();
   };
 
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+    <div className="fixed inset-0 backdrop-blur-xs bg-opacity-40 flex justify-center items-center z-50">
       <form
         onSubmit={handleSubmit}
         className="bg-white w-full max-w-2xl rounded-lg shadow-lg p-6 overflow-y-auto max-h-[90vh]"
@@ -142,8 +125,9 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
             className="border p-2 rounded"
           >
             <option value="Car">Car</option>
-            <option value="Bike">Bike</option>
+            <option value="2-Wheeler">2-Wheeler</option>
             <option value="Truck">Truck</option>
+            <option value="Rickshaw">Rickshaw</option>
           </select>
           <select
             name="transmission"
@@ -163,6 +147,7 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
             <option value="Petrol">Petrol</option>
             <option value="Diesel">Diesel</option>
             <option value="Electric">Electric</option>
+            <option value="Hybrid">Hybrid</option>
           </select>
           <input
             type="number"
@@ -190,6 +175,19 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
             className="border p-2 rounded"
             min={0}
           />
+        </div>
+        <div className="mt-4">
+          <label className="block font-semibold mb-2">Status</label>
+          <select
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            className="border p-2 rounded w-full"
+          >
+            <option value="Available">Available</option>
+            <option value="Rented">Rented</option>
+            <option value="Maintenance">Maintenance</option>
+          </select>
         </div>
         {/* Features */}
         <div className="mt-4">
@@ -223,9 +221,7 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
           <p className="font-semibold mb-2">
             Upload Images (at least 1 required, up to 3):
           </p>
-          {formData.image.map((img, index) => {
-            const fileInputRef = useRef<HTMLInputElement | null>(null);
-
+          {formData.image.map((_, index) => {
             return (
               <div key={index} className="mb-3">
                 <input
