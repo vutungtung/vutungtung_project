@@ -3,14 +3,15 @@ import { AdminNavbar } from "../component/AdminDashboard/AdminNavbar";
 import { Sidebar } from "../component/AdminDashboard/Sidebar";
 import Overview from "../component/AdminDashboard/Overview";
 import Vehicles from "../component/AdminDashboard/Vehicles";
-import Booking from "../component/AdminDashboard/Booking";
 import Setting from "../component/AdminDashboard/Setting";
 import Users from "../component/AdminDashboard/Users";
+import Booking from "../component/AdminDashboard/Booking";
 
 const AdminDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activePage, setActivePage] = useState("Overview");
   const [showAddModal, setShowAddModal] = useState(false);
+
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
   };
@@ -41,8 +42,8 @@ const AdminDashboard = () => {
           onMenuClick={toggleSidebar}
           onSelectPage={setActivePage}
           onAddVehicleClick={() => {
-            setActivePage("Vehicles"); // ✅ Switch to Vehicles page
-            setShowAddModal(true); // ✅ Open Add Vehicle modal
+            setActivePage("Vehicles");
+            setShowAddModal(true);
           }}
         />
         <div className="flex-1 p-6 overflow-y-auto">{pages[activePage]}</div>

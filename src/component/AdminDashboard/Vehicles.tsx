@@ -77,8 +77,7 @@ const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) => {
     const matchesTransmission =
       filterTransmission === "All" || v.transmission === filterTransmission;
 
-    const matchesStatus =
-      filterStatus === "Available" || v.status === filterStatus;
+    const matchesStatus = filterStatus === "All" || v.status === filterStatus;
 
     return (
       matchesSearch && matchesCategory && matchesTransmission && matchesStatus
@@ -159,6 +158,7 @@ const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) => {
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red outline-none"
                 >
+                  <option value="All">All</option>
                   <option value="Available">Available</option>
                   <option value="Rented">Rented</option>
                   <option value="Maintenance">Maintenance</option>
@@ -178,11 +178,27 @@ const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) => {
                   }}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red outline-none"
                 >
-                  <option value="All">All Categories</option>
+                  <option value="All">All</option>
                   <option value="2-Wheeler">2-Wheeler</option>
                   <option value="Car">Car</option>
                   <option value="Truck">Truck</option>
                   <option value="Rickshaw">Rickshaw</option>
+                </select>
+              </div>
+
+              {/* Transmission */}
+              <div className="mb-3">
+                <label className="block text-sm text-gray-600 mb-1">
+                  Transmission
+                </label>
+                <select
+                  value={filterTransmission}
+                  onChange={(e) => setFilterTransmission(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red outline-none"
+                >
+                  <option value="All">All</option>
+                  <option value="Manual">Manual</option>
+                  <option value="Automatic">Automatic</option>
                 </select>
               </div>
 
@@ -217,7 +233,7 @@ const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) => {
                     {v.brand} • {v.model} • {v.transmission}
                   </p>
 
-                  <div className="flex items-center  justify-between">
+                  <div className="flex items-center justify-between">
                     <p className="text-red font-semibold mt-2">
                       Rs. {v.pricePerDay} / day
                     </p>
@@ -250,20 +266,29 @@ const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) => {
                   {openMenuId === v.id && (
                     <div className="menu-dropdown absolute right-0 mt-2 w-36 bg-white overflow-hidden rounded-lg shadow-md z-10">
                       <button
-                        className="block w-full text-left px-4 py-2 text-sm hover:bg-red/50"
-                        onClick={() => setViewVehicle(v)}
+                        className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                        onClick={() => {
+                          setViewVehicle(v);
+                          setOpenMenuId(null); // ✅ close after click
+                        }}
                       >
                         View
                       </button>
                       <button
                         className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                        onClick={() => setEditVehicle(v)}
+                        onClick={() => {
+                          setEditVehicle(v);
+                          setOpenMenuId(null); // ✅ close after click
+                        }}
                       >
                         Edit
                       </button>
                       <button
                         className="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100"
-                        onClick={() => setDeleteVehicleTarget(v)}
+                        onClick={() => {
+                          setDeleteVehicleTarget(v);
+                          setOpenMenuId(null); // ✅ close after click
+                        }}
                       >
                         Delete
                       </button>
