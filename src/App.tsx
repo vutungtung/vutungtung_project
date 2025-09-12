@@ -24,6 +24,7 @@ import BookingSuccessful from "./pages/BookingSuccessful";
 import Failure from "./pages/Failure";
 
 import { AuthProvider } from "./context/AuthProvider";
+import { ResetPassword } from "./auth/ResetPassword";
 
 const router = createBrowserRouter([
   {
@@ -81,6 +82,7 @@ const router = createBrowserRouter([
   { path: "/reset-password-otp", element: <ResetPasswordOTP /> },
   { path: "/verify-success", element: <VerifySuccess /> },
   { path: "/verify-failed", element: <VerifyFailed /> },
+  { path: "/reset-password", element: <ResetPassword /> },
 
   // Admin protected routes
   {
