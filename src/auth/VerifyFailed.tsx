@@ -12,9 +12,14 @@ export const VerifyFailed = () => {
       await api.post("/user/resend-otp", { email });
       alert("OTP resent successfully! Check your email.");
       navigate("/verify-otp"); // redirect back to OTP page
-    } catch (err: any) {
+    } catch (err) {
       console.error("Resend OTP error:", err);
-      alert("Failed to resend OTP. Try again later.");
+
+      if (err instanceof Error) {
+        alert(`Failed to resend OTP: ${err.message}`);
+      } else {
+        alert("Failed to resend OTP. Try again later.");
+      }
     }
   };
 

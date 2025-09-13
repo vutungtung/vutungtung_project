@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { FiLogOut } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 interface Settings {
   companyName: string;
@@ -11,7 +12,8 @@ interface Settings {
 }
 
 const Settings = () => {
-  const { logout } = useContext(AuthContext)!;
+  const { logout, user } = useContext(AuthContext)!;
+  const navigate = useNavigate();
   const [settings, setSettings] = useState<Settings>({
     companyName: "",
     supportEmail: "",
@@ -22,6 +24,7 @@ const Settings = () => {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // Fetch settings from API
   useEffect(() => {
@@ -70,6 +73,42 @@ const Settings = () => {
     }
   };
 
+  // Handle logout with API call
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      // Call the logout API endpoint
+      const response = await fetch("http://localhost:4000/userlogout/", {
+        method: "POST",
+        credentials: "include", // Include cookies/session
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // Send token if needed by backend
+        body: JSON.stringify({
+          token: user?.token,
+        }),
+      });
+
+      // Check if logout was successful
+      if (response.ok) {
+        console.log("Admin logout successful");
+      } else {
+        console.warn(
+          "Logout API call failed, but proceeding with client-side logout"
+        );
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Even if API call fails, we still want to logout from the client side
+    } finally {
+      // Always perform client-side logout
+      logout();
+      setIsLoggingOut(false);
+      navigate("/"); // Redirect to home page after logout
+    }
+  };
+
   if (loading) {
     return <p className="text-center mt-10">Loading settings...</p>;
   }
@@ -86,10 +125,11 @@ const Settings = () => {
             </p>
           </div>
           <button
-            onClick={logout}
-            className="bg-red-500 text-white flex justify-center items-center gap-2 px-4 py-2 rounded-lg hover:bg-red-600"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="bg-red-500 text-white flex justify-center items-center gap-2 px-4 py-2 rounded-lg hover:bg-red-600 disabled:opacity-50"
           >
-            Logout <FiLogOut />
+            {isLoggingOut ? "Logging out..." : "Logout"} <FiLogOut />
           </button>
         </div>
       </div>

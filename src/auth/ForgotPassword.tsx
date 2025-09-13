@@ -3,6 +3,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import BackButton from "../component/navigate";
+import { useState } from "react";
 
 const forgotSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -11,6 +12,9 @@ type ForgotFormData = z.infer<typeof forgotSchema>;
 
 export const ForgotPassword = () => {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const {
     register,
     handleSubmit,
@@ -19,9 +23,38 @@ export const ForgotPassword = () => {
     resolver: zodResolver(forgotSchema),
   });
 
-  const onSubmit = (data: ForgotFormData) => {
-    console.log("Send OTP for forgot password:", data.email);
-    navigate("/reset-password-otp");
+  const onSubmit = async (data: ForgotFormData) => {
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch(
+        "http://localhost:4000/userlogin/reset-password/send-otp",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include", // ADD THIS LINE
+          body: JSON.stringify({
+            email: data.email,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem("resetEmail", data.email);
+        navigate("/reset-password-otp");
+      } else {
+        setError(result.message || "Failed to send OTP");
+      }
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -56,11 +89,13 @@ export const ForgotPassword = () => {
               {errors.email && (
                 <p className="text-red text-sm">{errors.email.message}</p>
               )}
+              {error && <p className="text-red text-sm">{error}</p>}
               <button
                 type="submit"
-                className="w-full bg-red hover:bg-gradient-red text-white py-3 px-6 rounded-xl font-semibold"
+                disabled={isLoading}
+                className="w-full bg-red hover:bg-gradient-red text-white py-3 px-6 rounded-xl font-semibold disabled:opacity-50"
               >
-                Send OTP
+                {isLoading ? "Sending..." : "Send OTP"}
               </button>
             </form>
           </div>

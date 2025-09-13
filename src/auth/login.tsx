@@ -6,7 +6,6 @@ import { z } from "zod";
 import { AuthContext } from "../context/AuthContext";
 import type { User } from "../context/AuthProvider";
 
-// Inline AuthContextType here instead of importing
 type AuthContextType = {
   user: User | null;
   login: (userData: User) => void;
@@ -26,6 +25,16 @@ const loginSchema = z.object({
   email: z.string().email("Invalid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
+
+// Helper functions
+const generateNameFromEmail = (email: string): string => {
+  if (!email) return "User";
+  const username = email.split("@")[0];
+  return username
+    .split(".")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+};
 
 export const Login = () => {
   const navigate = useNavigate();
@@ -51,22 +60,51 @@ export const Login = () => {
 
     try {
       setLoading(true);
+
+      // 1. First, authenticate the user
       const resp = await api.post<LoginResponse>("/userlogin", {
         email,
         password,
       });
 
+      console.log("Login response:", resp.data);
+
+      // 2. Try to fetch complete user details using the user ID
+      let userDetails = resp.data;
+
+      if (resp.data.id) {
+        try {
+          // Fetch complete user details from the user endpoint
+          const userResponse = await fetch(
+            `http://localhost:4000/user/${resp.data.id}`
+          );
+
+          if (userResponse.ok) {
+            const userDataFromApi = await userResponse.json();
+            userDetails = { ...resp.data, ...userDataFromApi };
+            console.log("Complete user details:", userDetails);
+          }
+        } catch (fetchError) {
+          console.error("Failed to fetch user details:", fetchError);
+        }
+      }
+
+      // 3. Create user data with proper fallbacks
       const userData: User = {
-        id: resp.data.id,
-        name: resp.data.name,
-        email: resp.data.email,
-        role: resp.data.role,
-        token: resp.data.token,
+        id: userDetails.id || `user-${Date.now()}`,
+        name: userDetails.name || generateNameFromEmail(email),
+        email: userDetails.email || email,
+        role: userDetails.role || "user",
+        token: userDetails.token || "",
       };
+
       login(userData);
 
-      if (resp.data.role === "admin") navigate("/admin-dashboard");
-      else navigate("/user-dashboard");
+      if (userData.role === "admin") {
+        navigate("/admin-dashboard");
+      } else {
+        navigate("/user-dashboard");
+      }
     } catch (err: unknown) {
       console.error("Login error:", err);
 

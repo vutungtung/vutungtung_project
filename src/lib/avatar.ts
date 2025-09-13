@@ -1,5 +1,6 @@
 export const getAvatar = (name: string) => {
-  return `https://avatars.dicebear.com/api/initials/${encodeURIComponent(
+  // Using 'adventurer' style for character avatars
+  return `https://api.dicebear.com/6.x/personas/svg?seed=${encodeURIComponent(
     name
-  )}.svg`;
+  )}`;
 };
