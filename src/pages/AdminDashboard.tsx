@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { AdminNavbar } from "../component/AdminDashboard/AdminNavbar";
 import { Sidebar } from "../component/AdminDashboard/Sidebar";
 import Overview from "../component/AdminDashboard/Overview";
-import Vehicles from "../component/AdminDashboard/Vehicles";
+
 import Setting from "../component/AdminDashboard/Setting";
 import Users from "../component/AdminDashboard/Users";
+import Vehicles from "../component/AdminDashboard/Vehicles";
 import Booking from "../component/AdminDashboard/Booking";
+
 
 const AdminDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);

@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useNavigate, Link, NavLink } from "react-router-dom";
 import { RiHome5Line } from "react-icons/ri";
 import api from "../lib/api";
@@ -41,12 +41,23 @@ export const Login = () => {
   const auth = useContext(AuthContext) as AuthContextType;
   if (!auth) throw new Error("AuthContext is missing");
 
-  const { login } = auth;
+  const { login, user } = auth;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // ✅ Prevent accessing /login if already logged in
+  useEffect(() => {
+    if (user) {
+      if (user.role === "admin") {
+        navigate("/admin-dashboard", { replace: true });
+      } else {
+        navigate("/user-dashboard", { replace: true });
+      }
+    }
+  }, [user, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,9 +112,9 @@ export const Login = () => {
       login(userData);
 
       if (userData.role === "admin") {
-        navigate("/admin-dashboard");
+        navigate("/admin-dashboard", { replace: true });
       } else {
-        navigate("/user-dashboard");
+        navigate("/user-dashboard", { replace: true });
       }
     } catch (err: unknown) {
       console.error("Login error:", err);

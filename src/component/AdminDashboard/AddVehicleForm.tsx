@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import type { NewVehicle } from "../../types/vehicle";
 
 interface AddVehicleFormProps {
@@ -6,22 +6,34 @@ interface AddVehicleFormProps {
   onClose: () => void;
 }
 
+interface Category {
+  c_id: number;
+  name: string;
+}
+
 const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
   const [formData, setFormData] = useState({
     title: "",
-    category: "Car",
+    category: "",
     brand: "",
     model: "",
-    transmission: "Manual",
-    fuelType: "Petrol",
+    transmission: "MANUAL",
+    fuelType: "PETROL",
     seatingCapacity: 1,
     mileage: "",
     pricePerDay: 0,
     features: [] as string[],
     description: "",
-    image: ["", "", ""], // 3 optional images
-    status: "All Statues",
+    images: ["", "", ""], // local previews for 3 images
+    status: "AVAILABLE",
+    licensePlate: "",
+    vin: "",
   });
+
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const featureOptions = [
     "AC",
@@ -30,7 +42,21 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
     "Airbags",
     "Power Steering",
   ];
-  const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetch("http://localhost:4000/api/category/all")
+      .then((res) => res.json())
+      .then((data) => setCategories(data))
+      .catch((err) => console.error("Failed to fetch categories:", err));
+  }, []);
+
+  // ✅ Proper ref callback for multiple file inputs
+  const setFileInputRef = useCallback(
+    (index: number) => (el: HTMLInputElement | null) => {
+      fileInputRefs.current[index] = el;
+    },
+    []
+  );
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -54,28 +80,123 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate at least one image
-    const hasImage = formData.image.some((img) => img.trim() !== "");
-    if (!hasImage) {
-      setError("Please provide at least one image URL.");
+    // ✅ Check if at least first image is selected (compulsory)
+    if (!fileInputRefs.current[0]?.files?.[0]) {
+      setError("Please upload at least the main image (Image 1)");
       return;
     }
 
-    // Just use formData, no id here
-    onSave(formData as NewVehicle);
-    onClose();
-  };
+    const form = new FormData();
 
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+    // Match backend expected field names exactly:
+    form.append("name", formData.title);
+    form.append("brand", formData.brand);
+    form.append("model", formData.model);
+    form.append("description", formData.description);
+
+    // Add required fields
+    form.append("licensePlate", formData.licensePlate || "TEMP-PLATE");
+    form.append("vin", formData.vin || "TEMP-VIN");
+
+    form.append("mileage", formData.mileage);
+    form.append("fuelType", formData.fuelType.toUpperCase());
+    form.append("seatingCapacity", formData.seatingCapacity.toString());
+    form.append("dailyRate", formData.pricePerDay.toString());
+    form.append("transmissionType", formData.transmission.toUpperCase());
+    form.append("status", formData.status.toUpperCase());
+
+    // Add features as comma-separated string
+    if (formData.features.length > 0) {
+      form.append("features", formData.features.join(","));
+    }
+
+    const categoryId = categories.find(
+      (c) => c.name === formData.category
+    )?.c_id;
+    if (categoryId) {
+      form.append("categoryId", categoryId.toString());
+    } else {
+      setError("Please select a valid category");
+      return;
+    }
+
+    // ✅ Append multiple images with correct field names
+    fileInputRefs.current.forEach((ref, index) => {
+      if (ref?.files?.[0]) {
+        const fieldName = index === 0 ? "image" : `image${index}`;
+        form.append(fieldName, ref.files[0]);
+      }
+    });
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const token =
+        localStorage.getItem("token") || sessionStorage.getItem("token");
+
+      // ✅ DEBUG: Log the request details
+      console.log(
+        "Sending request to:",
+        "http://localhost:4000/api/vehicles/create/"
+      );
+
+      const res = await fetch("http://localhost:4000/api/vehicles/create/", {
+        method: "POST",
+        body: form,
+        credentials: "include",
+        headers: {
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+      });
+
+      // ✅ Get the response text first to see what's actually returned
+      const responseText = await res.text();
+      console.log("Raw response:", responseText);
+      console.log("Response status:", res.status, res.statusText);
+
+      let data;
+      try {
+        // ✅ Try to parse as JSON
+        data = JSON.parse(responseText);
+      } catch (jsonError) {
+        console.error("JSON parse error. Response was:", responseText);
+        setError(
+          "Server returned invalid response. Check console for details."
+        );
+        return;
+      }
+
+      if (!res.ok) {
+        console.error("Server error details:", data);
+        setError(
+          data.message ||
+            data.error ||
+            `Server error: ${res.status} ${res.statusText}`
+        );
+        return;
+      }
+
+      alert("Vehicle created successfully with images!");
+      onSave(data);
+      onClose();
+    } catch (err: unknown) {
+      console.error("Network error:", err);
+      setError("Network error. Please check console for details.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 backdrop-blur-xs bg-opacity-40 flex justify-center items-center z-50">
       <form
         onSubmit={handleSubmit}
         className="bg-white w-full max-w-2xl rounded-lg shadow-lg p-6 overflow-y-auto max-h-[90vh]"
+        encType="multipart/form-data"
       >
         <h2 className="text-2xl font-bold mb-4 flex justify-between items-center">
           Add Vehicle
@@ -87,8 +208,9 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
             X
           </button>
         </h2>
-        {/* Error message */}
+
         {error && <p className="text-red-600 mb-4">{error}</p>}
+
         {/* Basic Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input
@@ -118,16 +240,37 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
             className="border p-2 rounded"
             required
           />
+          <input
+            type="text"
+            name="licensePlate"
+            placeholder="License Plate"
+            value={formData.licensePlate}
+            onChange={handleChange}
+            className="border p-2 rounded"
+            required
+          />
+          <input
+            type="text"
+            name="vin"
+            placeholder="VIN Number"
+            value={formData.vin}
+            onChange={handleChange}
+            className="border p-2 rounded"
+            required
+          />
           <select
             name="category"
             value={formData.category}
             onChange={handleChange}
             className="border p-2 rounded"
+            required
           >
-            <option value="Car">Car</option>
-            <option value="2-Wheeler">2-Wheeler</option>
-            <option value="Truck">Truck</option>
-            <option value="Rickshaw">Rickshaw</option>
+            <option value="">Select Category</option>
+            {categories.map((c) => (
+              <option key={c.c_id} value={c.name}>
+                {c.name}
+              </option>
+            ))}
           </select>
           <select
             name="transmission"
@@ -135,8 +278,8 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
             onChange={handleChange}
             className="border p-2 rounded"
           >
-            <option value="Manual">Manual</option>
-            <option value="Automatic">Automatic</option>
+            <option value="MANUAL">Manual</option>
+            <option value="AUTOMATIC">Automatic</option>
           </select>
           <select
             name="fuelType"
@@ -144,10 +287,10 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
             onChange={handleChange}
             className="border p-2 rounded"
           >
-            <option value="Petrol">Petrol</option>
-            <option value="Diesel">Diesel</option>
-            <option value="Electric">Electric</option>
-            <option value="Hybrid">Hybrid</option>
+            <option value="PETROL">Petrol</option>
+            <option value="DIESEL">Diesel</option>
+            <option value="ELECTRIC">Electric</option>
+            <option value="HYBRID">Hybrid</option>
           </select>
           <input
             type="number"
@@ -176,6 +319,8 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
             min={0}
           />
         </div>
+
+        {/* Status */}
         <div className="mt-4">
           <label className="block font-semibold mb-2">Status</label>
           <select
@@ -184,11 +329,12 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
             onChange={handleChange}
             className="border p-2 rounded w-full"
           >
-            <option value="Available">Available</option>
-            <option value="Rented">Rented</option>
-            <option value="Maintenance">Maintenance</option>
+            <option value="AVAILABLE">Available</option>
+            <option value="RENTED">Rented</option>
+            <option value="MAINTENANCE">Maintenance</option>
           </select>
         </div>
+
         {/* Features */}
         <div className="mt-4">
           <p className="font-semibold mb-2">Features:</p>
@@ -216,58 +362,57 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
           rows={4}
         />
 
-        {/* Images */}
+        {/* Multiple Image Upload */}
         <div className="mt-4">
           <p className="font-semibold mb-2">
-            Upload Images (at least 1 required, up to 3):
+            Upload Images (Image 1 is required):
           </p>
-          {formData.image.map((_, index) => {
-            return (
-              <div key={index} className="mb-3">
-                <input
-                  type="file"
-                  accept="image/*"
-                  ref={fileInputRef}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const newImages = [...formData.image];
-                      newImages[index] = URL.createObjectURL(file); // Store preview
-                      setFormData({ ...formData, image: newImages });
-                    }
-                  }}
-                  className="border p-2 rounded w-full"
-                />
-
-                {/* Show preview + remove option */}
-                {formData.image[index] && (
-                  <div className="mt-2 flex items-center gap-3">
-                    <img
-                      src={formData.image[index]}
-                      alt={`Preview ${index + 1}`}
-                      className="h-32 object-cover rounded border"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const newImages = [...formData.image];
-                        newImages[index] = ""; // Clear state
-                        setFormData({ ...formData, image: newImages });
-
-                        // Also reset file input field
-                        if (fileInputRef.current) {
-                          fileInputRef.current.value = "";
-                        }
-                      }}
-                      className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+          {[0, 1, 2].map((index) => (
+            <div key={index} className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Image {index + 1} {index === 0 && "(Required)"}
+              </label>
+              <input
+                type="file"
+                id={`image${index}`}
+                ref={setFileInputRef(index)}
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const newImages = [...formData.images];
+                    newImages[index] = URL.createObjectURL(file);
+                    setFormData({ ...formData, images: newImages });
+                  }
+                }}
+                className="border p-2 rounded w-full"
+                required={index === 0} // Only first image is required
+              />
+              {formData.images[index] && (
+                <div className="mt-2 flex items-center gap-3">
+                  <img
+                    src={formData.images[index]}
+                    alt={`Preview ${index + 1}`}
+                    className="h-32 object-cover rounded border"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newImages = [...formData.images];
+                      newImages[index] = "";
+                      setFormData({ ...formData, images: newImages });
+                      if (fileInputRefs.current[index]) {
+                        fileInputRefs.current[index]!.value = "";
+                      }
+                    }}
+                    className="text-red-500 text-sm hover:text-red-700"
+                  >
+                    Remove
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
 
         {/* Submit */}
@@ -282,8 +427,9 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
           <button
             type="submit"
             className="px-4 py-2 bg-red text-white rounded hover:bg-gradient-red"
+            disabled={loading}
           >
-            Add Vehicle
+            {loading ? "Adding..." : "Add Vehicle"}
           </button>
         </div>
       </form>
