@@ -95,7 +95,11 @@ const VehicleDetails = () => {
 
         // Check wishlist from localStorage
         const wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
-        setIsWishlisted(wishlist.some((it: any) => it.v_id === data.v_id));
+        setIsWishlisted(
+          wishlist.some(
+            (it: any) => it.id === data.v_id || it.v_id === data.v_id
+          )
+        );
       } catch (err: any) {
         setError(err.message || "Something went wrong");
       } finally {
@@ -116,31 +120,82 @@ const VehicleDetails = () => {
 
   const handleWishlist = () => {
     if (!vehicle) return;
+
     let wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
-    if (isWishlisted) {
-      wishlist = wishlist.filter((item: any) => item.v_id !== vehicle.v_id);
+
+    // ✅ Check if vehicle already exists
+    const exists = wishlist.some(
+      (item: any) => item.id === vehicle.v_id || item.v_id === vehicle.v_id
+    );
+
+    if (exists) {
+      wishlist = wishlist.filter(
+        (item: any) => item.id !== vehicle.v_id && item.v_id !== vehicle.v_id
+      );
       setIsWishlisted(false);
     } else {
       wishlist.push({
-        v_id: vehicle.v_id,
-        name: vehicle.name,
-        image: getImageUrl(vehicle.image), // ✅ Use full URL for wishlist
-        dailyRate: vehicle.dailyRate,
+        id: vehicle.v_id,
+        title: vehicle.name,
+        image: [getImageUrl(vehicle.image)],
+        pricePerDay: Number(vehicle.dailyRate),
+        description: vehicle.description || "",
       });
       setIsWishlisted(true);
     }
+
     localStorage.setItem("wishlist", JSON.stringify(wishlist));
   };
+
+  // const handleBooking = () => {
+  //   if (
+  //     !licenseNumber ||
+  //     !locationData.pickupLocation ||
+  //     !locationData.returnLocation ||
+  //     !locationData.pickupDate ||
+  //     !locationData.returnDate
+  //   ) {
+  //     alert("Please fill all required fields before booking.");
+  //     return;
+  //   }
+
+  //   const pickupDate = new Date(locationData.pickupDate);
+  //   const returnDate = new Date(locationData.returnDate);
+  //   const days = Math.max(
+  //     1,
+  //     Math.ceil(
+  //       (returnDate.getTime() - pickupDate.getTime()) / (1000 * 60 * 60 * 24)
+  //     )
+  //   );
+
+  //   const pricePerDay = parseInt(vehicle!.dailyRate.toString(), 10);
+  //   const totalPrice =
+  //     pricePerDay * days + SERVICE_FEE + INSURANCE_PER_DAY * days;
+
+  //   const params = new URLSearchParams({
+  //     licenseNumber,
+  //     pickupLocation: locationData.pickupLocation,
+  //     returnLocation: locationData.returnLocation,
+  //     pickupDate: locationData.pickupDate,
+  //     returnDate: locationData.returnDate,
+  //     totalPrice: totalPrice.toString(),
+  //   });
+
+  //   navigate(`/confirm-booking/${id}?${params.toString()}`);
+  // };
 
   const handleBooking = () => {
     if (
       !licenseNumber ||
+      !licenseFile || // ✅ Added: check if license image is uploaded
       !locationData.pickupLocation ||
       !locationData.returnLocation ||
       !locationData.pickupDate ||
       !locationData.returnDate
     ) {
-      alert("Please fill all required fields before booking.");
+      alert(
+        "Please fill all required fields and upload your license image before booking."
+      );
       return;
     }
 
@@ -157,16 +212,25 @@ const VehicleDetails = () => {
     const totalPrice =
       pricePerDay * days + SERVICE_FEE + INSURANCE_PER_DAY * days;
 
-    const params = new URLSearchParams({
-      licenseNumber,
-      pickupLocation: locationData.pickupLocation,
-      returnLocation: locationData.returnLocation,
-      pickupDate: locationData.pickupDate,
-      returnDate: locationData.returnDate,
-      totalPrice: totalPrice.toString(),
-    });
+    // Convert license image to base64 to send via URLSearchParams
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const licenseImageBase64 = reader.result as string;
 
-    navigate(`/confirm-booking/${id}?${params.toString()}`);
+      const params = new URLSearchParams({
+        licenseNumber,
+        licenseFile: licenseImageBase64, // ✅ Send image data
+        pickupLocation: locationData.pickupLocation,
+        returnLocation: locationData.returnLocation,
+        pickupDate: locationData.pickupDate,
+        returnDate: locationData.returnDate,
+        totalPrice: totalPrice.toString(),
+      });
+
+      navigate(`/confirm-booking/${id}?${params.toString()}`);
+    };
+
+    reader.readAsDataURL(licenseFile); // Read file as base64
   };
 
   if (loading)
@@ -295,45 +359,52 @@ const VehicleDetails = () => {
             initialData={locationData}
           />
 
-          <div className="border border-yellow-300 p-4 rounded-lg bg-yellow-50 space-y-3">
+          <div className="border border-gray-200 bg-[#111] text-white p-6 rounded-2xl shadow-md space-y-4">
             <div>
-              <h3 className="font-semibold text-lg text-red">
+              <h3 className="font-semibold text-lg text-white">
                 License Verification
               </h3>
-              <p className="text-xs text-red">Required*</p>
+              <p className="text-xs text-red-400">Required*</p>
             </div>
 
             <input
               type="text"
-              placeholder="License Number"
+              placeholder="Enter License Number"
               value={licenseNumber}
               onChange={(e) => setLicenseNumber(e.target.value)}
-              className="w-full border border-yellow-300 p-2 rounded focus:outline-none"
+              required
+              className="w-full border border-gray-600 bg-transparent p-2 rounded-md focus:ring-2 focus:ring-red-500 focus:outline-none placeholder-gray-400"
             />
 
-            <div className="border-dashed border-2 border-yellow-300 p-4 text-center rounded">
-              <label
-                htmlFor="licenseUpload"
-                className="flex flex-col items-center justify-center w-full cursor-pointer"
-              >
-                <LuCloudUpload className="w-10 h-10 text-gray-400 mb-2" />
-                <p className="text-blue-600 font-medium">
-                  {licenseFile ? licenseFile.name : "Upload a file"}
-                </p>
-                {!licenseFile && (
-                  <p className="text-xs text-gray-500">
-                    or drag and drop PNG, JPG up to 5MB
-                  </p>
-                )}
-              </label>
-              <input
-                id="licenseUpload"
-                type="file"
-                accept="image/png, image/jpeg"
-                onChange={handleFileChange}
-                className="hidden"
-              />
-            </div>
+            <div className="border-2 border-dashed border-gray-600 hover:border-red-500 transition-all p-6 rounded-xl text-center cursor-pointer bg-[#1a1a1a]">
+  <label
+    htmlFor="licenseUpload"
+    className="flex flex-col items-center justify-center w-full h-full cursor-pointer"
+  >
+    <LuCloudUpload className="w-12 h-12 text-red-500 mb-3" />
+    <p className="font-medium text-white">
+      {licenseFile ? licenseFile.name : "Upload your license image"}
+    </p>
+    {!licenseFile && (
+      <p className="text-xs text-gray-400 mt-1">JPG or PNG, up to 5MB</p>
+    )}
+  </label>
+  <input
+    id="licenseUpload"
+    type="file"
+    accept="image/png, image/jpeg"
+    onChange={handleFileChange}
+    className="hidden"
+    required
+  />
+</div>
+
+{!licenseFile && (
+  <p className="text-xs text-red-400 text-center">
+    Please upload your license image*
+  </p>
+)}
+
           </div>
 
           {locationData.pickupDate && locationData.returnDate && (

@@ -1,121 +1,4 @@
-// import type { Vehicle } from "../../types/vehicle";
-
-// type Props = {
-//   vehicle: Vehicle;
-//   onClose: () => void;
-// };
-
-// const ViewVehicleModal = ({ vehicle, onClose }: Props) => {
-//   return (
-//     <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50">
-//       <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-xl max-h-[90vh] overflow-y-auto">
-//         {/* Title */}
-//         <h2 className="text-2xl font-bold mb-2 text-gray-800">
-//           {vehicle.title}
-//         </h2>
-//         <p className="text-sm text-gray-500 mb-4">
-//           {vehicle.brand} • {vehicle.model}
-//         </p>
-
-//         {/* Main Image */}
-//         {vehicle.image?.[0] && (
-//           <img
-//             src={vehicle.image[0]}
-//             alt={vehicle.title}
-//             className="w-full h-56 object-cover rounded-xl mb-6"
-//           />
-//         )}
-
-//         {/* Info Grid */}
-//         <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm text-gray-700">
-//           <p>
-//             <span className="font-semibold">Category:</span> {vehicle.category}
-//           </p>
-//           <p>
-//             <span className="font-semibold">Transmission:</span>{" "}
-//             {vehicle.transmission}
-//           </p>
-//           <p>
-//             <span className="font-semibold">Fuel:</span> {vehicle.fuelType}
-//           </p>
-//           <p>
-//             <span className="font-semibold">Seats:</span>{" "}
-//             {vehicle.seatingCapacity}
-//           </p>
-//           <p>
-//             <span className="font-semibold">Mileage:</span> {vehicle.mileage}
-//           </p>
-//           <p className="text-red font-semibold text-base col-span-2">
-//             Rs. {vehicle.pricePerDay} / day
-//           </p>
-//         </div>
-
-//         {/* Features */}
-//         {vehicle.features && vehicle.features.length > 0 && (
-//           <div className="mt-6">
-//             <h3 className="text-sm font-semibold text-gray-800 mb-2">
-//               Features
-//             </h3>
-//             <div className="flex flex-wrap gap-2">
-//               {vehicle.features.map((f:string, index:number) => (
-//                 <span
-//                   key={index}
-//                   className="px-3 py-1 text-xs bg-gray-100 rounded-full border"
-//                 >
-//                   {f}
-//                 </span>
-//               ))}
-//             </div>
-//           </div>
-//         )}
-
-//         {/* Description */}
-//         {vehicle.description && (
-//           <div className="mt-6">
-//             <h3 className="text-sm font-semibold text-gray-800 mb-2">
-//               Description
-//             </h3>
-//             <p className="text-gray-600 text-sm leading-relaxed">
-//               {vehicle.description}
-//             </p>
-//           </div>
-//         )}
-
-//         {/* Extra Images */}
-//         {vehicle.image && vehicle.image.length > 1 && (
-//           <div className="mt-6">
-//             <h3 className="text-sm font-semibold text-gray-800 mb-2">
-//               Gallery
-//             </h3>
-//             <div className="grid grid-cols-3 gap-2">
-//               {vehicle.image.slice(1).map((img:string, index:number) => (
-//                 <img
-//                   key={index}
-//                   src={img}
-//                   alt={`${vehicle.title} ${index + 2}`}
-//                   className="h-24 w-full object-cover rounded-lg border"
-//                 />
-//               ))}
-//             </div>
-//           </div>
-//         )}
-
-//         {/* Close Button */}
-//         <div className="flex justify-end mt-8">
-//           <button
-//             className="px-4 py-2 bg-red text-white rounded-lg hover:bg-red/90 transition"
-//             onClick={onClose}
-//           >
-//             Close
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default ViewVehicleModal;
-
+import { useState } from "react";
 import type { Vehicle } from "../../types/vehicle";
 
 type Props = {
@@ -124,12 +7,15 @@ type Props = {
 };
 
 const ViewVehicleModal = ({ vehicle, onClose }: Props) => {
-  // ✅ Get all images (main image + additional images) and filter out undefined/empty
+  // ✅ Combine main + additional images
   const allImages = [vehicle.image, vehicle.image1, vehicle.image2].filter(
     (img): img is string => img !== undefined && img !== "" && img !== null
   );
 
-  // ✅ Check if features is a string and convert to array if needed
+  // ✅ State to store the currently selected main image
+  const [mainImage, setMainImage] = useState(allImages[0]);
+
+  // ✅ Features to array
   const featuresArray = Array.isArray(vehicle.features)
     ? vehicle.features
     : typeof vehicle.features === "string"
@@ -139,28 +25,28 @@ const ViewVehicleModal = ({ vehicle, onClose }: Props) => {
   // ✅ Get category name safely
   const categoryName =
     typeof vehicle.category === "object" && vehicle.category !== null
-      ? vehicle.category.name // If category is an object with name property
-      : String(vehicle.category); // If it's a string or other type
+      ? vehicle.category.name
+      : String(vehicle.category);
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-xl max-h-[90vh] overflow-y-auto">
         {/* Title */}
         <h2 className="text-2xl font-bold mb-2 text-gray-800">
-          {vehicle.name || vehicle.title} {/* ✅ Support both name and title */}
+          {vehicle.name || vehicle.title}
         </h2>
         <p className="text-sm text-gray-500 mb-4">
           {vehicle.brand} • {vehicle.model}
         </p>
 
-        {/* Main Image */}
-        {allImages[0] && (
+        {/* ✅ Main Image (clickable from gallery below) */}
+        {mainImage && (
           <img
-            src={`http://localhost:4000/uploads/vehicles/${allImages[0]}`} // ✅ Correct path
+            src={`http://localhost:4000/uploads/vehicles/${mainImage}`}
             alt={vehicle.name || vehicle.title}
-            className="w-full h-56 object-cover rounded-xl mb-6"
+            className="w-full h-56 object-cover rounded-xl mb-6 transition-all duration-300"
             onError={(e) => {
-              e.currentTarget.src = "/fallback-image.jpg"; // Fallback for broken images
+              e.currentTarget.src = "/fallback-image.jpg";
             }}
           />
         )}
@@ -241,21 +127,26 @@ const ViewVehicleModal = ({ vehicle, onClose }: Props) => {
           </div>
         )}
 
-        {/* Extra Images */}
+        {/* ✅ Gallery Section (click to change main image) */}
         {allImages.length > 1 && (
           <div className="mt-6">
             <h3 className="text-sm font-semibold text-gray-800 mb-2">
               Gallery ({allImages.length - 1} additional images)
             </h3>
-            <div className="grid grid-cols-3 gap-2">
-              {allImages.slice(1).map((img: string, index: number) => (
+            <div className="grid grid-cols-3 gap-5">
+              {allImages.map((img: string, index: number) => (
                 <img
                   key={index}
-                  src={`http://localhost:4000/uploads/vehicles/${img}`} // ✅ Correct path
-                  alt={`${vehicle.name || vehicle.title} ${index + 2}`}
-                  className="h-24 w-full object-cover rounded-lg border"
+                  src={`http://localhost:4000/uploads/vehicles/${img}`}
+                  alt={`${vehicle.name || vehicle.title} ${index + 1}`}
+                  className={`h-24 w-full object-cover rounded-lg border cursor-pointer transition-transform duration-300 ${
+                    mainImage === img
+                      ? "ring-2 ring-blue-500 scale-105"
+                      : "hover:scale-105"
+                  }`}
+                  onClick={() => setMainImage(img)} // ✅ Switch main image
                   onError={(e) => {
-                    e.currentTarget.src = "/fallback-image.jpg"; // Fallback for broken images
+                    e.currentTarget.src = "/fallback-image.jpg";
                   }}
                 />
               ))}

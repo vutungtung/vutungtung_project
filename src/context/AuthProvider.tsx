@@ -17,16 +17,32 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true); // Add loading state
 
-  // ✅ Load user from localStorage on first render
+  // // ✅ Load user from localStorage on first render
+  // useEffect(() => {
+  //   const storedUser = localStorage.getItem("user");
+  //   if (storedUser) {
+  //     const parsedUser: User = JSON.parse(storedUser);
+  //     if (!parsedUser.avatar) {
+  //       parsedUser.avatar = getAvatar(parsedUser.name);
+  //     }
+  //     setUser(parsedUser);
+  //   }
+  //   setLoading(false);
+  // }, []);
+
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
+    const storedToken = localStorage.getItem("token");
+
     if (storedUser) {
       const parsedUser: User = JSON.parse(storedUser);
+      parsedUser.token = parsedUser.token || storedToken || "";
       if (!parsedUser.avatar) {
         parsedUser.avatar = getAvatar(parsedUser.name);
       }
       setUser(parsedUser);
     }
+
     setLoading(false);
   }, []);
 
@@ -35,6 +51,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     // Ensure avatar exists
     if (!userData.avatar) {
       userData.avatar = getAvatar(userData.name); // Use your dicebear API
+    }
+
+    // ✅ Store token inside the user object
+    if (userData.token) {
+      localStorage.setItem("token", userData.token);
     }
 
     setUser(userData);

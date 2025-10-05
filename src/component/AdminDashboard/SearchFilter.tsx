@@ -15,7 +15,7 @@ const SearchFilter = ({
 }: SearchFilterProps) => {
   return (
     <div>
-      <div className="bg-white flex flex-col md:flex-row justify-between items-center gap-3 p-4 rounded-2xl border border-gray-300">
+      <div className="bg-white flex flex-col sm:flex-row justify-between items-center gap-3 p-4 rounded-2xl border border-gray-300">
         {/* Search Input */}
         <input
           type="text"
@@ -30,7 +30,7 @@ const SearchFilter = ({
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="border border-gray-300 rounded-md p-2"
+          className="border w-full sm:w-auto border-gray-300 rounded-md p-2"
         >
           <option value="All">All Categories</option>
           <option value="Car">Car</option>

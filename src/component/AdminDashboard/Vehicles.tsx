@@ -678,7 +678,8 @@ import AddVehicleForm from "./AddVehicleForm";
 import ViewVehicleModal from "./ViewVehicleModal";
 import DeleteVehicleModal from "./DeleteVehicleModal";
 import type { Vehicle, NewVehicle } from "../../types/vehicle";
-import { addVehicle } from "../../api/vehicleApi";
+import { addVehicle, fetchVehicles } from "../../api/vehicleApi";
+import EditVehicleModal from "./EditVehicleModal";
 
 interface VehicleProps {
   showAddModal: boolean;
@@ -692,6 +693,7 @@ const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) => {
   const [filterTransmission, setFilterTransmission] = useState("All");
   const [vehicleList, setVehicleList] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editVehicle, setEditVehicle] = useState(null);
 
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const [viewVehicle, setViewVehicle] = useState<Vehicle | null>(null);
@@ -978,6 +980,15 @@ const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) => {
                           View
                         </button>
                         <button
+                          className="block w-full text-left px-4 py-2 text-sm  hover:bg-gray-100"
+                          onClick={() => {
+                            setEditVehicle(v); // ✅ store selected vehicle data in a state
+                            setOpenMenuId(null);
+                          }}
+                        >
+                          Edit
+                        </button>
+                        <button
                           className="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100"
                           onClick={() => {
                             setDeleteVehicleTarget(v);
@@ -1011,6 +1022,17 @@ const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) => {
           vehicleTitle={deleteVehicleTarget.name}
           onClose={() => setDeleteVehicleTarget(null)}
           onConfirm={() => handleDelete(deleteVehicleTarget.v_id)}
+        />
+      )}
+      {editVehicle && (
+        <EditVehicleModal
+          vehicle={editVehicle}
+          onClose={() => setEditVehicle(null)}
+          onSave={(updatedVehicle) => {
+            // ✅ Optionally refresh list or update UI
+            setEditVehicle(null);
+            fetchVehicles(); // if you already have a fetchVehicles() function
+          }}
         />
       )}
     </div>

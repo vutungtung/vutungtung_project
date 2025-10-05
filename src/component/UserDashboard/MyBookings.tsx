@@ -1,189 +1,284 @@
-"use client";
+import { useEffect, useState } from "react";
+import { useAuth } from "../../context/UseContext";
+import { getUserBookings } from "../../api/api";
+import { FiGrid, FiRefreshCcw } from "react-icons/fi";
+import { FaList } from "react-icons/fa";
 
-import React, { useState } from "react";
-import {
-  FiCalendar,
-  FiCheckCircle,
-  FiClock,
-  FiMapPin,
-  FiXCircle,
-} from "react-icons/fi";
-
-const bookings = [
-  {
-    id: "BK001",
-    car: "Mercedes S-Class",
-    location: "Downtown",
-    date: "2024-01-15 to 2024-01-18",
-    price: 1350,
-    status: "Completed",
-    image: "/cars/mercedes.jpg",
-  },
-  {
-    id: "BK002",
-    car: "BMW 3 Series",
-    location: "Airport",
-    date: "2024-01-25 to 2024-01-27",
-    price: 360,
-    status: "Pending",
-    image: "/cars/bmw.jpg",
-  },
-  {
-    id: "BK003",
-    car: "Tesla Model S",
-    location: "Downtown",
-    date: "2024-01-10 to 2024-01-12",
-    price: 580,
-    status: "Cancelled",
-    image: "/cars/tesla.jpg",
-  },
-];
-
-// Status badge styles
-const statusStyles: Record<string, string> = {
-  Completed: "bg-green-100 text-green-700",
-  Pending: "bg-blue-100 text-blue-700",
-  Cancelled: "bg-red-100 text-red-700",
-};
-
-// Icons
-const statusIcons: Record<string, React.ReactNode> = {
-  Completed: <FiCheckCircle className="w-4 h-4 mr-1" />,
-  Pending: <FiClock className="w-4 h-4 mr-1" />,
-  Cancelled: <FiXCircle className="w-4 h-4 mr-1" />,
-};
+interface Booking {
+  vehicleName: string;
+  categoryName: string;
+  bookingDate: string;
+  returnDate: string;
+  pickuplocation: string;
+  droplocation: string;
+  deliverystatus: string;
+  paymentMethod: string;
+  paymentStatus: string;
+  price: string;
+  licenseNo: string;
+}
 
 const MyBookings = () => {
-  const [filter, setFilter] = useState<string>("All");
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [filtered, setFiltered] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [filter, setFilter] = useState("all");
+  const [view, setView] = useState<"card" | "list">("card");
+  const { user } = useAuth();
 
-  // Apply filter
-  const filteredBookings =
-    filter === "All" ? bookings : bookings.filter((b) => b.status === filter);
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        if (!user?.token) {
+          setError("User not logged in.");
+          setLoading(false);
+          return;
+        }
+
+        const res = await getUserBookings();
+        console.log("User bookings API response:", res.data);
+
+        const data = (res.data as any).data;
+        if (Array.isArray(data)) {
+          setBookings(data);
+          setFiltered(data);
+        } else {
+          setError("Invalid data format received from server.");
+        }
+      } catch (err: any) {
+        console.error("Error fetching bookings:", err);
+        setError(err.response?.data?.message || "Failed to load bookings.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBookings();
+  }, [user]);
+
+  const handleFilter = (status: string) => {
+    setFilter(status);
+    if (status === "all") setFiltered(bookings);
+    else
+      setFiltered(
+        bookings.filter(
+          (b) => b.deliverystatus.toLowerCase() === status.toLowerCase()
+        )
+      );
+  };
+
+  if (loading)
+    return (
+      <div className="text-center mt-20 flex flex-col items-center text-gray-600">
+        <FiRefreshCcw className="animate-spin w-8 h-8 mb-2 text-blue-500" />
+        <p>Loading your bookings...</p>
+      </div>
+    );
+
+  if (error)
+    return <div className="text-center mt-10 text-red-500">{error}</div>;
 
   return (
-    <div className="">
-      <h2 className="text-2xl font-semibold mb-6">My Bookings</h2>
+    <div>
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <h2 className="text-3xl font-bold text-gray-800 tracking-wide">
+          My Bookings
+        </h2>
 
-      {/* Filter Section */}
-      <div className="mb-6">
-        {/* Mobile Dropdown */}
-        <div className="md:hidden">
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="w-full p-2 border rounded-md"
-          >
-            {["All", "Completed", "Pending", "Cancelled"].map((status) => (
-              <option key={status} value={status}>
-                {status}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Desktop Buttons */}
-        <div className="hidden md:flex gap-3 flex-wrap">
-          {["All", "Completed", "Pending", "Cancelled"].map((status) => (
+        {/* Filter Buttons */}
+        <div className="flex flex-wrap gap-3">
+          {["all", "pending", "completed", "cancelled"].map((status) => (
             <button
               key={status}
-              onClick={() => setFilter(status)}
-              className={`px-4 py-2 focus:outline-0 rounded-md text-sm font-medium transition ${
+              onClick={() => handleFilter(status)}
+              className={`px-4 py-2 rounded-full text-sm font-semibold transition duration-200 ${
                 filter === status
-                  ? "bg-red text-white"
-                  : "bg-gray-100 hover:bg-gray-200"
+                  ? "bg-red text-white shadow-md"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              {status}
+              {status.charAt(0).toUpperCase() + status.slice(1)}
             </button>
           ))}
         </div>
+
+        {/* View Toggle */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => setView("card")}
+            className={`p-2 rounded-lg transition ${
+              view === "card"
+                ? "bg-red-500 text-white shadow-md"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            <FiGrid size={18} />
+          </button>
+          <button
+            onClick={() => setView("list")}
+            className={`p-2 rounded-lg transition ${
+              view === "list"
+                ? "bg-red-500 text-white shadow-md"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            <FaList size={18} />
+          </button>
+        </div>
       </div>
 
-      {/* Bookings List */}
-      <div className="space-y-6">
-        {filteredBookings.map((booking) => (
-          <div
-            key={booking.id}
-            className="bg-white border border-gray-300 rounded-xl shadow-sm p-4 "
-          >
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
-              {/* Car Info */}
-              <div className="flex items-start gap-4">
-                <div className="w-20 h-16 bg-gray-100 rounded-md overflow-hidden">
-                  <img
-                    src={booking.image}
-                    alt={booking.car}
-                    className="w-full h-full object-cover"
-                  />
+      {/* No Bookings */}
+      {filtered.length === 0 ? (
+        <p className="text-center text-gray-500 mt-10">No bookings found.</p>
+      ) : view === "card" ? (
+        // 🔵 CARD VIEW
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filtered.map((b, idx) => (
+            <div
+              key={idx}
+              className="bg-white rounded-3xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
+            >
+              {/* 🔝 Status Section (replaces image) */}
+              <div
+                className={`h-36 flex flex-col items-center justify-center ${
+                  b.deliverystatus === "completed"
+                    ? "bg-gradient-to-br from-green-100 to-green-50"
+                    : b.deliverystatus === "cancelled"
+                    ? "bg-gradient-to-br from-red-100 to-red-50"
+                    : "bg-gradient-to-br from-yellow-100 to-yellow-50"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {b.deliverystatus === "completed" ? (
+                    <span className="text-green-600 text-4xl">✅</span>
+                  ) : b.deliverystatus === "cancelled" ? (
+                    <span className="text-red-600 text-4xl">❌</span>
+                  ) : (
+                    <span className="text-yellow-500 text-4xl">⏳</span>
+                  )}
+                  <h2
+                    className={`text-xl font-bold ${
+                      b.deliverystatus === "completed"
+                        ? "text-green-700"
+                        : b.deliverystatus === "cancelled"
+                        ? "text-red-700"
+                        : "text-yellow-700"
+                    }`}
+                  >
+                    {b.deliverystatus.toUpperCase()}
+                  </h2>
                 </div>
+                <p className="text-sm text-gray-600 mt-1">Booking Status</p>
+              </div>
+
+              {/* 🔻 Booking Details Section */}
+              <div className="p-5 flex flex-col justify-between h-[300px]">
                 <div>
-                  <h3 className="font-semibold text-lg">{booking.car}</h3>
-                  <div className="flex items-center text-sm text-gray-600 gap-1">
-                    <FiMapPin className="w-4 h-4" />
-                    {booking.location}
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600 gap-1 mt-1">
-                    <FiCalendar className="w-4 h-4" />
-                    {booking.date}
+                  <h3 className="text-xl font-bold text-gray-800 mb-1">
+                    {b.vehicleName}
+                  </h3>
+                  <p className="text-sm text-gray-500 mb-4">{b.categoryName}</p>
+
+                  <div className="space-y-2 text-sm text-gray-700">
+                    <p>
+                      <span className="font-semibold">Pickup:</span>{" "}
+                      {new Date(b.bookingDate).toLocaleDateString()}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Return:</span>{" "}
+                      {new Date(b.returnDate).toLocaleDateString()}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Route:</span>{" "}
+                      {b.pickuplocation} → {b.droplocation}
+                    </p>
+                    <p>
+                      <span className="font-semibold">License:</span>{" "}
+                      {b.licenseNo}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Payment:</span>{" "}
+                      <span
+                        className={`${
+                          b.paymentStatus === "paid"
+                            ? "text-green-600 font-medium"
+                            : "text-red-500 font-medium"
+                        }`}
+                      >
+                        {b.paymentMethod} ({b.paymentStatus})
+                      </span>
+                    </p>
                   </div>
                 </div>
-              </div>
 
-              {/* Status & Price */}
-              <div className="my-4 sm:mt-0 flex flex-col items-end">
-                <span
-                  className={`flex items-center text-sm font-medium px-3 py-1 rounded-full ${
-                    statusStyles[booking.status]
-                  }`}
-                >
-                  {statusIcons[booking.status]} {booking.status}
-                </span>
-                <div className="text-right mt-2">
-                  <p className="text-lg font-bold">${booking.price}</p>
-                  <p className="text-sm text-gray-500">
-                    Booking ID: {booking.id}
+                {/* 🔻 Price + Action Button */}
+                <div className="mt-4 flex items-center justify-between">
+                  <p className="text-lg font-bold text-red-600">
+                    Rs. {b.price}
                   </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="w-full sm:w-auto mt-4 border-t border-gray-300 pt-5 sm:mt-0 flex gap-2 flex-wrap">
-              {booking.status === "Completed" && (
-                <>
-                  <button className="px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200 text-sm">
-                    Download Receipt
-                  </button>
-                  <button className="px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200 text-sm">
-                    Book Again
-                  </button>
-                </>
-              )}
-              {booking.status === "Pending" && (
-                <>
-                  <button className="px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200 text-sm">
+                  <button className="bg-black text-white px-4 py-2 text-sm rounded-full hover:bg-red-600 transition-all duration-200">
                     View Details
                   </button>
-                  <button className="px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200 text-sm">
-                    Modify Booking
-                  </button>
-                  <button className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 text-sm">
-                    Cancel
-                  </button>
-                </>
-              )}
-              {booking.status === "Cancelled" && (
-                <button className="px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200 text-sm">
-                  Book Similar
-                </button>
-              )}
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
-        {filteredBookings.length === 0 && (
-          <p className="text-gray-500 text-center py-6">No bookings found.</p>
-        )}
-      </div>
+          ))}
+        </div>
+      ) : (
+        // 🔴 LIST VIEW
+        <div className="overflow-x-auto rounded-xl shadow-sm border border-gray-200">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-gray-100 text-gray-700 uppercase">
+              <tr>
+                <th className="py-3 px-4">Vehicle</th>
+                <th className="py-3 px-4">Category</th>
+                <th className="py-3 px-4">Pickup</th>
+                <th className="py-3 px-4">Return</th>
+                <th className="py-3 px-4">Route</th>
+                <th className="py-3 px-4">Price</th>
+                <th className="py-3 px-4">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((b, idx) => (
+                <tr
+                  key={idx}
+                  className="border-t border-gray-200 hover:bg-gray-50 transition duration-150"
+                >
+                  <td className="py-3 px-4 font-semibold">{b.vehicleName}</td>
+                  <td className="py-3 px-4">{b.categoryName}</td>
+                  <td className="py-3 px-4">
+                    {new Date(b.bookingDate).toLocaleDateString()}
+                  </td>
+                  <td className="py-3 px-4">
+                    {new Date(b.returnDate).toLocaleDateString()}
+                  </td>
+                  <td className="py-3 px-4">
+                    {b.pickuplocation} → {b.droplocation}
+                  </td>
+                  <td className="py-3 px-4">Rs. {b.price}</td>
+                  <td
+                    className={`py-3 px-4 font-semibold ${
+                      b.deliverystatus === "completed"
+                        ? "text-green-600"
+                        : b.deliverystatus === "cancelled"
+                        ? "text-red-600"
+                        : "text-yellow-600"
+                    }`}
+                  >
+                    {b.deliverystatus.toUpperCase()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };

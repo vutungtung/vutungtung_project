@@ -170,7 +170,6 @@
 
 // export default App;
 
-// App.tsx
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import ScrollToTop from "./component/ScrollToTop";
@@ -212,6 +211,8 @@ const Layout = () => {
     "/reset-password-otp",
     "/verify-success",
     "/verify-failed",
+    "/admin-dashboard",
+    "/overview",
   ];
 
   const hideLayout = hideLayoutOn.includes(location.pathname);

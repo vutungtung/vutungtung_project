@@ -43,8 +43,8 @@ const About = () => {
               team that’s available around the clock.
             </p>
           </div>
-          <div className="bg-gray-300 w-full h-60 rounded-md flex items-center justify-center">
-            <span className="text-gray-500">[Image Placeholder]</span>
+          <div className=" w-full h-60 rounded-md overflow-hidden flex items-center justify-center">
+            <img src="/image/team.png" alt="" />
           </div>
         </div>
       </section>
@@ -82,42 +82,61 @@ const About = () => {
       </section>
 
       {/* Meet Our Team */}
-      <section className="bg-gray-50 py-16 px-6 text-center">
+      <section className="bg-gray-100 py-16 px-6 text-center">
         <h2 className="text-2xl font-semibold mb-2">Meet Our Team</h2>
         <p className="text-gray-600 mb-10">
           The people behind your great rental experience
         </p>
-        <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
           {[
-            [
-              "Pyarjan Thapa",
-              "CEO & CO-Founder",
-              "15+ years in the automotive industry",
-            ],
-            [
-              "Sujan Pokharal",
-              "CTO, CO-Founder",
-              "Expert in fleet management and standards",
-            ],
-            [
-              "Bishwash Rijal",
-              "Customer Success",
-              "Exceptional customer experiences 24/7",
-            ],
-            [
-              "Bishal Parajuli",
-              "Customer Success",
-              "Exceptional customer experiences 24/7",
-            ],
-          ].map(([name, role, desc]) => (
+            {
+              name: "Pyarjan Thapa",
+              role: "Co-Founder & CEO (Chief Executive Officer)",
+              desc: "A visionary leader with 15+ years of experience in the automotive industry, driving innovation and strategic growth.",
+              img: "/image/pyarjanthapa.jpeg",
+            },
+            {
+              name: "Sujan Pokharal",
+              role: "Co-Founder & CTO (Chief Technology Officer)",
+              desc: "Tech innovator and expert in fleet management systems, ensuring top-notch technological standards and product reliability.",
+              img: "/image/sujan.jpeg",
+            },
+            {
+              name: "Bishwash Rijal",
+              role: "Co-Founder & COO (Chief Operating Officer)",
+              desc: "Operations strategist dedicated to delivering seamless and efficient customer experiences around the clock.",
+              img: "/image/bishwash.jpeg",
+            },
+            {
+              name: "Bishal Parajuli",
+              role: "Co-Founder & CMO (Chief Marketing Officer)",
+              desc: "Creative marketing mind focused on building strong brand presence and connecting customers through impactful campaigns.",
+              img: "/image/bishal.jpeg",
+            },
+          ].map(({ name, role, desc, img }) => (
             <div
               key={name}
-              className="bg-white shadow p-6 rounded-md text-center"
+              className="relative bg-white rounded-[3rem] shadow-md overflow-hidden group transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
             >
-              <div className="w-20 h-20 rounded-full bg-gray-200 mx-auto mb-4" />
-              <h3 className="font-bold">{name}</h3>
-              <p className="text-sm text-red">{role}</p>
-              <p className="text-xs text-gray-600 mt-2">{desc}</p>
+              {/* Image with overlay */}
+              <div className="relative">
+                <img
+                  src={img}
+                  alt={name}
+                  className="w-40 h-40 rounded-full object-cover mx-auto mt-6 border-amber-400 border-3 transition-transform duration-500 group-hover:scale-110"
+                />
+              </div>
+
+              {/* Content */}
+              <div className="p-6 transition-colors duration-500 group-hover:bg-gradient-to-b group-hover:from-amber-400/20 group-hover:to-white rounded-[3rem]">
+                <h3 className="font-bold text-lg">{name}</h3>
+                <p className="text-sm text-red-500 font-medium">{role}</p>
+                <p className="text-xs text-gray-600 mt-3">{desc}</p>
+              </div>
+
+              {/* Subtle glow border on hover */}
+              <div className="absolute inset-0 rounded-[3rem] border-2 border-transparent group-hover:border-amber-400 transition-all duration-500 pointer-events-none"></div>
             </div>
           ))}
         </div>

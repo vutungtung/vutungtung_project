@@ -1,7 +1,7 @@
 import type { Booking } from "../types/booking";
 
 export const BOOKING_API_URL =
-  "https://68bbe2b00f2491613edd85fe.mockapi.io/booking/booking";
+  "http://localhost:4000/vehicle/book/bookingdetails/admin";
 // ⬆️ replace with your real backend API later
 
 // ✅ Fetch all bookings

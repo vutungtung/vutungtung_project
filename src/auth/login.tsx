@@ -111,6 +111,13 @@ export const Login = () => {
 
       login(userData);
 
+      if (userData.token) {
+        localStorage.setItem("token", userData.token);
+        console.log("✅ Token saved to localStorage:", userData.token);
+      } else {
+        console.warn("⚠️ No token found in response");
+      }
+
       if (userData.role === "admin") {
         navigate("/admin-dashboard", { replace: true });
       } else {
