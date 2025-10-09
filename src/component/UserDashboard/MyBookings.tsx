@@ -33,11 +33,7 @@ const MyBookings = () => {
         setLoading(true);
         setError(null);
 
-        if (!user?.token) {
-          setError("User not logged in.");
-          setLoading(false);
-          return;
-        }
+        // Do not block on missing token; cookies-based sessions may be used
 
         const res = await getUserBookings();
         console.log("User bookings API response:", res.data);
