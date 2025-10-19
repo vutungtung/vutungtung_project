@@ -124,19 +124,19 @@ const About = () => {
                 <img
                   src={img}
                   alt={name}
-                  className="w-40 h-40 rounded-full object-cover mx-auto mt-6 border-amber-400 border-3 transition-transform duration-500 group-hover:scale-110"
+                  className="w-40 h-40 rounded-full object-cover mx-auto mt-6 border-red border-3 transition-transform duration-500 group-hover:scale-110"
                 />
               </div>
 
               {/* Content */}
-              <div className="p-6 transition-colors duration-500 group-hover:bg-gradient-to-b group-hover:from-amber-400/20 group-hover:to-white rounded-[3rem]">
+              <div className="p-6 transition-colors duration-500 group-hover: bg-gradient-to-b group-hover: from-red-400 group-hover:to-white rounded-[3rem]">
                 <h3 className="font-bold text-lg">{name}</h3>
                 <p className="text-sm text-red-500 font-medium">{role}</p>
                 <p className="text-xs text-gray-600 mt-3">{desc}</p>
               </div>
 
               {/* Subtle glow border on hover */}
-              <div className="absolute inset-0 rounded-[3rem] border-2 border-transparent group-hover:border-amber-400 transition-all duration-500 pointer-events-none"></div>
+              <div className="absolute inset-0 rounded-[3rem] border-2  group-hover: border-red transition-all duration-500 pointer-events-none"></div>
             </div>
           ))}
         </div>

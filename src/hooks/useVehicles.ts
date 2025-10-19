@@ -83,6 +83,7 @@ export const useVehicles = () => {
           image2: v.image2,
           pricePerDay: Number(v.dailyRate),
           title: v.name,
+          status: v.status,
 
           seatingCapacity: v.seatingCapacity,
           transmission: v.transmission,

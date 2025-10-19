@@ -105,7 +105,7 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
     form.append("fuelType", formData.fuelType.toUpperCase());
     form.append("seatingCapacity", formData.seatingCapacity.toString());
     form.append("dailyRate", formData.pricePerDay.toString());
-    form.append("transmissionType", formData.transmission.toUpperCase());
+    form.append("transmission", formData.transmission.toUpperCase());
     form.append("status", formData.status.toUpperCase());
 
     // Add features as comma-separated string
@@ -135,22 +135,16 @@ const AddVehicleForm = ({ onSave, onClose }: AddVehicleFormProps) => {
     setError("");
 
     try {
-      const token =
-        localStorage.getItem("token") || sessionStorage.getItem("token");
-
       // ✅ DEBUG: Log the request details
       console.log(
         "Sending request to:",
-        "http://localhost:4000/api/vehicles/create/"
+        "http://localhost:4000/api/vehicles/create"
       );
 
-      const res = await fetch("http://localhost:4000/api/vehicles/create/", {
+      const res = await fetch("http://localhost:4000/api/vehicles/create", {
         method: "POST",
         body: form,
         credentials: "include",
-        headers: {
-          ...(token && { Authorization: `Bearer ${token}` }),
-        },
       });
 
       // ✅ Get the response text first to see what's actually returned

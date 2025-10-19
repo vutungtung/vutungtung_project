@@ -226,7 +226,8 @@ const Nav = () => {
             {!user && (
               <>
                 <NavLink to="/">Home</NavLink>
-                <NavLink to="/vehicles">Vehicle</NavLink>
+                <NavLink to="/available-vehicles">Available Vehicles</NavLink>
+                <NavLink to="/vehicles">All Vehicles</NavLink>
                 <NavLink to="/about">About</NavLink>
                 <NavLink to="/contact">Contact</NavLink>
               </>
@@ -235,7 +236,8 @@ const Nav = () => {
             {user?.role === "user" && (
               <>
                 <NavLink to="/">Home</NavLink>
-                <NavLink to="/vehicles">Vehicle</NavLink>
+                <NavLink to="/available-vehicles">Available Vehicles</NavLink>
+                <NavLink to="/vehicles">All Vehicles</NavLink>
                 <NavLink to="/contact">Contact</NavLink>
                 <NavLink to="/user-dashboard">Dashboard</NavLink>
               </>
@@ -285,8 +287,11 @@ const Nav = () => {
               <NavLink to="/" onClick={() => setIsOpen(false)}>
                 Home
               </NavLink>
+              <NavLink to="/available-vehicles" onClick={() => setIsOpen(false)}>
+                Available Vehicles
+              </NavLink>
               <NavLink to="/vehicles" onClick={() => setIsOpen(false)}>
-                Vehicle
+                All Vehicles
               </NavLink>
               <NavLink to="/about" onClick={() => setIsOpen(false)}>
                 About
@@ -308,8 +313,11 @@ const Nav = () => {
               <NavLink to="/" onClick={() => setIsOpen(false)}>
                 Home
               </NavLink>
+              <NavLink to="/available-vehicles" onClick={() => setIsOpen(false)}>
+                Available Vehicles
+              </NavLink>
               <NavLink to="/vehicles" onClick={() => setIsOpen(false)}>
-                Vehicle
+                All Vehicles
               </NavLink>
               <NavLink to="/about" onClick={() => setIsOpen(false)}>
                 About

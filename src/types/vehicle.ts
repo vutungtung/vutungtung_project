@@ -86,6 +86,8 @@ export type VehicleFront = {
   image2?: string;
   pricePerDay: number;
   title: string;
+  categoryId?: number;
+  status?: "AVAILABLE" | "RENTED" | "MAINTENANCE";
 
   seatingCapacity: number;
   transmission: string;

@@ -18,6 +18,7 @@ interface VehicleType {
   category: {
     name: string;
   };
+  status?: string; // EXPECTED: 'AVAILABLE' | 'BOOKED' | etc.
 }
 
 const Vehicle = () => {
@@ -59,8 +60,13 @@ const Vehicle = () => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Filter vehicles dynamically
-  const filteredVehicles = vehiclesData.filter((vehicle) => {
+  // Show only AVAILABLE vehicles first
+  const availableVehicles = vehiclesData.filter(
+    (v) => (v.status || "").toUpperCase() === "AVAILABLE"
+  );
+
+  // Filter vehicles dynamically on top of availability
+  const filteredVehicles = availableVehicles.filter((vehicle) => {
     const matchCategory =
       filters.category === "" || vehicle.category.name === filters.category;
     const matchTransmission =

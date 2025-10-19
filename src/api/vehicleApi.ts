@@ -78,6 +78,8 @@ export const fetchVehicleById = async (
       ) as string[],
       pricePerDay: Number(vehicle.dailyRate),
       title: vehicle.name,
+      categoryId: vehicle.categoryId,
+      status: vehicle.status,
       image1: vehicle.image1,
       image2: vehicle.image2,
 

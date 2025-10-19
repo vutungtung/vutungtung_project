@@ -54,8 +54,10 @@ const Features = () => {
   if (loading) return <p className="text-center">Loading vehicles...</p>;
   if (error) return <p className="text-center text-red-500">{error}</p>;
 
-  // Take first 3 featured vehicles
-  const featuredCard = vehicles.slice(0, 3);
+  // Take first 3 AVAILABLE vehicles
+  const featuredCard = vehicles
+    .filter((v) => (v.status || "").toUpperCase() === "AVAILABLE")
+    .slice(0, 3);
 
   return (
     <div className="max-w-7xl w-full flex flex-col h-fit px-5 py-20 justify-around mx-auto">

@@ -279,7 +279,6 @@
 
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { MdCheckCircle } from "react-icons/md";
 
 const BookingSuccessful = () => {
@@ -287,37 +286,12 @@ const BookingSuccessful = () => {
   const navigate = useNavigate();
 
   const queryParams = new URLSearchParams(location.search);
-  const bookingId = queryParams.get("bookingId");
   const txn = queryParams.get("txn");
 
   useEffect(() => {
-    const saveBooking = async () => {
-      const bookingData = localStorage.getItem("bookingData");
-      if (!bookingData) {
-        console.error("No booking data found.");
-        return;
-      }
-
-      try {
-        const parsedData = JSON.parse(bookingData);
-
-        // ✅ Post to your backend API
-        const apiUrl = `http://localhost:4000/vehicle/book/booking/${parsedData.categoryId}/${parsedData.vehicleId}`;
-        await axios.post(apiUrl, {
-          ...parsedData,
-          transactionUUID: txn,
-          paymentStatus: "completed",
-          deliverystatus: "pending",
-        });
-
-        // Clear temp data
-        localStorage.removeItem("bookingData");
-      } catch (error) {
-        console.error("Booking save failed:", error);
-      }
-    };
-
-    saveBooking();
+    // Booking is created before payment. On success just clear temp data.
+    localStorage.removeItem("bookingData");
+    sessionStorage.removeItem("pendingBooking");
   }, [txn]);
 
   return (

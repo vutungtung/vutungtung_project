@@ -79,35 +79,42 @@ export const Login = () => {
       });
 
       console.log("Login response:", resp.data);
+      console.log("Full response object:", resp);
 
-      // 2. Try to fetch complete user details using the user ID
-      let userDetails = resp.data;
+      // 2. The backend returns {message, role, data: {count}} - let's check if there's more data
+      let userDetails: any = {};
 
-      if (resp.data.id) {
-        try {
-          // Fetch complete user details from the user endpoint
-          const userResponse = await fetch(
-            `http://localhost:4000/user/${resp.data.id}`
-          );
-
-          if (userResponse.ok) {
-            const userDataFromApi = await userResponse.json();
-            userDetails = { ...resp.data, ...userDataFromApi };
-            console.log("Complete user details:", userDetails);
-          }
-        } catch (fetchError) {
-          console.error("Failed to fetch user details:", fetchError);
+      // Check if the login response has more data than we initially saw
+      if (resp.data.data && typeof resp.data.data === 'object') {
+        console.log("Checking data object:", resp.data.data);
+        // Maybe the user details are in resp.data.data
+        if (resp.data.data.id || resp.data.data.email) {
+          userDetails = resp.data.data;
+          console.log("Found user details in data object:", userDetails);
         }
+      }
+
+      // If we still don't have user details, we'll need to work with what we have
+      if (!userDetails.id && !userDetails.email) {
+        console.log("No user details found in login response, using email as fallback");
+        // For now, we'll create a basic user object with the email
+        userDetails = {
+          email: email,
+          // We'll need to get the actual name from somewhere else or ask the user
+        };
       }
 
       // 3. Create user data with proper fallbacks
       const userData: User = {
         id: userDetails.id || `user-${Date.now()}`,
-        name: userDetails.name || generateNameFromEmail(email),
+        name: userDetails.name || userDetails.username || userDetails.fullname || userDetails.user_name || email.split('@')[0], // Use email prefix as fallback
         email: userDetails.email || email,
-        role: userDetails.role || "user",
-        token: userDetails.token || "",
+        role: resp.data.role || userDetails.role || "user", // Use role from login response
+        token: userDetails.token || "", // No token in response, using empty string
       };
+
+      // Store the email for potential future use
+      localStorage.setItem("userEmail", email);
 
       login(userData);
 

@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { IoMdCloseCircle } from "react-icons/io";
+import { AuthContext } from "../../context/AuthContext";
 
 interface Vehicle {
   id: string | number;
@@ -15,18 +16,24 @@ interface Vehicle {
 const Wishlist = () => {
   const [wishlist, setWishlist] = useState<Vehicle[]>([]);
   const navigate = useNavigate();
+  const auth = useContext(AuthContext);
 
   useEffect(() => {
-    const storedWishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
+    // Get user-specific wishlist key
+    const userId = auth?.user?.id || "guest";
+    const wishlistKey = `wishlist_${userId}`;
+    const storedWishlist = JSON.parse(localStorage.getItem(wishlistKey) || "[]");
     setWishlist(storedWishlist);
-  }, []);
+  }, [auth?.user?.id]);
 
   const removeFromWishlist = (id: string | number) => {
+    const userId = auth?.user?.id || "guest";
+    const wishlistKey = `wishlist_${userId}`;
     const updated = wishlist.filter(
       (item) => item.id !== id && item.v_id !== id
     );
     setWishlist(updated);
-    localStorage.setItem("wishlist", JSON.stringify(updated));
+    localStorage.setItem(wishlistKey, JSON.stringify(updated));
   };
 
   const handleBookNow = (id: string | number) => {

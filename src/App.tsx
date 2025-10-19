@@ -196,6 +196,11 @@ import { ResetPassword } from "./auth/ResetPassword";
 import { ResetPasswordOTP } from "./auth/ResetPasswordOTP";
 import { VerifySuccess } from "./auth/VerifySuccess";
 import { VerifyFailed } from "./auth/VerifyFailed";
+import AvailableVehicles from "./pages/AvailableVehicles";
+import VehicleDetailsPage from "./pages/VehicleDetails";
+import Payment from "./pages/Payment";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentFailure from "./pages/PaymentFailure";
 
 // ✅ Global Layout Component
 const Layout = () => {
@@ -213,6 +218,8 @@ const Layout = () => {
     "/verify-failed",
     "/admin-dashboard",
     "/overview",
+    "/payment-success",
+    "/payment-failure",
   ];
 
   const hideLayout = hideLayoutOn.includes(location.pathname);
@@ -237,6 +244,16 @@ const router = createBrowserRouter([
       { path: "/about", element: <About /> },
       { path: "/vehicles", element: <Vehicle /> },
       { path: "/vehicles/:id", element: <VehicleDetails /> },
+      { path: "/available-vehicles", element: <AvailableVehicles /> },
+      { path: "/vehicle-details/:id", element: <VehicleDetailsPage /> },
+      {
+        path: "/payment",
+        element: (
+          <PrivateRoute role="user">
+            <Payment />
+          </PrivateRoute>
+        ),
+      },
       {
         path: "/confirm-booking/:id",
         element: (
@@ -285,6 +302,10 @@ const router = createBrowserRouter([
 
       // ✅ Failure
       { path: "/failure", element: <Failure /> },
+      
+      // ✅ Payment Success/Failure (no layout)
+      { path: "/payment-success", element: <PaymentSuccess /> },
+      { path: "/payment-failure", element: <PaymentFailure /> },
 
       // ✅ Auth routes (Navbar/Footer hidden automatically)
       {

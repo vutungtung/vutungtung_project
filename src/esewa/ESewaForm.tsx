@@ -76,9 +76,10 @@ interface Props {
   amount: number;
   bookingId: string;
   bookingPayload?: any; // optional - to store booking details temporarily
+  onBeforeSubmit?: () => Promise<boolean> | boolean; // optional pre-submit hook (e.g., create booking)
 }
 
-const ESewaForm: React.FC<Props> = ({ amount, bookingId, bookingPayload }) => {
+const ESewaForm: React.FC<Props> = ({ amount, bookingId, bookingPayload, onBeforeSubmit }) => {
   const [transactionUUID, setTransactionUUID] = useState("");
   const [signature, setSignature] = useState("");
 
@@ -98,7 +99,7 @@ const ESewaForm: React.FC<Props> = ({ amount, bookingId, bookingPayload }) => {
   }, [amount, bookingId]);
 
   // ✅ Store booking data temporarily before payment (for use in success page)
-  const handlePaymentClick = () => {
+  const persistBookingPayload = () => {
     if (bookingPayload) {
       localStorage.setItem("bookingData", JSON.stringify(bookingPayload));
     }
@@ -109,7 +110,22 @@ const ESewaForm: React.FC<Props> = ({ amount, bookingId, bookingPayload }) => {
       action="https://rc-epay.esewa.com.np/api/epay/main/v2/form"
       method="POST"
       target="_self"
-      onSubmit={handlePaymentClick}
+      onSubmit={async (e) => {
+        // Run optional pre-submit logic (e.g., create booking with backend)
+        if (onBeforeSubmit) {
+          try {
+            const ok = await onBeforeSubmit();
+            if (!ok) {
+              e.preventDefault();
+              return;
+            }
+          } catch {
+            e.preventDefault();
+            return;
+          }
+        }
+        persistBookingPayload();
+      }}
     >
       {/* --- Required eSewa Fields --- */}
       <input type="hidden" name="amount" value={amount} />
@@ -143,6 +159,7 @@ const ESewaForm: React.FC<Props> = ({ amount, bookingId, bookingPayload }) => {
       {/* --- Pay Button --- */}
       <button
         type="submit"
+         onClick={()=>{console.log( bookingPayload)}}
         className="px-6 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition w-full"
       >
         Pay Rs. {amount} with eSewa

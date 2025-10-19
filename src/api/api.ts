@@ -86,8 +86,8 @@ import type { Booking } from "../types/booking";
 
 // ✅ Create Axios instance
 const API = axios.create({
-  baseURL: "http://localhost:4000",
-  withCredentials: true, // send cookies
+  baseURL: "",
+  withCredentials: true,
 });
 
 interface BookingsResponse {
@@ -106,8 +106,9 @@ API.interceptors.request.use((config) => {
       config.headers = {}; // Ensure headers exist
     }
 
+    // Backend expects raw refresh token (no "Bearer " prefix)
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      (config.headers as any).Authorization = token as string;
     }
   }
 

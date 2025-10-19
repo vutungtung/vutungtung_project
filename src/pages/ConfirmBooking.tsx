@@ -700,7 +700,7 @@ import { FiMail, FiUser } from "react-icons/fi";
 import BackButton from "../component/navigate";
 import ESewaForm from "../esewa/ESewaForm";
 import { fetchVehicleById } from "../api/vehicleApi";
-import axios from "axios";
+import API from "../api/api";
 import type { VehicleFront } from "../types/vehicle";
 import { AuthContext } from "../context/AuthContext";
 
@@ -721,13 +721,15 @@ const ConfirmBooking = () => {
 
  
   const [paymentInfo, setPaymentInfo] = useState({
-    method: "card",
+    method: "esewa",
     cardNumber: "",
     expiry: "",
     cvv: "",
     cardholder: "",
     agreed: false,
   });
+  const [licenseFile, setLicenseFile] = useState<File | null>(null);
+  const [pending, setPending] = useState<any | null>(null);
 
   // ✅ Function to convert image filename to full URL
   const getImageUrl = (img: string | undefined) => {
@@ -761,13 +763,15 @@ const ConfirmBooking = () => {
     return filteredImages.map(getImageUrl);
   };
 
-  // Extract query params
-  const licenseNumber = searchParams.get("licenseNumber") || "";
-  const pickupLocation = searchParams.get("pickupLocation") || "";
-  const returnLocation = searchParams.get("returnLocation") || "";
-  const pickupDate = searchParams.get("pickupDate") || "";
-  const returnDate = searchParams.get("returnDate") || "";
-  const totalPrice = parseFloat(searchParams.get("totalPrice") || "0");
+  // Read from session pending booking (set on vehicle details)
+  const pendingBookingRaw = sessionStorage.getItem("pendingBooking");
+  const pendingBooking = pendingBookingRaw ? JSON.parse(pendingBookingRaw) : null;
+  const licenseNumber = pendingBooking?.licenseNo || "";
+  const pickupLocation = pendingBooking?.pickuplocation || "";
+  const returnLocation = pendingBooking?.droplocation || "";
+  const pickupDate = pendingBooking?.bookingDate || "";
+  const returnDate = pendingBooking?.returnDate || "";
+  const totalPrice = Number(pendingBooking?.price || 0);
 
   // ✅ Get images for the current vehicle
   const vehicleImages = getVehicleImages(vehicle);
@@ -787,6 +791,7 @@ const ConfirmBooking = () => {
       };
       loadVehicle();
     }
+    setPending(pendingBooking);
   }, [id, vehicle]);
 
   if (loading)
@@ -826,6 +831,20 @@ const ConfirmBooking = () => {
     );
   }
 
+  if (vehicle?.status && vehicle.status !== "AVAILABLE") {
+    return (
+      <div className="text-center py-20">
+        <p className="text-red-500 text-lg">This vehicle is not available for booking right now.</p>
+        <button
+          className="mt-4 px-4 py-2 bg-red-500 text-white rounded"
+          onClick={() => navigate(`/vehicle/${id}`)}
+        >
+          Choose another vehicle
+        </button>
+      </div>
+    );
+  }
+
   const pickup = new Date(pickupDate);
   const ret = new Date(returnDate);
   const days = Math.max(
@@ -834,9 +853,29 @@ const ConfirmBooking = () => {
   );
   const finalTotalPrice = totalPrice || vehicle.pricePerDay * days;
 
+  // Build a reusable booking payload for eSewa success-page storage
+  const bookingPayload = {
+    bookingDate: new Date().toISOString(),
+    returnDate: returnDate,
+    username: auth?.user?.name || "Guest User",
+    useremail: auth?.user?.email || "unknown@example.com",
+    vehicleId: Number(vehicle.id),
+    vehicleName: vehicle.title,
+    categoryId: vehicle.categoryId || 0,
+    price: finalTotalPrice,
+    pickuplocation: pickupLocation,
+    droplocation: returnLocation,
+    licenseNo: licenseNumber,
+    paymentMethod: paymentInfo.method,
+    paymentStatus: "pending",
+    deliverystatus: "pending",
+    // include base64 license if available from pending
+    licenseImgBase64: pending?.licenseImgBase64 || undefined,
+  };
+
   const validateStep = () => {
     if (step === 1) return true;
-    if (step === 2) return auth?.user?.email && auth?.user?.name;
+    if (step === 2) return auth?.user?.email && auth?.user?.name && (licenseFile || pending?.licenseImgBase64);
 
     if (step === 3) return paymentInfo.agreed;
     return false;
@@ -852,44 +891,7 @@ const ConfirmBooking = () => {
   };
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
 
-  // Handle booking after payment success
-  const handleCompleteBooking = async () => {
-    if (!validateStep()) {
-      alert("Please complete all required fields first.");
-      return;
-    }
-
-    try {
-      const bookingPayload = {
-        bookingDate: new Date(),
-        returnDate: returnDate,
-        username: auth?.user?.name || "Guest User",
-        useremail: auth?.user?.email || "unknown@example.com",
-        vehicleId: Number(vehicle.id),
-        vehicleName: vehicle.title,
-        categoryName: "", // optional
-        categoryId: 0, // optional
-        price: finalTotalPrice,
-        pickuplocation: pickupLocation,
-        droplocation: returnLocation,
-        licenseNo: licenseNumber,
-        licenseImg: "", // optional if uploading separately
-        paymentMethod: paymentInfo.method,
-        paymentStatus: "completed",
-        deliverystatus: "pending",
-      };
-
-      await axios.post(
-        "http://localhost:4000/vehicle/book/booking",
-        bookingPayload
-      );
-
-      navigate("/booking-success", { state: bookingPayload });
-    } catch (err) {
-      console.error(err);
-      alert("Booking failed. Please try again.");
-    }
-  };
+  // Booking creation is handled in the eSewa onBeforeSubmit hook in Step 3.
 
   return (
     <div className="bg-light-gray">
@@ -1042,6 +1044,20 @@ const ConfirmBooking = () => {
                         />
                       </div>
                     </div>
+
+                    {/* License Image Upload */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        License Image (required)
+                      </label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setLicenseFile(e.target.files?.[0] || null)}
+                        className="w-full border border-gray-300 rounded-md p-2"
+                        required
+                      />
+                    </div>
                   </form>
 
                   <div className="w-full flex gap-2 text-red bg-red/20 p-5 rounded-2xl border">
@@ -1064,40 +1080,73 @@ const ConfirmBooking = () => {
                     Payment Information
                   </h2>
 
-                  {/* Payment Options */}
+                  {/* Payment Options - eSewa only */}
                   <div className="flex gap-4 mb-6">
-                    {["esewa", "khalti"].map((method) => (
-                      <button
-                        key={method}
-                        type="button"
-                        disabled={!paymentInfo.agreed} // disable until agreed
-                        className={`border rounded-lg p-3 w-1/2 transition ${
-                          paymentInfo.method === method
-                            ? "bg-green-500 text-white border-green-500"
-                            : "bg-white text-gray-600 border-gray-300 hover:bg-gray-100"
-                        } ${
-                          !paymentInfo.agreed
-                            ? "opacity-50 cursor-not-allowed"
-                            : "cursor-pointer"
-                        }`}
-                        onClick={() => {
-                          if (!paymentInfo.agreed) {
-                            alert(
-                              "Please agree to Terms and Conditions first."
-                            );
-                            return;
-                          }
-                          setPaymentInfo({ ...paymentInfo, method });
-                        }}
-                      >
-                        {method === "esewa" ? "eSewa" : "Khalti"}
-                      </button>
-                    ))}
+                    <button
+                      type="button"
+                      disabled={!paymentInfo.agreed}
+                      className={`border rounded-lg p-3 w-full transition ${
+                        paymentInfo.method === "esewa"
+                          ? "bg-green-500 text-white border-green-500"
+                          : "bg-white text-gray-600 border-gray-300 hover:bg-gray-100"
+                      } ${
+                        !paymentInfo.agreed
+                          ? "opacity-50 cursor-not-allowed"
+                          : "cursor-pointer"
+                      }`}
+                      onClick={() => {
+                        if (!paymentInfo.agreed) {
+                          alert("Please agree to Terms and Conditions first.");
+                          return;
+                        }
+                        setPaymentInfo({ ...paymentInfo, method: "esewa" });
+                      }}
+                    >
+                      eSewa
+                    </button>
                   </div>
 
                   {/* eSewa Payment */}
                   {paymentInfo.method === "esewa" && paymentInfo.agreed && (
-                    <ESewaForm amount={finalTotalPrice} bookingId={id!} />
+                    <ESewaForm
+                      amount={finalTotalPrice}
+                      bookingId={id!}
+                      bookingPayload={bookingPayload}
+                      onBeforeSubmit={async () => {
+                        if (!vehicle?.categoryId) return false;
+                        if (!licenseFile && !pending?.licenseImgBase64) return false;
+                        try {
+                          const formData = new FormData();
+                          formData.append("licenseNo", licenseNumber);
+                          formData.append("bookingDate", new Date().toISOString());
+                          formData.append("returnDate", new Date(returnDate).toISOString());
+                          formData.append("price", String(finalTotalPrice));
+                          formData.append("pickuplocation", pickupLocation);
+                          formData.append("droplocation", returnLocation);
+                          formData.append("paymentMethod", paymentInfo.method);
+                          if (licenseFile) {
+                            formData.append("licenseImg", licenseFile);
+                          } else if (pending?.licenseImgBase64) {
+                            const res = await fetch(pending.licenseImgBase64);
+                            const blob = await res.blob();
+                            formData.append("licenseImg", blob, "license.jpg");
+                          }
+
+                          const url = `http://localhost:4000/vehicle/book/booking/${vehicle.categoryId}/${vehicle.id}`;
+                          await API.post(url, formData, {
+                            headers: { "Content-Type": "multipart/form-data" },
+                            withCredentials: true,
+                          });
+                          return true;
+                        } catch (err: any) {
+                          const resp = err?.response;
+                          const msg = resp?.data?.message || resp?.data?.error || err?.message || "Unknown error";
+                          console.error("Booking create failed:", msg, resp?.status, resp?.data);
+                          alert(msg || "Booking failed. Please try again.");
+                          return false;
+                        }
+                      }}
+                    />
                   )}
 
                   {/* Khalti Coming Soon */}
@@ -1166,14 +1215,7 @@ const ConfirmBooking = () => {
                 >
                   Next <MdNavigateNext size={24} />
                 </button>
-              ) : (
-                <button
-                  onClick={handleCompleteBooking}
-                  className="ml-auto px-4 py-2 rounded bg-red text-white hover:bg-gradient-red"
-                >
-                  Complete Booking
-                </button>
-              )}
+              ) : null}
             </div>
           </div>
 

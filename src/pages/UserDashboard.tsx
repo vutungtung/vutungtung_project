@@ -40,7 +40,7 @@ const UserDashboard = () => {
 
   // Get user data with nice fallbacks
   const userData = {
-    name: auth.user.name || generateNameFromEmail(auth.user.email),
+    name: auth.user.name || "User", // Use actual name from registration, fallback to "User"
     email: auth.user.email || "No email provided",
     avatar: auth.user.avatar || getAvatar(auth.user.email || "user"),
   };
