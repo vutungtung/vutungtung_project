@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FaCheckCircle, FaLock, FaShieldAlt } from "react-icons/fa";
 import { AuthContext } from "../context/AuthContext";
-import API from "../api/api";
+
 import CryptoJS from "crypto-js";
 import { v4 as uuidv4 } from "uuid";
 
@@ -22,13 +22,14 @@ interface BookingData {
   pricePerDay: number;
   serviceFee: number;
   insuranceFee: number;
+  paymentStatus?: string; // Add payment status for COD
 }
 
 const Payment = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const auth = useContext(AuthContext);
-  
+
   const [bookingData, setBookingData] = useState<BookingData | null>(
     location.state?.bookingData || null
   );
@@ -36,6 +37,8 @@ const Payment = () => {
   const [error, setError] = useState("");
   const [transactionUUID, setTransactionUUID] = useState("");
   const [signature, setSignature] = useState("");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] =
+    useState<string>("eSewa"); // New state for payment method
 
   const secretKey = "8gBm/:&EnhH.1/q"; // eSewa test secret
   const productCode = "EPAYTEST";
@@ -64,7 +67,10 @@ const Payment = () => {
     }
   }, [bookingData, navigate]);
 
-  const createBooking = async () => {
+  const createBooking = async (
+    paymentMethod: string,
+    paymentStatus: string = "Pending"
+  ) => {
     if (!bookingData) return false;
 
     try {
@@ -73,12 +79,19 @@ const Payment = () => {
 
       const formData = new FormData();
       formData.append("licenseNo", bookingData.licenseNo);
-      formData.append("bookingDate", new Date(bookingData.bookingDate).toISOString());
-      formData.append("returnDate", new Date(bookingData.returnDate).toISOString());
+      formData.append(
+        "bookingDate",
+        new Date(bookingData.bookingDate).toISOString()
+      );
+      formData.append(
+        "returnDate",
+        new Date(bookingData.returnDate).toISOString()
+      );
       formData.append("price", String(bookingData.price));
       formData.append("pickuplocation", bookingData.pickuplocation);
       formData.append("droplocation", bookingData.droplocation);
-      formData.append("paymentMethod", "eSewa"); // Use exact enum value from backend
+      formData.append("paymentMethod", paymentMethod); // Use the passed payment method
+      formData.append("paymentStatus", paymentStatus); // Add payment status
 
       // Convert base64 to blob and append to formData
       const imgResponse = await fetch(bookingData.licenseImgBase64);
@@ -91,12 +104,19 @@ const Payment = () => {
       console.log("Sending booking data:");
       console.log("URL:", url);
       console.log("License No:", bookingData.licenseNo);
-      console.log("Booking Date:", new Date(bookingData.bookingDate).toISOString());
-      console.log("Return Date:", new Date(bookingData.returnDate).toISOString());
+      console.log(
+        "Booking Date:",
+        new Date(bookingData.bookingDate).toISOString()
+      );
+      console.log(
+        "Return Date:",
+        new Date(bookingData.returnDate).toISOString()
+      );
       console.log("Price:", bookingData.price);
       console.log("Pickup:", bookingData.pickuplocation);
       console.log("Drop:", bookingData.droplocation);
-      console.log("Payment Method:", "eSewa");
+      console.log("Payment Method:", paymentMethod);
+      console.log("Payment Status:", paymentStatus);
 
       const response = await fetch(url, {
         method: "POST",
@@ -150,16 +170,27 @@ const Payment = () => {
   const handlePayment = async () => {
     if (!bookingData) return;
 
-    // Create booking first
-    const bookingCreated = await createBooking();
-    if (!bookingCreated) {
-      return; // Error already set in createBooking
-    }
+    if (selectedPaymentMethod === "eSewa") {
+      // Create booking first with eSewa payment method and 'Pending' status
+      const bookingCreated = await createBooking("eSewa", "Pending");
+      if (!bookingCreated) {
+        return; // Error already set in createBooking
+      }
 
-    // If booking created successfully, submit eSewa form
-    const form = document.getElementById("esewa-form") as HTMLFormElement;
-    if (form) {
-      form.submit();
+      // If booking created successfully, submit eSewa form
+      const form = document.getElementById("esewa-form") as HTMLFormElement;
+      if (form) {
+        form.submit();
+      }
+    } else if (selectedPaymentMethod === "CashOnDelivery") {
+      // Create booking with CashOnDelivery payment method and 'Pending' status
+      const bookingCreated = await createBooking("CashOnDelivery", "Pending");
+      if (bookingCreated) {
+        sessionStorage.removeItem("bookingData"); // Clear booking data from session
+        navigate("/booking-successful");
+      } else {
+        // Handle error, which is already set in createBooking
+      }
     }
   };
 
@@ -187,9 +218,7 @@ const Payment = () => {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Complete Your Payment
           </h1>
-          <p className="text-gray-600">
-            Secure payment processing with eSewa
-          </p>
+          <p className="text-gray-600">Secure payment processing with eSewa</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -202,11 +231,15 @@ const Payment = () => {
             <div className="space-y-4">
               <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
                 <div>
-                  <h3 className="font-semibold text-gray-900">{bookingData.vehicleName}</h3>
+                  <h3 className="font-semibold text-gray-900">
+                    {bookingData.vehicleName}
+                  </h3>
                   <p className="text-sm text-gray-600">Vehicle Rental</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-gray-900">Rs. {bookingData.pricePerDay}</p>
+                  <p className="font-semibold text-gray-900">
+                    Rs. {bookingData.pricePerDay}
+                  </p>
                   <p className="text-sm text-gray-600">per day</p>
                 </div>
               </div>
@@ -214,11 +247,15 @@ const Payment = () => {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Pickup Location:</span>
-                  <span className="font-medium">{bookingData.pickuplocation}</span>
+                  <span className="font-medium">
+                    {bookingData.pickuplocation}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Return Location:</span>
-                  <span className="font-medium">{bookingData.droplocation}</span>
+                  <span className="font-medium">
+                    {bookingData.droplocation}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Pickup Date:</span>
@@ -275,6 +312,26 @@ const Payment = () => {
               </div>
             )}
 
+            {/* Payment Method Selection */}
+            <div className="mb-6">
+              <label
+                htmlFor="payment-method"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Select Payment Method:
+              </label>
+              <select
+                id="payment-method"
+                name="paymentMethod"
+                value={selectedPaymentMethod}
+                onChange={(e) => setSelectedPaymentMethod(e.target.value)}
+                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md"
+              >
+                <option value="eSewa">eSewa</option>
+                <option value="CashOnDelivery">Cash on Delivery</option>
+              </select>
+            </div>
+
             {/* Security Features */}
             <div className="mb-6 space-y-3">
               <div className="flex items-center gap-2 text-green-600">
@@ -291,48 +348,84 @@ const Payment = () => {
               </div>
             </div>
 
-            {/* eSewa Payment Form */}
-            <form
-              id="esewa-form"
-              action="https://rc-epay.esewa.com.np/api/epay/main/v2/form"
-              method="POST"
-              target="_self"
-            >
-              {/* Hidden eSewa Fields */}
-              <input type="hidden" name="amount" value={bookingData.price} />
-              <input type="hidden" name="tax_amount" value="0" />
-              <input type="hidden" name="total_amount" value={bookingData.price} />
-              <input type="hidden" name="transaction_uuid" value={transactionUUID} />
-              <input type="hidden" name="product_code" value={productCode} />
-              <input type="hidden" name="product_service_charge" value="0" />
-              <input type="hidden" name="product_delivery_charge" value="0" />
+            {/* Conditional Rendering for Payment Forms */}
+            {selectedPaymentMethod === "eSewa" && (
+              <form
+                id="esewa-form"
+                action="https://rc-epay.esewa.com.np/api/epay/main/v2/form"
+                method="POST"
+                target="_self"
+              >
+                {/* Hidden eSewa Fields */}
+                <input type="hidden" name="amount" value={bookingData.price} />
+                <input type="hidden" name="tax_amount" value="0" />
+                <input
+                  type="hidden"
+                  name="total_amount"
+                  value={bookingData.price}
+                />
+                <input
+                  type="hidden"
+                  name="transaction_uuid"
+                  value={transactionUUID}
+                />
+                <input type="hidden" name="product_code" value={productCode} />
+                <input type="hidden" name="product_service_charge" value="0" />
+                <input type="hidden" name="product_delivery_charge" value="0" />
 
-              {/* Redirect URLs */}
-              <input
-                type="hidden"
-                name="success_url"
-                value={`${window.location.origin}/payment-success?bookingId=${bookingData.vehicleId}&txn=${transactionUUID}`}
-              />
-              <input
-                type="hidden"
-                name="failure_url"
-                value={`${window.location.origin}/payment-failure?bookingId=${bookingData.vehicleId}`}
-              />
+                {/* Redirect URLs */}
+                <input
+                  type="hidden"
+                  name="success_url"
+                  value={`${window.location.origin}/payment-success?bookingId=${bookingData.vehicleId}&txn=${transactionUUID}`}
+                />
+                <input
+                  type="hidden"
+                  name="failure_url"
+                  value={`${window.location.origin}/payment-failure?bookingId=${bookingData.vehicleId}`}
+                />
 
-              {/* Signature Details */}
-              <input
-                type="hidden"
-                name="signed_field_names"
-                value="total_amount,transaction_uuid,product_code"
-              />
-              <input type="hidden" name="signature" value={signature} />
+                {/* Signature Details */}
+                <input
+                  type="hidden"
+                  name="signed_field_names"
+                  value="total_amount,transaction_uuid,product_code"
+                />
+                <input type="hidden" name="signature" value={signature} />
 
-              {/* Payment Button */}
+                {/* Payment Button */}
+                <button
+                  type="button"
+                  onClick={handlePayment}
+                  disabled={loading}
+                  className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-semibold py-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <svg
+                        className="w-6 h-6"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                      </svg>
+                      Pay Rs. {bookingData.price} with eSewa
+                    </>
+                  )}
+                </button>
+              </form>
+            )}
+
+            {selectedPaymentMethod === "CashOnDelivery" && (
               <button
-                type="button"
                 onClick={handlePayment}
                 disabled={loading}
-                className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-semibold py-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+                className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white font-semibold py-4 rounded-lg transition-colors flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
@@ -340,29 +433,30 @@ const Payment = () => {
                     Processing...
                   </>
                 ) : (
-                  <>
-                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                    </svg>
-                    Pay Rs. {bookingData.price} with eSewa
-                  </>
+                  "Place Booking with Cash on Delivery"
                 )}
               </button>
-            </form>
+            )}
 
             {/* Alternative Actions */}
             <div className="mt-6 space-y-3">
               <button
-                onClick={() => navigate("/vehicle-details/" + bookingData.vehicleId)}
+                onClick={() =>
+                  navigate("/vehicle-details/" + bookingData.vehicleId)
+                }
                 className="w-full border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 Back to Vehicle Details
               </button>
               <button
                 onClick={async () => {
-                  const confirmed = window.confirm("Are you sure you want to cancel this booking? This action cannot be undone.");
+                  const confirmed = window.confirm(
+                    "Are you sure you want to cancel this booking? This action cannot be undone."
+                  );
                   if (confirmed) {
-                    const cancelled = await cancelBooking(bookingData.vehicleId);
+                    const cancelled = await cancelBooking(
+                      bookingData.vehicleId
+                    );
                     if (cancelled) {
                       alert("Booking cancelled successfully!");
                       navigate("/available-vehicles");

@@ -226,7 +226,7 @@ const Nav = () => {
             {!user && (
               <>
                 <NavLink to="/">Home</NavLink>
-                <NavLink to="/available-vehicles">Available Vehicles</NavLink>
+                
                 <NavLink to="/vehicles">All Vehicles</NavLink>
                 <NavLink to="/about">About</NavLink>
                 <NavLink to="/contact">Contact</NavLink>
@@ -236,7 +236,6 @@ const Nav = () => {
             {user?.role === "user" && (
               <>
                 <NavLink to="/">Home</NavLink>
-                <NavLink to="/available-vehicles">Available Vehicles</NavLink>
                 <NavLink to="/vehicles">All Vehicles</NavLink>
                 <NavLink to="/contact">Contact</NavLink>
                 <NavLink to="/user-dashboard">Dashboard</NavLink>

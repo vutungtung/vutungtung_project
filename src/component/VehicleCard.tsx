@@ -272,6 +272,9 @@ interface VehicleCardProps {
   fuelType: string;
   description: string;
   pricePerDay: number;
+  isAvailable?: boolean; // Add this prop
+  isFavorited?: boolean; // Add this prop
+  onFavoriteToggle: (vehicleId: string) => void; // Add this prop
 }
 
 const VehicleCard: React.FC<VehicleCardProps> = ({
@@ -283,6 +286,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
   fuelType,
   description,
   pricePerDay,
+  isAvailable = true, // Default to true if not provided
 }) => {
   const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -330,13 +334,13 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
   }
 
   return (
-    <div className="relative md:h-[25rem] rounded-2xl hover:shadow-lg hover:-translate-y-5 duration-300 shadow-accent/30 overflow-hidden">
+    <div className="relative md:h-[25rem] border-gray-200 border rounded-2xl hover:shadow-lg hover:-translate-y-5 duration-300 shadow-accent/30 overflow-hidden">
       {/* Image Slider */}
       <div className="relative">
         <img
           src={validImages[currentIndex]}
           alt={title}
-          className="h-48 w-full object-cover"
+          className="h-48 w-full  object-cover"
           onError={(e) => {
             e.currentTarget.src = "/fallback-image.jpg";
           }}
@@ -359,11 +363,21 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
             </button>
           </>
         )}
+        {/* Availability Indicator */}
+        {isAvailable ? (
+          <span className="absolute top-2 left-2 bg-green-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">
+            Available
+          </span>
+        ) : (
+          <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">
+            Unavailable
+          </span>
+        )}
       </div>
 
       {/* Content */}
       <div className="space-y-2 p-5">
-        <h1 className="text-2xl font-semibold">{title}</h1>
+        <h1 className="text-2xl line-clamp-1 font-semibold">{title}</h1>
         <div className="text-sm text-gray-600 flex flex-wrap gap-x-3 items-center">
           <p className="inline-flex justify-center items-center text-base gap-1">
             <LuUsers size={15} />
@@ -388,7 +402,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
             onClick={() => navigate(`/vehicles/${id}`)}
             className="bg-red hover:bg-gradient-red text-white font-medium p-2 rounded-lg"
           >
-            View Details
+            Book Now
           </button>
         </div>
       </div>

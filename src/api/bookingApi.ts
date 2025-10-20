@@ -1,4 +1,5 @@
 import type { Booking } from "../types/booking";
+import axios from 'axios'; // Import axios
 
 export const BOOKING_API_URL =
   "http://localhost:4000/vehicle/book/bookingdetails/admin";
@@ -40,4 +41,24 @@ export const deleteBooking = async (id: string): Promise<boolean> => {
   const res = await fetch(`${BOOKING_API_URL}/${id}`, { method: "DELETE" });
   if (!res.ok) throw new Error("Failed to delete booking");
   return true;
+};
+
+// ✅ Cancel booking (Admin)
+export const cancelBookingAdmin = async (bookingId: number) => {
+  const res = await axios.post(
+    `http://localhost:4000/vehicle/book/cancel-booking/${bookingId}`,
+    {},
+    { withCredentials: true }
+  );
+  return res;
+};
+
+// ✅ Update payment status (Admin)
+export const updateBookingPaymentStatus = async (bookingId: number, status: string) => {
+  const res = await axios.post(
+    `http://localhost:4000/vehicle/book/updatePayment/${bookingId}`,
+    { paymentStatus: status },
+    { withCredentials: true }
+  );
+  return res;
 };

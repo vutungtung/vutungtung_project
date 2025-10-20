@@ -91,7 +91,11 @@ const VehicleDetails = () => {
 
   const getImageUrl = (img: string | undefined) => {
     if (!img) return "/fallback-image.jpg";
-    if (img.startsWith("http://") || img.startsWith("https://") || img.startsWith("blob:")) {
+    if (
+      img.startsWith("http://") ||
+      img.startsWith("https://") ||
+      img.startsWith("blob:")
+    ) {
       return img;
     }
     return `http://localhost:4000/uploads/vehicles/${img}`;
@@ -100,7 +104,7 @@ const VehicleDetails = () => {
   const getVehicleImages = (vehicle: VehicleType | null) => {
     if (!vehicle) return ["/fallback-image.jpg"];
     const images = [vehicle.image, vehicle.image1, vehicle.image2]
-      .filter(img => img && img !== "")
+      .filter((img) => img && img !== "")
       .map(getImageUrl);
     return images.length > 0 ? images : ["/fallback-image.jpg"];
   };
@@ -167,12 +171,14 @@ const VehicleDetails = () => {
     const days = Math.max(
       1,
       Math.ceil(
-        (returnDateObj.getTime() - pickupDateObj.getTime()) / (1000 * 60 * 60 * 24)
+        (returnDateObj.getTime() - pickupDateObj.getTime()) /
+          (1000 * 60 * 60 * 24)
       )
     );
 
     const pricePerDay = Number(vehicle!.dailyRate);
-    const totalPrice = pricePerDay * days + SERVICE_FEE + INSURANCE_PER_DAY * days;
+    const totalPrice =
+      pricePerDay * days + SERVICE_FEE + INSURANCE_PER_DAY * days;
 
     // Convert license image to base64
     const reader = new FileReader();
@@ -217,7 +223,9 @@ const VehicleDetails = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-500 text-lg mb-4">{error || "Vehicle not found"}</p>
+          <p className="text-red-500 text-lg mb-4">
+            {error || "Vehicle not found"}
+          </p>
           <button
             onClick={() => navigate("/available-vehicles")}
             className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
@@ -251,18 +259,38 @@ const VehicleDetails = () => {
     return days * pricePerDay + SERVICE_FEE + INSURANCE_PER_DAY * days;
   };
 
+  // Get today's date
+  const today = new Date();
+
+  // Set minimum pickup date to tomorrow
+  const minPickupDate = new Date(today);
+  minPickupDate.setDate(today.getDate() + 1);
+
+  // Format to YYYY-MM-DD (for input[type="date"])
+  const formattedMinPickupDate = minPickupDate.toISOString().split("T")[0];
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4">
         {/* Back Button */}
         <button
-          onClick={() => navigate("/available-vehicles")}
+          onClick={() => navigate("/vehicles")}
           className="mb-6 flex items-center text-gray-600 hover:text-gray-800"
         >
-          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          <svg
+            className="w-5 h-5 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
-          Back to Available Vehicles
+          Back to Vehicles
         </button>
 
         <div className="flex flex-col lg:flex-row gap-8">
@@ -318,7 +346,9 @@ const VehicleDetails = () => {
               <h2 className="text-xl font-semibold border-t pt-5">
                 About Vehicle
               </h2>
-              <p className="text-gray-600 text-justify">{vehicle.description}</p>
+              <p className="text-gray-600 text-justify">
+                {vehicle.description}
+              </p>
             </div>
 
             {/* Vehicle Specs */}
@@ -375,32 +405,56 @@ const VehicleDetails = () => {
 
             {/* Location and Date Selection */}
             <div className="space-y-4">
+              {/* Pickup Location */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Pickup Location *
                 </label>
-                <input
-                  type="text"
-                  placeholder="Enter pickup location"
+                <select
                   value={pickupLocation}
                   onChange={(e) => setPickupLocation(e.target.value)}
                   className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-red-500 focus:outline-none"
                   required
-                />
+                >
+                  <option value="" disabled>
+                    Select Pickup City
+                  </option>
+                  <option value="Kathmandu">Kathmandu</option>
+                  <option value="Pokhara">Pokhara</option>
+                  <option value="Lalitpur">Lalitpur</option>
+                  <option value="Biratnagar">Biratnagar</option>
+                  <option value="Birgunj">Birgunj</option>
+                  <option value="Dharan">Dharan</option>
+                  <option value="Bharatpur">Bharatpur</option>
+                  <option value="Hetauda">Hetauda</option>
+                  <option value="Butwal">Butwal</option>
+                  <option value="Nepalgunj">Nepalgunj</option>
+                </select>
               </div>
 
+              {/* Return Location */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Return Location *
                 </label>
-                <input
-                  type="text"
-                  placeholder="Enter return location"
+                <select
                   value={returnLocation}
                   onChange={(e) => setReturnLocation(e.target.value)}
                   className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-red-500 focus:outline-none"
                   required
-                />
+                >
+                  <option value="">Select Return City</option>
+                  <option value="Kathmandu">Kathmandu</option>
+                  <option value="Pokhara">Pokhara</option>
+                  <option value="Lalitpur">Lalitpur</option>
+                  <option value="Biratnagar">Biratnagar</option>
+                  <option value="Birgunj">Birgunj</option>
+                  <option value="Dharan">Dharan</option>
+                  <option value="Bharatpur">Bharatpur</option>
+                  <option value="Hetauda">Hetauda</option>
+                  <option value="Butwal">Butwal</option>
+                  <option value="Nepalgunj">Nepalgunj</option>
+                </select>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -412,9 +466,9 @@ const VehicleDetails = () => {
                     type="date"
                     value={pickupDate}
                     onChange={(e) => setPickupDate(e.target.value)}
-                    min={new Date().toISOString().split('T')[0]}
                     className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-red-500 focus:outline-none"
                     required
+                    min={formattedMinPickupDate}
                   />
                 </div>
                 <div>
@@ -425,7 +479,7 @@ const VehicleDetails = () => {
                     type="date"
                     value={returnDate}
                     onChange={(e) => setReturnDate(e.target.value)}
-                    min={pickupDate || new Date().toISOString().split('T')[0]}
+                    min={pickupDate || new Date().toISOString().split("T")[0]}
                     className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-red-500 focus:outline-none"
                     required
                   />
@@ -458,10 +512,14 @@ const VehicleDetails = () => {
                 >
                   <LuCloudUpload className="w-8 h-8 text-red-500 mb-2" />
                   <p className="font-medium text-gray-700">
-                    {licenseFile ? licenseFile.name : "Upload your license image"}
+                    {licenseFile
+                      ? licenseFile.name
+                      : "Upload your license image"}
                   </p>
                   {!licenseFile && (
-                    <p className="text-xs text-gray-400 mt-1">JPG or PNG, up to 5MB</p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      JPG or PNG, up to 5MB
+                    </p>
                   )}
                 </label>
                 <input

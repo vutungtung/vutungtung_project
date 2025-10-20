@@ -3,6 +3,7 @@ import axios from "axios";
 import { MdOutlineFilterAltOff } from "react-icons/md";
 import VehicleCard from "../component/VehicleCard";
 import Pagination from "../component/pagination";
+import { FaRegHeart, FaHeart } from "react-icons/fa";
 
 interface VehicleType {
   v_id: string | number;
@@ -19,12 +20,14 @@ interface VehicleType {
     name: string;
   };
   status?: string; // EXPECTED: 'AVAILABLE' | 'BOOKED' | etc.
+  isFavorited?: boolean; // Add this prop
 }
 
 const Vehicle = () => {
   const [vehiclesData, setVehiclesData] = useState<VehicleType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [favoritedVehicles, setFavoritedVehicles] = useState<string[]>([]);
 
   const [filters, setFilters] = useState({
     category: "",
@@ -60,13 +63,19 @@ const Vehicle = () => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Show only AVAILABLE vehicles first
-  const availableVehicles = vehiclesData.filter(
-    (v) => (v.status || "").toUpperCase() === "AVAILABLE"
-  );
+  // Handle favorite toggle
+  const handleFavoriteToggle = (vehicleId: string) => {
+    setFavoritedVehicles((prevFavorites) => {
+      if (prevFavorites.includes(vehicleId)) {
+        return prevFavorites.filter((id) => id !== vehicleId);
+      } else {
+        return [...prevFavorites, vehicleId];
+      }
+    });
+  };
 
-  // Filter vehicles dynamically on top of availability
-  const filteredVehicles = availableVehicles.filter((vehicle) => {
+  // Filter vehicles dynamically
+  const filteredVehicles = vehiclesData.filter((vehicle) => {
     const matchCategory =
       filters.category === "" || vehicle.category.name === filters.category;
     const matchTransmission =
@@ -89,8 +98,15 @@ const Vehicle = () => {
           parseInt(vehicle.dailyRate.toString()) <= max
         );
       })();
+    const isAvailable = (vehicle.status || "").toUpperCase() === "AVAILABLE";
 
-    return matchCategory && matchTransmission && matchPrice && matchFuel;
+    return (
+      isAvailable &&
+      matchCategory &&
+      matchTransmission &&
+      matchPrice &&
+      matchFuel
+    );
   });
 
   // Pagination
@@ -154,9 +170,10 @@ const Vehicle = () => {
               className="border border-gray-200 focus:outline-0 rounded-xl px-2 py-2 w-full"
             >
               <option value="">Any Price</option>
-              <option value="Rs.1000 - Rs.2000">Rs.1000 - Rs.2000</option>
-              <option value="Rs.2000 - Rs.4000">Rs.2000 - Rs.4000</option>
+              <option value="Rs.1000 - Rs.3000">Rs.1000 - Rs.3000</option>
               <option value="Rs.4000 - Rs.6000">Rs.4000 - Rs.6000</option>
+              <option value="Rs.7000 - Rs.10000">Rs.7000 - Rs.10000</option>
+              <option value="Rs.11000 - Rs.20000">Rs.11000 - Rs.20000</option>
             </select>
           </div>
 
@@ -219,7 +236,7 @@ const Vehicle = () => {
       <div className="text-base text-gray-500 mt-8">
         Showing {paginatedVehicles.length} of {filteredVehicles.length} vehicles
       </div>
-      <div className="grid sm:grid-cols-2 w-full lg:grid-cols-3 gap-5 py-8">
+      <div className="grid sm:grid-cols-2 w-full lg:grid-cols-3 gap-8 py-8">
         {paginatedVehicles.length === 0 ? (
           <div className="col-span-full flex justify-center items-center min-h-[200px]">
             <p className="text-gray-500 text-lg text-center">
@@ -240,6 +257,9 @@ const Vehicle = () => {
               fuelType={vehicle.fuelType}
               description={vehicle.description}
               pricePerDay={parseInt(vehicle.dailyRate.toString())}
+              isAvailable={(vehicle.status || "").toUpperCase() === "AVAILABLE"}
+              isFavorited={favoritedVehicles.includes(vehicle.v_id.toString())}
+              onFavoriteToggle={handleFavoriteToggle}
             />
           ))
         )}

@@ -196,8 +196,7 @@ import { ResetPassword } from "./auth/ResetPassword";
 import { ResetPasswordOTP } from "./auth/ResetPasswordOTP";
 import { VerifySuccess } from "./auth/VerifySuccess";
 import { VerifyFailed } from "./auth/VerifyFailed";
-import AvailableVehicles from "./pages/AvailableVehicles";
-import VehicleDetailsPage from "./pages/VehicleDetails";
+
 import Payment from "./pages/Payment";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailure from "./pages/PaymentFailure";
@@ -244,8 +243,7 @@ const router = createBrowserRouter([
       { path: "/about", element: <About /> },
       { path: "/vehicles", element: <Vehicle /> },
       { path: "/vehicles/:id", element: <VehicleDetails /> },
-      { path: "/available-vehicles", element: <AvailableVehicles /> },
-      { path: "/vehicle-details/:id", element: <VehicleDetailsPage /> },
+      // { path: "/vehicle-details/:id", element: <VehicleDetailsPage /> },
       {
         path: "/payment",
         element: (

@@ -7,6 +7,7 @@ import { FaList } from "react-icons/fa";
 interface Booking {
   vehicleName: string;
   categoryName: string;
+  bookingId: number; // Add this
   bookingDate: string;
   returnDate: string;
   pickuplocation: string;
@@ -16,6 +17,7 @@ interface Booking {
   paymentStatus: string;
   price: string;
   licenseNo: string;
+  createdAt: string; // Add this to check 5-hour window
 }
 
 const MyBookings = () => {
@@ -65,6 +67,47 @@ const MyBookings = () => {
           (b) => b.deliverystatus.toLowerCase() === status.toLowerCase()
         )
       );
+  };
+
+  const handleCancelBooking = async (bookingId: number, bookingCreatedAt: string) => {
+    const bookingTime = new Date(bookingCreatedAt).getTime();
+    const currentTime = new Date().getTime();
+    const fiveHoursInMillis = 5 * 60 * 60 * 1000;
+
+    if (currentTime - bookingTime > fiveHoursInMillis) {
+      alert("Booking can only be cancelled within 5 hours of creation.");
+      return;
+    }
+
+    const confirmed = window.confirm("Are you sure you want to cancel this booking?");
+    if (!confirmed) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+      // Assuming the backend has a cancellation endpoint like /api/bookings/cancel/:id
+      // The user specified not to change backend code, so we rely on an existing endpoint
+      const response = await getUserBookings.post(
+        `http://localhost:4000/vehicle/book/cancel-booking/${bookingId}`,
+        {},
+        { withCredentials: true }
+      );
+      if (response.status === 200) {
+        alert("Booking cancelled successfully!");
+        // Refresh bookings after cancellation
+        const res = await getUserBookings();
+        const data = (res.data as any).data;
+        setBookings(data);
+        setFiltered(data);
+      } else {
+        setError(response.data?.message || "Failed to cancel booking.");
+      }
+    } catch (err: any) {
+      console.error("Error canceling booking:", err);
+      setError(err.response?.data?.message || "Failed to cancel booking.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (loading)
@@ -217,9 +260,20 @@ const MyBookings = () => {
                   <p className="text-lg font-bold text-red-600">
                     Rs. {b.price}
                   </p>
-                  <button className="bg-black text-white px-4 py-2 text-sm rounded-full hover:bg-red-600 transition-all duration-200">
-                    View Details
-                  </button>
+                  <div className="flex gap-2">
+                    <button className="bg-black text-white px-4 py-2 text-sm rounded-full hover:bg-red-600 transition-all duration-200">
+                      View Details
+                    </button>
+                    {b.deliverystatus !== "cancelled" && b.deliverystatus !== "completed" && (
+                      <button
+                        onClick={() => handleCancelBooking(b.bookingId, b.createdAt)}
+                        disabled={loading}
+                        className="bg-red-600 text-white px-4 py-2 text-sm rounded-full hover:bg-red-700 transition-all duration-200 disabled:opacity-50"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -238,6 +292,7 @@ const MyBookings = () => {
                 <th className="py-3 px-4">Route</th>
                 <th className="py-3 px-4">Price</th>
                 <th className="py-3 px-4">Status</th>
+                <th className="py-3 px-4">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -268,6 +323,17 @@ const MyBookings = () => {
                     }`}
                   >
                     {b.deliverystatus.toUpperCase()}
+                  </td>
+                  <td className="py-3 px-4">
+                    {b.deliverystatus !== "cancelled" && b.deliverystatus !== "completed" && (
+                      <button
+                        onClick={() => handleCancelBooking(b.bookingId, b.createdAt)}
+                        disabled={loading}
+                        className="bg-red-600 text-white px-3 py-1 text-sm rounded-full hover:bg-red-700 transition-colors disabled:opacity-50"
+                      >
+                        Cancel
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
