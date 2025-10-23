@@ -1,13 +1,20 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../context/UseContext";
 import { getUserBookings } from "../../api/api";
-import { FiGrid, FiRefreshCcw } from "react-icons/fi";
+import {
+  FiGrid,
+  FiRefreshCcw,
+  FiCalendar,
+  FiMapPin,
+  FiCreditCard,
+} from "react-icons/fi";
 import { FaList } from "react-icons/fa";
+import { MdDirectionsCar } from "react-icons/md";
 
 interface Booking {
   vehicleName: string;
   categoryName: string;
-  bookingId: number; // Add this
+  bookingId: number;
   bookingDate: string;
   returnDate: string;
   pickuplocation: string;
@@ -17,7 +24,7 @@ interface Booking {
   paymentStatus: string;
   price: string;
   licenseNo: string;
-  createdAt: string; // Add this to check 5-hour window
+  createdAt: string;
 }
 
 const MyBookings = () => {
@@ -26,6 +33,7 @@ const MyBookings = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState("all");
+  const [sortOrder, setSortOrder] = useState<"recent" | "oldest">("recent");
   const [view, setView] = useState<"card" | "list">("card");
   const { user } = useAuth();
 
@@ -35,15 +43,22 @@ const MyBookings = () => {
         setLoading(true);
         setError(null);
 
-        // Do not block on missing token; cookies-based sessions may be used
-
         const res = await getUserBookings();
         console.log("User bookings API response:", res.data);
 
         const data = (res.data as any).data;
         if (Array.isArray(data)) {
+          console.log("Bookings received from backend:", data);
+          data.forEach((booking: any, index: number) => {
+            console.log(`Booking ${index + 1}:`, {
+              paymentStatus: booking.paymentStatus,
+              deliveryStatus: booking.deliverystatus,
+              paymentMethod: booking.paymentMethod,
+              createdAt: booking.createdAt,
+            });
+          });
           setBookings(data);
-          setFiltered(data);
+          // Don't set filtered here, let applyFiltersAndSort handle it
         } else {
           setError("Invalid data format received from server.");
         }
@@ -58,56 +73,52 @@ const MyBookings = () => {
     fetchBookings();
   }, [user]);
 
-  const handleFilter = (status: string) => {
-    setFilter(status);
-    if (status === "all") setFiltered(bookings);
-    else
-      setFiltered(
-        bookings.filter(
-          (b) => b.deliverystatus.toLowerCase() === status.toLowerCase()
-        )
+  useEffect(() => {
+    if (bookings.length > 0) {
+      console.log("Applying filters and sort. Current sort order:", sortOrder);
+      applyFiltersAndSort();
+    }
+  }, [filter, sortOrder, bookings]);
+
+  const applyFiltersAndSort = () => {
+    let result = [...bookings];
+
+    console.log("Before filter - Total bookings:", result.length);
+
+    // Apply status filter
+    if (filter !== "all") {
+      result = result.filter(
+        (b) => b.deliverystatus.toLowerCase() === filter.toLowerCase()
       );
+      console.log(`After filter '${filter}' - Bookings:`, result.length);
+    }
+
+    // Apply date sorting
+    result.sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      const sortResult = sortOrder === "recent" ? dateB - dateA : dateA - dateB;
+      return sortResult;
+    });
+
+    console.log(
+      `After sort '${sortOrder}' - First booking created at:`,
+      result[0]?.createdAt
+    );
+    console.log(
+      `After sort '${sortOrder}' - Last booking created at:`,
+      result[result.length - 1]?.createdAt
+    );
+
+    setFiltered(result);
   };
 
-  const handleCancelBooking = async (bookingId: number, bookingCreatedAt: string) => {
-    const bookingTime = new Date(bookingCreatedAt).getTime();
-    const currentTime = new Date().getTime();
-    const fiveHoursInMillis = 5 * 60 * 60 * 1000;
+  const handleFilter = (status: string) => {
+    setFilter(status);
+  };
 
-    if (currentTime - bookingTime > fiveHoursInMillis) {
-      alert("Booking can only be cancelled within 5 hours of creation.");
-      return;
-    }
-
-    const confirmed = window.confirm("Are you sure you want to cancel this booking?");
-    if (!confirmed) return;
-
-    try {
-      setLoading(true);
-      setError(null);
-      // Assuming the backend has a cancellation endpoint like /api/bookings/cancel/:id
-      // The user specified not to change backend code, so we rely on an existing endpoint
-      const response = await getUserBookings.post(
-        `http://localhost:4000/vehicle/book/cancel-booking/${bookingId}`,
-        {},
-        { withCredentials: true }
-      );
-      if (response.status === 200) {
-        alert("Booking cancelled successfully!");
-        // Refresh bookings after cancellation
-        const res = await getUserBookings();
-        const data = (res.data as any).data;
-        setBookings(data);
-        setFiltered(data);
-      } else {
-        setError(response.data?.message || "Failed to cancel booking.");
-      }
-    } catch (err: any) {
-      console.error("Error canceling booking:", err);
-      setError(err.response?.data?.message || "Failed to cancel booking.");
-    } finally {
-      setLoading(false);
-    }
+  const handleSortToggle = () => {
+    setSortOrder(sortOrder === "recent" ? "oldest" : "recent");
   };
 
   if (loading)
@@ -122,22 +133,27 @@ const MyBookings = () => {
     return <div className="text-center mt-10 text-red-500">{error}</div>;
 
   return (
-    <div>
+    <div className="p-6">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <h2 className="text-3xl font-bold text-gray-800 tracking-wide">
-          My Bookings
-        </h2>
+      <div className="mb-8">
+        <h2 className="text-4xl font-bold text-gray-900 mb-2">My Bookings</h2>
+        <p className="text-gray-600">Manage and track your vehicle rentals</p>
+      </div>
 
+      {/* Filters and Controls */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6 bg-white p-4 rounded-xl shadow-sm">
         {/* Filter Buttons */}
-        <div className="flex flex-wrap gap-3">
-          {["all", "pending", "completed", "cancelled"].map((status) => (
+        <div className="flex flex-wrap gap-2">
+          <span className="text-sm font-semibold text-gray-700 self-center mr-2">
+            Filter:
+          </span>
+          {["all", "pending", "dilivered", "cancled"].map((status) => (
             <button
               key={status}
               onClick={() => handleFilter(status)}
-              className={`px-4 py-2 rounded-full text-sm font-semibold transition duration-200 ${
+              className={`px-4 py-2 rounded-lg text-sm font-semibold transition duration-200 ${
                 filter === status
-                  ? "bg-red text-white shadow-md"
+                  ? "bg-red-600 text-white shadow-md"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
@@ -146,133 +162,172 @@ const MyBookings = () => {
           ))}
         </div>
 
-        {/* View Toggle */}
-        <div className="flex gap-2">
+        {/* Sort and View Controls */}
+        <div className="flex items-center gap-3">
+          {/* Sort Button */}
           <button
-            onClick={() => setView("card")}
-            className={`p-2 rounded-lg transition ${
-              view === "card"
-                ? "bg-red-500 text-white shadow-md"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
+            onClick={handleSortToggle}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-semibold text-gray-700 transition"
           >
-            <FiGrid size={18} />
+            <FiCalendar size={16} />
+            {sortOrder === "recent" ? "Recent First" : "Oldest First"}
           </button>
-          <button
-            onClick={() => setView("list")}
-            className={`p-2 rounded-lg transition ${
-              view === "list"
-                ? "bg-red-500 text-white shadow-md"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
-          >
-            <FaList size={18} />
-          </button>
+
+          {/* View Toggle */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setView("card")}
+              className={`p-2 rounded-lg transition ${
+                view === "card"
+                  ? "bg-red-600 text-white shadow-md"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              <FiGrid size={18} />
+            </button>
+            <button
+              onClick={() => setView("list")}
+              className={`p-2 rounded-lg transition ${
+                view === "list"
+                  ? "bg-red-600 text-white shadow-md"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              <FaList size={18} />
+            </button>
+          </div>
         </div>
       </div>
 
       {/* No Bookings */}
       {filtered.length === 0 ? (
-        <p className="text-center text-gray-500 mt-10">No bookings found.</p>
+        <div className="text-center py-16 bg-white rounded-xl shadow-sm">
+          <MdDirectionsCar className="mx-auto text-gray-300 text-6xl mb-4" />
+          <p className="text-gray-500 text-lg">No bookings found.</p>
+        </div>
       ) : view === "card" ? (
         // 🔵 CARD VIEW
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filtered.map((b, idx) => (
             <div
               key={idx}
-              className="bg-white rounded-3xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
+              className={`rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 ${
+                b.deliverystatus === "dilivered"
+                  ? "border-green-200 bg-gradient-to-br from-green-50 to-white"
+                  : b.deliverystatus === "cancled"
+                  ? "border-red-200 bg-gradient-to-br from-red-50 to-white"
+                  : "border-yellow-200 bg-gradient-to-br from-yellow-50 to-white"
+              }`}
             >
-              {/* 🔝 Status Section (replaces image) */}
-              <div
-                className={`h-36 flex flex-col items-center justify-center ${
-                  b.deliverystatus === "completed"
-                    ? "bg-gradient-to-br from-green-100 to-green-50"
-                    : b.deliverystatus === "cancelled"
-                    ? "bg-gradient-to-br from-red-100 to-red-50"
-                    : "bg-gradient-to-br from-yellow-100 to-yellow-50"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  {b.deliverystatus === "completed" ? (
-                    <span className="text-green-600 text-4xl">✅</span>
-                  ) : b.deliverystatus === "cancelled" ? (
-                    <span className="text-red-600 text-4xl">❌</span>
-                  ) : (
-                    <span className="text-yellow-500 text-4xl">⏳</span>
-                  )}
-                  <h2
-                    className={`text-xl font-bold ${
-                      b.deliverystatus === "completed"
-                        ? "text-green-700"
-                        : b.deliverystatus === "cancelled"
-                        ? "text-red-700"
-                        : "text-yellow-700"
-                    }`}
-                  >
-                    {b.deliverystatus.toUpperCase()}
-                  </h2>
-                </div>
-                <p className="text-sm text-gray-600 mt-1">Booking Status</p>
+              {/* Status Badge */}
+              <div className="p-4 pb-0">
+                <span
+                  className={`inline-block px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider ${
+                    b.deliverystatus === "dilivered"
+                      ? "bg-green-500 text-white"
+                      : b.deliverystatus === "cancled"
+                      ? "bg-red-500 text-white"
+                      : "bg-yellow-500 text-white"
+                  }`}
+                >
+                  {b.deliverystatus}
+                </span>
               </div>
 
-              {/* 🔻 Booking Details Section */}
-              <div className="p-5 flex flex-col justify-between h-[300px]">
-                <div>
-                  <h3 className="text-xl font-bold text-gray-800 mb-1">
+              {/* Booking Content */}
+              <div className="p-6">
+                {/* Vehicle Info */}
+                <div className="mb-4">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-1 flex items-center gap-2">
+                    <MdDirectionsCar className="text-gray-600" />
                     {b.vehicleName}
                   </h3>
-                  <p className="text-sm text-gray-500 mb-4">{b.categoryName}</p>
+                  <p className="text-sm text-gray-600 font-medium">
+                    {b.categoryName}
+                  </p>
+                </div>
 
-                  <div className="space-y-2 text-sm text-gray-700">
-                    <p>
-                      <span className="font-semibold">Pickup:</span>{" "}
-                      {new Date(b.bookingDate).toLocaleDateString()}
-                    </p>
-                    <p>
-                      <span className="font-semibold">Return:</span>{" "}
-                      {new Date(b.returnDate).toLocaleDateString()}
-                    </p>
-                    <p>
-                      <span className="font-semibold">Route:</span>{" "}
-                      {b.pickuplocation} → {b.droplocation}
-                    </p>
-                    <p>
-                      <span className="font-semibold">License:</span>{" "}
-                      {b.licenseNo}
-                    </p>
-                    <p>
-                      <span className="font-semibold">Payment:</span>{" "}
-                      <span
-                        className={`${
-                          b.paymentStatus === "paid"
-                            ? "text-green-600 font-medium"
-                            : "text-red-500 font-medium"
-                        }`}
-                      >
-                        {b.paymentMethod} ({b.paymentStatus})
-                      </span>
-                    </p>
+                {/* Details Grid */}
+                <div className="space-y-3 mb-4">
+                  {/* Dates */}
+                  <div className="flex items-start gap-2 text-sm">
+                    <FiCalendar
+                      className="text-gray-500 mt-1 flex-shrink-0"
+                      size={16}
+                    />
+                    <div className="flex-1">
+                      <p className="text-gray-700">
+                        <span className="font-semibold">Pickup:</span>{" "}
+                        {new Date(b.bookingDate).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </p>
+                      <p className="text-gray-700">
+                        <span className="font-semibold">Return:</span>{" "}
+                        {new Date(b.returnDate).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Location */}
+                  <div className="flex items-start gap-2 text-sm">
+                    <FiMapPin
+                      className="text-gray-500 mt-1 flex-shrink-0"
+                      size={16}
+                    />
+                    <div className="flex-1">
+                      <p className="text-gray-700">
+                        {b.pickuplocation}{" "}
+                        <span className="text-gray-400">→</span>{" "}
+                        {b.droplocation}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Payment */}
+                  <div className="flex items-start gap-2 text-sm">
+                    <FiCreditCard
+                      className="text-gray-500 mt-1 flex-shrink-0"
+                      size={16}
+                    />
+                    <div className="flex-1">
+                      <p className="text-gray-700">
+                        <span className="font-semibold">{b.paymentMethod}</span>
+                        <span
+                          className={`ml-2 px-2 py-0.5 rounded-full text-xs font-semibold ${
+                            b.paymentStatus === "completed"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700"
+                          }`}
+                        >
+                          {b.paymentStatus === "completed" ? "Paid" : "Pending"}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* License */}
+                  <div className="text-sm text-gray-600">
+                    <span className="font-semibold">License:</span>{" "}
+                    {b.licenseNo}
                   </div>
                 </div>
 
-                {/* 🔻 Price + Action Button */}
-                <div className="mt-4 flex items-center justify-between">
-                  <p className="text-lg font-bold text-red-600">
-                    Rs. {b.price}
-                  </p>
-                  <div className="flex gap-2">
-                    <button className="bg-black text-white px-4 py-2 text-sm rounded-full hover:bg-red-600 transition-all duration-200">
-                      View Details
-                    </button>
-                    {b.deliverystatus !== "cancelled" && b.deliverystatus !== "completed" && (
-                      <button
-                        onClick={() => handleCancelBooking(b.bookingId, b.createdAt)}
-                        disabled={loading}
-                        className="bg-red-600 text-white px-4 py-2 text-sm rounded-full hover:bg-red-700 transition-all duration-200 disabled:opacity-50"
-                      >
-                        Cancel
-                      </button>
-                    )}
+                {/* Price */}
+                <div className="pt-4 border-t border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 font-medium">
+                      Total Amount
+                    </span>
+                    <span className="text-2xl font-bold text-red-600">
+                      Rs. {b.price}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -281,64 +336,104 @@ const MyBookings = () => {
         </div>
       ) : (
         // 🔴 LIST VIEW
-        <div className="overflow-x-auto rounded-xl shadow-sm border border-gray-200">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-gray-100 text-gray-700 uppercase">
-              <tr>
-                <th className="py-3 px-4">Vehicle</th>
-                <th className="py-3 px-4">Category</th>
-                <th className="py-3 px-4">Pickup</th>
-                <th className="py-3 px-4">Return</th>
-                <th className="py-3 px-4">Route</th>
-                <th className="py-3 px-4">Price</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((b, idx) => (
-                <tr
-                  key={idx}
-                  className="border-t border-gray-200 hover:bg-gray-50 transition duration-150"
-                >
-                  <td className="py-3 px-4 font-semibold">{b.vehicleName}</td>
-                  <td className="py-3 px-4">{b.categoryName}</td>
-                  <td className="py-3 px-4">
-                    {new Date(b.bookingDate).toLocaleDateString()}
-                  </td>
-                  <td className="py-3 px-4">
-                    {new Date(b.returnDate).toLocaleDateString()}
-                  </td>
-                  <td className="py-3 px-4">
-                    {b.pickuplocation} → {b.droplocation}
-                  </td>
-                  <td className="py-3 px-4">Rs. {b.price}</td>
-                  <td
-                    className={`py-3 px-4 font-semibold ${
-                      b.deliverystatus === "completed"
-                        ? "text-green-600"
-                        : b.deliverystatus === "cancelled"
-                        ? "text-red-600"
-                        : "text-yellow-600"
-                    }`}
-                  >
-                    {b.deliverystatus.toUpperCase()}
-                  </td>
-                  <td className="py-3 px-4">
-                    {b.deliverystatus !== "cancelled" && b.deliverystatus !== "completed" && (
-                      <button
-                        onClick={() => handleCancelBooking(b.bookingId, b.createdAt)}
-                        disabled={loading}
-                        className="bg-red-600 text-white px-3 py-1 text-sm rounded-full hover:bg-red-700 transition-colors disabled:opacity-50"
-                      >
-                        Cancel
-                      </button>
-                    )}
-                  </td>
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="py-4 px-6 text-left font-semibold text-gray-700">
+                    Vehicle
+                  </th>
+                  <th className="py-4 px-6 text-left font-semibold text-gray-700">
+                    Booking Date
+                  </th>
+                  <th className="py-4 px-6 text-left font-semibold text-gray-700">
+                    Return Date
+                  </th>
+                  <th className="py-4 px-6 text-left font-semibold text-gray-700">
+                    Route
+                  </th>
+                  <th className="py-4 px-6 text-left font-semibold text-gray-700">
+                    Payment
+                  </th>
+                  <th className="py-4 px-6 text-left font-semibold text-gray-700">
+                    Status
+                  </th>
+                  <th className="py-4 px-6 text-right font-semibold text-gray-700">
+                    Price
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {filtered.map((b, idx) => (
+                  <tr
+                    key={idx}
+                    className="hover:bg-gray-50 transition duration-150"
+                  >
+                    <td className="py-4 px-6">
+                      <div>
+                        <p className="font-semibold text-gray-900">
+                          {b.vehicleName}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {b.categoryName}
+                        </p>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6 text-gray-700">
+                      {new Date(b.bookingDate).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </td>
+                    <td className="py-4 px-6 text-gray-700">
+                      {new Date(b.returnDate).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </td>
+                    <td className="py-4 px-6 text-gray-700 text-sm">
+                      {b.pickuplocation} → {b.droplocation}
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-gray-700 font-medium text-xs">
+                          {b.paymentMethod}
+                        </span>
+                        <span
+                          className={`inline-block px-2 py-1 rounded-full text-xs font-semibold w-fit ${
+                            b.paymentStatus === "completed"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700"
+                          }`}
+                        >
+                          {b.paymentStatus === "completed" ? "Paid" : "Pending"}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${
+                          b.deliverystatus === "dilivered"
+                            ? "bg-green-100 text-green-700"
+                            : b.deliverystatus === "cancled"
+                            ? "bg-red-100 text-red-700"
+                            : "bg-yellow-100 text-yellow-700"
+                        }`}
+                      >
+                        {b.deliverystatus}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6 text-right font-bold text-gray-900">
+                      Rs. {b.price}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

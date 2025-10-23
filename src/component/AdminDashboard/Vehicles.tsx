@@ -124,7 +124,7 @@ const Vehicles = ({ showAddModal, setShowAddModal }: VehicleProps) => {
   return (
     <div>
       {/* Header */}
-      <div className="flex flex-wrap gap-2 justify-between mb-10 items-center">
+      <div className="flex flex-wrap gap-2  justify-between mb-10 items-center">
         <div>
           <h1 className="text-2xl font-bold">Vehicle Management</h1>
           <p className="text-gray-500 text-sm">Manage your fleet of vehicles</p>

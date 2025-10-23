@@ -1,24 +1,68 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import MyBookings from "../component/UserDashboard/MyBookings";
 import UserSetting from "../component/UserDashboard/UserSetting";
 import Profile from "../component/UserDashboard/Profile";
 import Wishlist from "../component/UserDashboard/Wishlist";
 import { AuthContext } from "../context/AuthContext";
 import { getAvatar } from "../lib/avatar";
+import { getUserBookings } from "../api/api";
 
-// Helper functions
-const generateNameFromEmail = (email: string): string => {
-  if (!email) return "User";
-  const username = email.split("@")[0];
-  return username
-    .split(".")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-};
+interface BookingStats {
+  totalBookings: number;
+  totalSpent: number;
+}
 
 const UserDashboard = () => {
   const [activeTab, setActiveTab] = useState("bookings");
+  const [bookingStats, setBookingStats] = useState<BookingStats>({
+    totalBookings: 0,
+    totalSpent: 0,
+  });
+  const [statsLoading, setStatsLoading] = useState(true);
   const auth = useContext(AuthContext);
+
+  useEffect(() => {
+    const fetchBookingStats = async () => {
+      try {
+        setStatsLoading(true);
+        const res = await getUserBookings();
+        const data = (res.data as any).data;
+
+        if (Array.isArray(data)) {
+          // Calculate total bookings (exclude cancelled ones for accurate count)
+          const activeBookings = data.filter(
+            (booking: any) => booking.deliverystatus !== "cancled"
+          );
+
+          // Calculate total spent (only from completed payments)
+          const totalSpent = data
+            .filter(
+              (booking: any) =>
+                booking.paymentStatus === "completed" &&
+                booking.deliverystatus !== "cancled"
+            )
+            .reduce(
+              (sum: number, booking: any) =>
+                sum + parseFloat(booking.price || 0),
+              0
+            );
+
+          setBookingStats({
+            totalBookings: activeBookings.length,
+            totalSpent: totalSpent,
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching booking stats:", err);
+      } finally {
+        setStatsLoading(false);
+      }
+    };
+
+    if (auth?.user) {
+      fetchBookingStats();
+    }
+  }, [auth?.user]);
 
   if (auth?.loading) {
     return <p className="text-center py-10">Loading user data...</p>;
@@ -38,9 +82,9 @@ const UserDashboard = () => {
     );
   }
 
-  // Get user data with nice fallbacks
+  // Get user data - prioritize actual name from database
   const userData = {
-    name: auth.user.name || "User", // Use actual name from registration, fallback to "User"
+    name: auth.user.name || auth.user.username || "User",
     email: auth.user.email || "No email provided",
     avatar: auth.user.avatar || getAvatar(auth.user.email || "user"),
   };
@@ -70,14 +114,24 @@ const UserDashboard = () => {
             </h1>
             <p className="text-white/90">{userData.email}</p>
 
-            {/* Example stats */}
-            <div className="flex gap-5 mt-2 text-sm">
-              <p>
-                <strong>0</strong> Bookings
-              </p>
-              <p>
-                <strong>$0</strong> Total Spent
-              </p>
+            {/* Stats */}
+            <div className="flex gap-5 mt-3 text-sm">
+              {statsLoading ? (
+                <p className="text-white/70">Loading stats...</p>
+              ) : (
+                <>
+                  <div className="bg-white/20 px-3 py-1 rounded-lg backdrop-blur-sm">
+                    <strong>{bookingStats.totalBookings}</strong>{" "}
+                    {bookingStats.totalBookings === 1 ? "Booking" : "Bookings"}
+                  </div>
+                  <div className="bg-white/20 px-3 py-1 rounded-lg backdrop-blur-sm">
+                    <strong>
+                      Rs. {bookingStats.totalSpent.toLocaleString()}
+                    </strong>{" "}
+                    Total Spent
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
