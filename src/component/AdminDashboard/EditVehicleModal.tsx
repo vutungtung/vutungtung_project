@@ -1,10 +1,30 @@
-
-
 import { useEffect, useRef, useState, useCallback } from "react";
-import type { Vehicle } from "../../types/vehicle";
+
+interface Vehicle {
+  v_id: number;
+  name?: string;
+  title?: string;
+  category?: string | { name: string } | null;
+  brand?: string;
+  model?: string;
+  transmission?: string;
+  fuelType?: string;
+  seatingCapacity?: number;
+  mileage?: string;
+  dailyRate?: number;
+  pricePerDay?: number;
+  features?: string[] | string;
+  description?: string;
+  image?: string;
+  image1?: string;
+  image2?: string;
+  status?: string;
+  licensePlate?: string;
+  vin?: string;
+}
 
 interface EditVehicleFormProps {
-  vehicle: Vehicle; // ✅ existing vehicle data to edit
+  vehicle: Vehicle;
   onUpdate: (vehicle: Vehicle) => void;
   onClose: () => void;
 }
@@ -19,39 +39,49 @@ const EditVehicleModal = ({
   onUpdate,
   onClose,
 }: EditVehicleFormProps) => {
+  // Helper function to safely get category name
+  const getCategoryName = (
+    cat: string | { name: string } | null | undefined
+  ): string => {
+    if (!cat) return "";
+    if (typeof cat === "object" && cat.name) return cat.name;
+    if (typeof cat === "string") return cat;
+    return "";
+  };
+
   const [formData, setFormData] = useState({
-    title: vehicle.name || vehicle.title || "",
-    category:
-      typeof vehicle.category === "object"
-        ? vehicle.category.name
-        : String(vehicle.category),
-    brand: vehicle.brand || "",
-    model: vehicle.model || "",
-    transmission: vehicle.transmission || "MANUAL",
-    fuelType: vehicle.fuelType || "PETROL",
-    seatingCapacity: vehicle.seatingCapacity || 1,
-    mileage: vehicle.mileage || "",
-    pricePerDay: vehicle.dailyRate || vehicle.pricePerDay || 0,
-    features: Array.isArray(vehicle.features)
+    title: vehicle?.name || vehicle?.title || "",
+    category: getCategoryName(vehicle?.category),
+    brand: vehicle?.brand || "",
+    model: vehicle?.model || "",
+    transmission: vehicle?.transmission || "MANUAL",
+    fuelType: vehicle?.fuelType || "PETROL",
+    seatingCapacity: vehicle?.seatingCapacity || 1,
+    mileage: vehicle?.mileage || "",
+    pricePerDay: vehicle?.dailyRate || vehicle?.pricePerDay || 0,
+    features: Array.isArray(vehicle?.features)
       ? vehicle.features
-      : typeof vehicle.features === "string"
-      ? vehicle.features.split(",").map((f) => f.trim())
+      : typeof vehicle?.features === "string"
+      ? vehicle.features
+          .split(",")
+          .map((f) => f.trim())
+          .filter(Boolean)
       : [],
-    description: vehicle.description || "",
+    description: vehicle?.description || "",
     images: [
-      vehicle.image
+      vehicle?.image
         ? `http://localhost:4000/uploads/vehicles/${vehicle.image}`
         : "",
-      vehicle.image1
+      vehicle?.image1
         ? `http://localhost:4000/uploads/vehicles/${vehicle.image1}`
         : "",
-      vehicle.image2
+      vehicle?.image2
         ? `http://localhost:4000/uploads/vehicles/${vehicle.image2}`
         : "",
     ],
-    status: vehicle.status || "AVAILABLE",
-    licensePlate: vehicle.licensePlate || "",
-    vin: vehicle.vin || "",
+    status: vehicle?.status || "AVAILABLE",
+    licensePlate: vehicle?.licensePlate || "",
+    vin: vehicle?.vin || "",
   });
 
   const [categories, setCategories] = useState<Category[]>([]);
@@ -70,7 +100,11 @@ const EditVehicleModal = ({
   useEffect(() => {
     fetch("http://localhost:4000/api/category/all")
       .then((res) => res.json())
-      .then((data) => setCategories(data))
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setCategories(data);
+        }
+      })
       .catch((err) => console.error("Failed to fetch categories:", err));
   }, []);
 
@@ -105,6 +139,12 @@ const EditVehicleModal = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!vehicle?.v_id) {
+      setError("Vehicle ID is missing");
+      return;
+    }
+
     const form = new FormData();
 
     form.append("name", formData.title);
@@ -117,7 +157,7 @@ const EditVehicleModal = ({
     form.append("fuelType", formData.fuelType.toUpperCase());
     form.append("seatingCapacity", formData.seatingCapacity.toString());
     form.append("dailyRate", formData.pricePerDay.toString());
-    form.append("transmission", formData.transmission.toUpperCase());
+    form.append("transmissionType", formData.transmission.toUpperCase());
     form.append("status", formData.status.toUpperCase());
     if (formData.features.length > 0)
       form.append("features", formData.features.join(","));
@@ -132,7 +172,7 @@ const EditVehicleModal = ({
       return;
     }
 
-    // ✅ Attach updated images if new ones are chosen
+    // Attach updated images if new ones are chosen
     fileInputRefs.current.forEach((ref, index) => {
       if (ref?.files?.[0]) {
         const fieldName = index === 0 ? "image" : `image${index}`;
@@ -144,7 +184,6 @@ const EditVehicleModal = ({
     setError("");
 
     try {
-
       const res = await fetch(
         `http://localhost:4000/api/vehicles/update/${vehicle.v_id}`,
         {
@@ -155,18 +194,22 @@ const EditVehicleModal = ({
       );
 
       const responseText = await res.text();
+      console.log("Raw response:", responseText);
+
       let data;
       try {
         data = JSON.parse(responseText);
       } catch {
         console.error("Invalid JSON response:", responseText);
-        setError("Invalid response from server.");
+        setError(`Invalid response from server: ${responseText}`);
+        setLoading(false);
         return;
       }
 
       if (!res.ok) {
-        setError(data.error || "Failed to update vehicle");
+        setError(data.error || data.message || "Failed to update vehicle");
         console.error("Server error:", data);
+        setLoading(false);
         return;
       }
 
@@ -175,32 +218,36 @@ const EditVehicleModal = ({
       onClose();
     } catch (err) {
       console.error("Network error:", err);
-      setError("Network error. Please try again.");
+      setError(
+        `Network error: ${
+          err instanceof Error ? err.message : "Please try again."
+        }`
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex justify-center items-center z-50">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white w-full max-w-2xl rounded-lg shadow-lg p-6 overflow-y-auto max-h-[90vh]"
-      >
-        <h2 className="text-2xl font-bold mb-4 flex justify-between items-center">
-          Edit Vehicle
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+      <div className="bg-white w-full max-w-2xl rounded-lg shadow-lg p-6 overflow-y-auto max-h-[90vh]">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold">Edit Vehicle</h2>
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-gray-500 hover:text-gray-700 text-3xl leading-none"
           >
-            X
+            ×
           </button>
-        </h2>
+        </div>
 
-        {error && <p className="text-red-600 mb-4">{error}</p>}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
+          </div>
+        )}
 
-        {/* Same fields as AddVehicleForm */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input
             type="text"
@@ -309,7 +356,6 @@ const EditVehicleModal = ({
           />
         </div>
 
-        {/* Status */}
         <div className="mt-4">
           <label className="block font-semibold mb-2">Status</label>
           <select
@@ -324,7 +370,6 @@ const EditVehicleModal = ({
           </select>
         </div>
 
-        {/* Features */}
         <div className="mt-4">
           <p className="font-semibold mb-2">Features:</p>
           <div className="flex flex-wrap gap-2">
@@ -341,7 +386,6 @@ const EditVehicleModal = ({
           </div>
         </div>
 
-        {/* Description */}
         <textarea
           name="description"
           placeholder="Description"
@@ -351,7 +395,6 @@ const EditVehicleModal = ({
           rows={4}
         />
 
-        {/* Images */}
         <div className="mt-4">
           <p className="font-semibold mb-2">Update Images (Optional):</p>
           {[0, 1, 2].map((index) => (
@@ -384,7 +427,6 @@ const EditVehicleModal = ({
           ))}
         </div>
 
-        {/* Submit */}
         <div className="flex justify-end mt-4 gap-2">
           <button
             type="button"
@@ -394,14 +436,15 @@ const EditVehicleModal = ({
             Cancel
           </button>
           <button
-            type="submit"
-            className="px-4 py-2 bg-red text-white rounded hover:bg-gradient-red"
+            type="button"
+            onClick={handleSubmit}
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
             disabled={loading}
           >
             {loading ? "Updating..." : "Update Vehicle"}
           </button>
         </div>
-      </form>
+      </div>
     </div>
   );
 };
